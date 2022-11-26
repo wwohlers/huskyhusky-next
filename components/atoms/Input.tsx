@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ChangeEvent } from "react";
 
 type InputProps = {
   value?: string;
@@ -7,13 +7,12 @@ type InputProps = {
   className?: string;
 };
 
-const Input: React.FC<InputProps & React.HTMLProps<HTMLInputElement>> = ({
-  value,
-  onChange,
-  icon,
-  className,
-  ...rest
-}) => {
+const Input: React.FC<
+  Omit<React.HTMLProps<HTMLInputElement>, "onChange"> & InputProps
+> = ({ value, onChange, icon, className, ...rest }) => {
+  const handleOnChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (onChange) onChange(event.target.value);
+  };
   return (
     <label
       className={
@@ -27,7 +26,7 @@ const Input: React.FC<InputProps & React.HTMLProps<HTMLInputElement>> = ({
         className="flex-1 outline-none bg-transparent text-gray-800"
         type="text"
         value={value}
-        onChange={onChange}
+        onChange={handleOnChange}
         {...rest}
       />
     </label>

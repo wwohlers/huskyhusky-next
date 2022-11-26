@@ -10,9 +10,9 @@
   },
   "dependencies": {
     "@next/font": "^13.0.5",
+    "@tailwindcss/line-clamp": "^0.4.2",
     "@types/luxon": "^3.1.0",
     "@types/node": "18.11.9",
-    "@types/probe-image-size": "^7.2.0",
     "@types/react": "18.0.25",
     "@types/react-dom": "18.0.9",
     "@types/sanitize-html": "^2.6.2",
@@ -21,7 +21,6 @@
     "luxon": "^3.1.0",
     "mongoose": "^6.7.3",
     "next": "13.0.4",
-    "probe-image-size": "^7.2.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-icons": "^4.6.0",
@@ -32,6 +31,7 @@
     "autoprefixer": "^10.4.13",
     "postcss": "^8.4.19",
     "prettier": "^2.8.0",
+    "sass": "^1.56.1",
     "tailwindcss": "^3.2.4"
   }
 }

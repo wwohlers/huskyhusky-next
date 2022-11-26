@@ -1,6 +1,5 @@
-import { Document } from "mongoose";
 import { IUser } from "../users/user.interface";
-import { Comment } from "./comment.interface";
+import { IComment } from "./comment.interface";
 
 /**
  * Represents an Article object.
@@ -17,7 +16,12 @@ export interface IArticle {
   text: string;
   public: boolean;
   clicks: number;
-  comments: Comment[];
+  comments: IComment[];
   updatedAt: number;
   createdAt: number;
 }
+
+export type IHeadline = Pick<
+  IArticle,
+  "_id" | "name" | "title" | "tags" | "brief" | "image"
+>;

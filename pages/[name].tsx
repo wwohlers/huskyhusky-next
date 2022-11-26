@@ -7,16 +7,15 @@ import { getAllArticleNames, getArticleByName } from "../services/articles";
 import { IArticle } from "../services/articles/article.interface";
 import { timeAgo } from "../util/datetime";
 import stringifyIds from "../util/stringifyIds";
-import probe from "probe-image-size";
 import { sanitizeHtml } from "../util/sanitizeHtml";
 import Link from "next/link";
 import Comment from "../components/article/Comment";
 import NewComment from "../components/article/NewComment";
 import Label from "../components/atoms/Label";
+import Button from "../components/atoms/Button";
 
 type ArticleProps = {
   article: IArticle;
-  imageSize: probe.ProbeResult;
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -43,11 +42,9 @@ export const getStaticProps: GetStaticProps<ArticleProps> = async ({
     conn.close();
     stringifyIds(article);
     if (article) {
-      const imageSize = await probe(article.image);
       return {
         props: {
           article,
-          imageSize,
         },
       };
     }
@@ -60,7 +57,7 @@ export const getStaticProps: GetStaticProps<ArticleProps> = async ({
   };
 };
 
-const Article: React.FC<ArticleProps> = ({ article, imageSize }) => {
+const Article: React.FC<ArticleProps> = ({ article }) => {
   const [showNewComment, setShowNewComment] = useState(false);
 
   const timeAgoStr = useMemo(() => {
@@ -72,6 +69,10 @@ const Article: React.FC<ArticleProps> = ({ article, imageSize }) => {
     return sanitizeHtml(article.text);
   }, [article]);
 
+  const onSubmitComment = (name: string, content: string) => {
+    // todo: IMPLEMENT
+  };
+
   return (
     <>
       <Head>
@@ -79,9 +80,9 @@ const Article: React.FC<ArticleProps> = ({ article, imageSize }) => {
         <meta name="description" content={article.brief} />
       </Head>
       <div className="max-w-4xl">
-        <div>
+        <div className="flex flex-row space-x-4">
           {article.tags.map((tag) => (
-            <Link href={"/tags/" + tag} className="mr-4">
+            <Link href={"/tags/" + tag}>
               <Label>{tag}</Label>
             </Link>
           ))}
@@ -101,12 +102,21 @@ const Article: React.FC<ArticleProps> = ({ article, imageSize }) => {
         ></article>
         <div className="my-16">
           <div className="flex flex-row justify-between items-center">
-            <p className="text-xl">{article.comments.length} comments</p>
-            <button onClick={() => setShowNewComment(!showNewComment)}>
-              New Comment
-            </button>
+            <p className="text-xl font-semibold">
+              {article.comments.length} comments
+            </p>
+            {!showNewComment && (
+              <Button onClick={() => setShowNewComment(true)}>
+                New Comment
+              </Button>
+            )}
           </div>
-          {showNewComment && <NewComment />}
+          {showNewComment && (
+            <NewComment
+              onSubmit={onSubmitComment}
+              onCancel={() => setShowNewComment(false)}
+            />
+          )}
           {article.comments.map((comment) => (
             <Comment comment={comment} />
           ))}

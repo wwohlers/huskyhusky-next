@@ -1,5 +1,5 @@
 import mongoose, { Mongoose } from "mongoose";
-import { IArticle } from "./article.interface";
+import { IArticle, IHeadline } from "./article.interface";
 
 export async function getAllArticleNames(conn: mongoose.Connection) {
   const articles = await conn.models.Article.find().lean<IArticle[]>();
@@ -17,6 +17,17 @@ export async function getArticleByName(
     .populate("comments")
     .lean<IArticle | null>();
   return article;
+}
+
+export async function getHeadlines(conn: mongoose.Connection) {
+  const articles = await conn.models.Article.find({
+    public: true,
+  })
+    .sort({ createdAt: -1 })
+    .limit(18)
+    .select("_id name title brief image tags")
+    .lean();
+  return articles as IHeadline[];
 }
 
 export async function getArticleTags(conn: mongoose.Connection) {
