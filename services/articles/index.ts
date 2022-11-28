@@ -1,4 +1,4 @@
-import mongoose, { Mongoose } from "mongoose";
+import mongoose from "mongoose";
 import { IArticle, IHeadline } from "./article.interface";
 
 export async function getAllArticleNames(conn: mongoose.Connection) {
@@ -51,4 +51,48 @@ export async function getArticleTags(conn: mongoose.Connection) {
     },
   ]).exec();
   return result[0].tags as string[];
+}
+
+export async function searchArticles(conn: mongoose.Connection, query: string) {
+  const articles = await conn.models.Article.find({
+    $text: { $search: query },
+    score: { $meta: "textScore" },
+    public: true,
+  })
+    .sort({ score: { $meta: "textScore" } })
+    .select("_id name title brief image tags author")
+    .populate("author", "name")
+    .lean();
+  return articles as IHeadline[];
+}
+
+export async function getHeadlinesByTag(
+  conn: mongoose.Connection,
+  tag: string
+) {
+  const articles = await conn.models.Article.find({
+    public: true,
+    tags: tag,
+  })
+    .sort({ createdAt: -1 })
+    .select("_id name title brief image tags author")
+    .populate("author", "name")
+    .lean();
+  return articles as IHeadline[];
+}
+
+export async function getHeadlinesByUser(
+  conn: mongoose.Connection,
+  userId: string
+) {
+  const articles = await conn.models.Article.find({
+    public: true,
+  })
+    .sort({ createdAt: -1 })
+    .select("_id name title brief image tags author")
+    .populate("author", "name")
+    .lean();
+  return articles.filter(
+    (a) => a.author._id.toString() === userId
+  ) as IHeadline[];
 }

@@ -31,7 +31,6 @@ const Home: React.FC<HomeProps> = ({ headlines }) => {
       <Head>
         <title>Home - The Husky Husky</title>
         <meta name="description" content="Northeastern's finest news source." />
-        <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="w-full xl:w-2/3 flex flex-row flex-wrap">
         <Headline height="double" headline={headlines[0]} />

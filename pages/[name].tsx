@@ -50,10 +50,7 @@ export const getStaticProps: GetStaticProps<ArticleProps> = async ({
     }
   }
   return {
-    redirect: {
-      destination: "/404",
-      permanent: false,
-    },
+    notFound: true,
   };
 };
 
@@ -78,6 +75,13 @@ const Article: React.FC<ArticleProps> = ({ article }) => {
       <Head>
         <title>{`${article.title} - The Husky Husky`}</title>
         <meta name="description" content={article.brief} />
+        <meta property="og:title" content={article.title} />
+        <meta property="og:description" content={article.brief} />
+        <meta property="og:image" content={article.image} />
+        <meta
+          property="og:url"
+          content={`${process.env.NEXT_PUBLIC_BASE_URL}/${article.name}`}
+        />
       </Head>
       <div>
         <div className="flex flex-row space-x-4">

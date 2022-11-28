@@ -1,18 +1,24 @@
-import React, { ChangeEvent } from "react";
+import React, { ChangeEvent, KeyboardEvent } from "react";
 
 type InputProps = {
   value?: string;
   onChange?: (val: string) => void;
   icon?: React.ReactNode;
   className?: string;
+  onEnter?: () => void;
 };
 
 const Input: React.FC<
   Omit<React.HTMLProps<HTMLInputElement>, "onChange"> & InputProps
-> = ({ value, onChange, icon, className, ...rest }) => {
+> = ({ value, onChange, icon, className, onEnter, ...rest }) => {
   const handleOnChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (onChange) onChange(event.target.value);
   };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter" && onEnter) onEnter();
+  };
+
   return (
     <label
       className={
@@ -27,6 +33,7 @@ const Input: React.FC<
         type="text"
         value={value}
         onChange={handleOnChange}
+        onKeyDown={handleKeyDown}
         {...rest}
       />
     </label>

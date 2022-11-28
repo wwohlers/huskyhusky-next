@@ -1,18 +1,25 @@
 import React, { useState } from "react";
 import Link from "next/link";
-import Input from "../atoms/Input";
+import Input from "./atoms/Input";
 import { AiOutlineSearch } from "react-icons/ai";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { FaPaw } from "react-icons/fa";
-import ContentContainer from "../ContentContainer";
+import ContentContainer from "./ContentContainer";
+import { useRouter } from "next/router";
 
 const mainTags = ["Aoun", "Boston", "Politics", "Student Life", "Opinion"];
 
 const Header: React.FC = () => {
+  const router = useRouter();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const extraContainerClasses = mobileNavOpen ? "h-screen lg:h-auto" : "";
   const extraNavClasses = mobileNavOpen ? "block mt-2" : "hidden lg:flex";
+
+  const onSearch = () => {
+    router.push(`/search?q=${searchQuery}`);
+  };
 
   return (
     <ContentContainer
@@ -44,13 +51,18 @@ const Header: React.FC = () => {
             &nbsp; {}
             <Link
               className=" border-gray-100 hover:border-red-800 border-b-2 duration-150"
-              href={"/tags/" + tag}
+              href={"/tag?t=" + tag}
             >
               {tag}
             </Link>
           </span>
         ))}
-        <Input icon={<AiOutlineSearch size={20} color={"#AAA"} />} />
+        <Input
+          icon={<AiOutlineSearch size={20} color={"#AAA"} />}
+          value={searchQuery}
+          onChange={setSearchQuery}
+          onEnter={onSearch}
+        />
       </nav>
     </ContentContainer>
   );
