@@ -4,31 +4,37 @@ import { IHeadline } from "../../services/articles/article.interface";
 import Label from "../atoms/Label";
 
 type HeadlineGroupProps = {
-  width?: "half" | "full";
+  containerClasses?: string;
   headlines: IHeadline[];
 };
 
-const HeadlineGroup: React.FC<HeadlineGroupProps> = ({ width, headlines }) => {
-  const widthClasses = width === "half" ? "md:w-1/2" : "";
+const HeadlineGroup: React.FC<HeadlineGroupProps> = ({
+  containerClasses = "",
+  headlines,
+}) => {
   return (
     <div
       className={
-        "w-full p-6 h-[17rem] flex flex-col justify-evenly " + widthClasses
+        "w-full xl:px-6 py-6 xl:h-[17rem] flex flex-col justify-evenly " +
+        containerClasses
       }
     >
       {headlines.map((headline) => (
         <Link
+          key={headline._id}
           href={"/" + headline.name}
-          className="flex-1 flex flex-col justify-center font-medium border-b border-gray-300 last:border-b-0"
+          className="flex-1 flex flex-col justify-center font-medium border-b border-gray-200 last:border-b-0 hover:translate-x-[1px] hover:translate-y-[-1px] duration-150"
         >
-          <p className="line-clamp-2">
+          <p className="line-clamp-2 my-2">
             {headline.title}
-            {headline.tags.map((tag) => (
+            &nbsp;&nbsp;
+            {headline.tags.map((tag, i) => (
               <span
                 key={tag}
                 className="text-xs uppercase text-red-800 font-bold"
               >
-                &nbsp;&bull;&nbsp;{tag}
+                {!!i && <>&nbsp;&bull;&nbsp;</>}
+                {tag}
               </span>
             ))}
           </p>

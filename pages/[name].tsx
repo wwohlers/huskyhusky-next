@@ -2,7 +2,7 @@ import { DateTime } from "luxon";
 import { GetStaticPaths, GetStaticProps } from "next";
 import Head from "next/head";
 import React, { useMemo, useState } from "react";
-import { connectToDB } from "../database";
+import { connectToDB } from "../services/database";
 import { getAllArticleNames, getArticleByName } from "../services/articles";
 import { IArticle } from "../services/articles/article.interface";
 import { timeAgo } from "../util/datetime";
@@ -79,10 +79,10 @@ const Article: React.FC<ArticleProps> = ({ article }) => {
         <title>{`${article.title} - The Husky Husky`}</title>
         <meta name="description" content={article.brief} />
       </Head>
-      <div className="max-w-4xl">
+      <div>
         <div className="flex flex-row space-x-4">
           {article.tags.map((tag) => (
-            <Link href={"/tags/" + tag}>
+            <Link key={tag} href={"/tags/" + tag}>
               <Label>{tag}</Label>
             </Link>
           ))}
@@ -117,8 +117,8 @@ const Article: React.FC<ArticleProps> = ({ article }) => {
               onCancel={() => setShowNewComment(false)}
             />
           )}
-          {article.comments.map((comment) => (
-            <Comment comment={comment} />
+          {article.comments.map((comment, i) => (
+            <Comment key={i} comment={comment} />
           ))}
         </div>
       </div>

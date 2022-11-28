@@ -1,6 +1,6 @@
 import mongoose, { Model } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
-import { connectToDB } from "../../database";
+import { connectToDB } from "../../services/database";
 
 // type for an individual handler for each method (GET, POST, etc)
 export type MethodHandler<R> = (

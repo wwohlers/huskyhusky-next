@@ -3,6 +3,7 @@ import type { AppProps } from "next/app";
 import Header from "../components/header";
 import { Raleway } from "@next/font/google";
 import Footer from "../components/Footer";
+import ContentContainer from "../components/ContentContainer";
 
 const raleway = Raleway({ subsets: ["latin"] });
 
@@ -14,9 +15,9 @@ export default function App({ Component, pageProps }: AppProps) {
       }
     >
       <Header />
-      <main className="flex-1 flex flex-row justify-center w-11/12 md:w-5/6 lg:w-4/5">
+      <ContentContainer className="flex-1 flex flex-row justify-center items-center">
         <Component {...pageProps} />
-      </main>
+      </ContentContainer>
       <Footer />
     </div>
   );

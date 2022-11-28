@@ -43,7 +43,7 @@ const NewComment: React.FC<NewCommentProps> = ({ onSubmit, onCancel }) => {
         <Label>Comment</Label>
         <TextArea value={content} onChange={setContent} />
       </label>
-      <div className="flex flex-row justify-end space-x-4 items-center">
+      <div className="flex flex-row justify-end space-x-2 items-center">
         <Button onClick={onCancel} type="secondary">
           Cancel
         </Button>

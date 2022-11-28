@@ -1,33 +1,36 @@
 import React, { useMemo } from "react";
 import { IHeadline } from "../../services/articles/article.interface";
 import Image from "next/image";
-import styles from "./Headline.module.scss";
 import Label from "../atoms/Label";
 import Link from "next/link";
 
 type HeadlineProps = {
-  width?: "half" | "full";
   height?: "normal" | "double";
   headline: IHeadline;
+  containerClasses?: string;
 };
 
 const Headline: React.FC<HeadlineProps> = ({
-  width = "full",
   height = "normal",
   headline,
+  containerClasses = "",
 }) => {
-  const containerClasses = width === "half" ? "md:w-1/2" : "";
-  const textContainerClasses = height === "double" ? "h-[11rem]" : "h-24";
+  const textContainerClasses =
+    height === "double" ? "xl:h-[11rem]" : "xl:h-[90px]";
   const titleClasses =
     height === "double" ? "text-3xl font-semibold" : "font-medium";
-  const imageClasses = height === "double" ? "h-[26rem]" : "h-44";
+  const imageClasses =
+    height === "double" ? "h-[16rem] xl:h-[26rem]" : "h-[16rem] xl:h-44";
 
   if (!headline) return null;
 
   return (
     <Link
       href={"/" + headline.name}
-      className={"w-full p-6 items-stretch " + containerClasses}
+      className={
+        "w-full md:px-6 py-6 items-stretch hover:translate-x-[1px] hover:translate-y-[-1px] duration-150 " +
+        containerClasses
+      }
     >
       <div className={"relative shadow-md " + imageClasses}>
         <Image
@@ -38,14 +41,14 @@ const Headline: React.FC<HeadlineProps> = ({
         />
       </div>
       <div className={textContainerClasses}>
-        {height === "double" && (
-          <div className="pt-2 flex flex-row space-x-4">
-            {headline.tags.map((tag) => (
-              <Label>{tag}</Label>
-            ))}
-          </div>
-        )}
-        <p className={"pt-2 text-lg line-clamp-3 " + titleClasses}>
+        <div className="mt-2.5 mb-0.5 flex flex-row space-x-4">
+          {headline.tags.map((tag) => (
+            <Label className={height === "double" ? "" : "text-xs"} key={tag}>
+              {tag}
+            </Label>
+          ))}
+        </div>
+        <p className={"text-lg line-clamp-3 " + titleClasses}>
           {headline.title}
         </p>
         {height === "double" && (

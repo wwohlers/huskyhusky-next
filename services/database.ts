@@ -1,7 +1,7 @@
 import mongoose, { Model, mongo } from "mongoose";
-import { ArticleSchema } from "./services/articles/article.schema";
-import { SubSchema } from "./services/subs/sub.schema";
-import { UserSchema } from "./services/users/user.schema";
+import { ArticleSchema } from "./articles/article.schema";
+import { SubSchema } from "./subs/sub.schema";
+import { UserSchema } from "./users/user.schema";
 
 const { DATABASE_URL } = process.env;
 
