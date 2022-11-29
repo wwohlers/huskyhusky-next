@@ -90,7 +90,7 @@ export async function getHeadlinesByUser(
   })
     .sort({ createdAt: -1 })
     .select("_id name title brief image tags author")
-    .populate("author", "name")
+    .populate("author", "_id name")
     .lean();
   return articles.filter(
     (a) => a.author._id.toString() === userId

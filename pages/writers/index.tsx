@@ -33,15 +33,18 @@ const Writers: React.FC<WriterProps> = ({ writers }) => {
           content="View all writers on The Husky Husky."
         />
       </Head>
-      {writers.map((writer) => (
-        <Link
-          className="block"
-          href={"/writers/" + writer.name}
-          key={writer._id}
-        >
-          {writer.name}
-        </Link>
-      ))}
+      <div className="flex flex-col space-y-8">
+        {writers.map((writer) => (
+          <Link
+            className="block"
+            href={"/writers/" + writer.name}
+            key={writer._id}
+          >
+            <p className="text-lg font-semibold">{writer.name}</p>
+            <p className="text-sm text-gray-400 line-clamp-3">{writer.bio}</p>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 };

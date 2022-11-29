@@ -8,6 +8,26 @@ const nextConfig = {
         protocol: 'https',
         hostname: '**.amazonaws.com',
       },
+      {
+        protocol: 'https',
+        hostname: '**.discordapp.net',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.discordapp.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'imgur.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.imgur.com',
+      },
+      {
+        protocol: "https",
+        hostname: "**.ibb.co",
+      }
     ],
   },
 }

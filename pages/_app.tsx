@@ -19,7 +19,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Header />
-      <ContentContainer className="flex-1 flex flex-row items-center">
+      <ContentContainer className="mb-16 flex-1 flex flex-row items-center">
         <Component {...pageProps} />
       </ContentContainer>
       <Footer />

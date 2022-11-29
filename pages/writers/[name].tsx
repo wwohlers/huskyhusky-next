@@ -1,6 +1,7 @@
 import { GetStaticPaths, GetStaticProps } from "next";
 import Head from "next/head";
 import React, { useMemo, useState } from "react";
+import HeadlineList from "../../components/HeadlineList";
 import { getHeadlinesByUser } from "../../services/articles";
 import { IHeadline } from "../../services/articles/article.interface";
 import { connectToDB } from "../../services/database";
@@ -34,11 +35,10 @@ export const getStaticProps: GetStaticProps<WriterProps> = async ({
   if (name) {
     const conn = await connectToDB();
     const user = await getPublicUser(conn, name as string);
-    console.log(user);
+    stringifyIds(user);
     if (user) {
       const headlines = await getHeadlinesByUser(conn, user._id);
       conn.close();
-      stringifyIds(user);
       stringifyIds(headlines);
       if (headlines) {
         return {
@@ -63,9 +63,9 @@ const Writer: React.FC<WriterProps> = ({ user, headlines }) => {
         <title>{`${user.name} - The Husky Husky`}</title>
         <meta name="description" content={user.bio} />
       </Head>
-      {headlines.map((headline) => (
-        <div key={headline._id}>{headline.title}</div>
-      ))}
+      <h1 className="text-3xl font-semibold">{user.name}</h1>
+      <h2 className="text-gray-400 mb-8">{user.bio}</h2>
+      <HeadlineList headlines={headlines} />
     </div>
   );
 };

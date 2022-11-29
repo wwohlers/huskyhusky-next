@@ -1,6 +1,8 @@
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import React from "react";
+import Label from "../components/atoms/Label";
+import HeadlineList from "../components/HeadlineList";
 import { getHeadlinesByTag, searchArticles } from "../services/articles";
 import { IHeadline } from "../services/articles/article.interface";
 import { connectToDB } from "../services/database";
@@ -38,15 +40,15 @@ const Search: React.FC<TagProps> = ({ tag, headlines }) => {
   return (
     <div className="w-full flex flex-col">
       <Head>
-        <title>{tag} - The Husky Husky</title>
+        <title>{`${tag} - The Husky Husky`}</title>
         <meta
           name="description"
           content={`View all ${tag} articles on The Husky Husky.`}
         />
       </Head>
-      {headlines.map((headline) => (
-        <div key={headline._id}>{headline.title}</div>
-      ))}
+      <Label>View Tag</Label>
+      <h1 className="text-2xl font-semibold mb-6">{tag}</h1>
+      <HeadlineList headlines={headlines} />
     </div>
   );
 };
