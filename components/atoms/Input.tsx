@@ -22,14 +22,15 @@ const Input: React.FC<
   return (
     <label
       className={
-        "flex flex-row justify-center items-center bg-gray-200 p-2 rounded-sm border border-gray-200 focus-within:border-red-800 duration-150 " +
+        "flex flex-row justify-center items-stretch rounded-md overflow-hidden border border-[#EAEAEA] focus-within:border-red-800 duration-150 " +
         className
       }
     >
-      {icon}
-      {!!icon && <div style={{ width: "4px" }} />}
+      <div className="px-2 bg-[#EAEAEA] flex flex-row justify-center items-center cursor-pointer">
+        {icon}
+      </div>
       <input
-        className="flex-1 outline-none bg-transparent text-gray-800"
+        className="p-1.5 flex-1 outline-none bg-transparent text-gray-800"
         type="text"
         value={value}
         onChange={handleOnChange}

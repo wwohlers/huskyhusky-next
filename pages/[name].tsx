@@ -92,18 +92,23 @@ const Article: React.FC<ArticleProps> = ({ article }) => {
           ))}
         </div>
         <h1 className="text-4xl font-semibold my-1">{article.title}</h1>
-        <p className="my-1 text-gray-500">
+        <p className="my-2 text-gray-500">
           Published {timeAgoStr} by {article.author.name}
         </p>
         <img
-          className="w-full rounded-md"
+          className="mt-4 w-full rounded-md"
           src={article.image}
           alt={`Image for ${article.title}`}
         />
-        <article
-          className="my-8 text-lg"
-          dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
-        ></article>
+        <div className="my-8 flex flex-col lg:flex-row">
+          <article
+            className="text-lg lg:w-3/4 pr-12 leading-normal"
+            dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+          ></article>
+          <div className="mt-8 lg:w-1/4 lg:pl-8 lg:mt-0">
+            <p className="text-lg font-semibold">Share</p>
+          </div>
+        </div>
         <div className="my-16">
           <div className="flex flex-row justify-between items-center">
             <p className="text-xl font-semibold">

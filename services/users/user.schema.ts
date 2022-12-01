@@ -26,20 +26,10 @@ export const UserSchema = new mongoose.Schema<IUser>({
     required: true,
   },
 
-  // tokens: authentication tokens
-  tokens: {
-    type: [String],
-  },
-
   // admin: whether this user is an admin
   admin: {
     type: Boolean,
     default: false,
-  },
-
-  // resetKey: a key emailed to the user to reset their password
-  resetKey: {
-    type: String,
   },
 
   // removed: whether the user has been removed

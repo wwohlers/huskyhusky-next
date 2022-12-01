@@ -1,11 +1,15 @@
-import React, { useState } from "react";
 import Link from "next/link";
-import Input from "./atoms/Input";
-import { AiOutlineSearch } from "react-icons/ai";
-import { GiHamburgerMenu } from "react-icons/gi";
-import { FaPaw } from "react-icons/fa";
-import ContentContainer from "./ContentContainer";
 import { useRouter } from "next/router";
+import React, { useState } from "react";
+import { AiOutlineSearch } from "react-icons/ai";
+import { FaPaw } from "react-icons/fa";
+import { GiHamburgerMenu } from "react-icons/gi";
+import useSWR from "swr";
+import { MeResponse } from "../../pages/api/auth";
+import { axiosFetcher } from "../../util/client/axios";
+import Input from "../atoms/Input";
+import ContentContainer from "../ContentContainer";
+import UserMenu from "./UserMenu";
 
 const mainTags = ["Aoun", "Boston", "Politics", "Student Life", "Opinion"];
 
@@ -13,6 +17,7 @@ const Header: React.FC = () => {
   const router = useRouter();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const { data } = useSWR<MeResponse>("/auth", axiosFetcher);
 
   const extraContainerClasses = mobileNavOpen ? "h-screen lg:h-auto" : "";
   const extraNavClasses = mobileNavOpen ? "block mt-2" : "hidden lg:flex";
@@ -57,12 +62,16 @@ const Header: React.FC = () => {
             </Link>
           </span>
         ))}
-        <Input
-          icon={<AiOutlineSearch size={20} color={"#AAA"} />}
-          value={searchQuery}
-          onChange={setSearchQuery}
-          onEnter={onSearch}
-        />
+        {data?.authenticated ? (
+          <UserMenu user={data.user} />
+        ) : (
+          <Input
+            icon={<AiOutlineSearch size={20} color={"#AAA"} />}
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onEnter={onSearch}
+          />
+        )}
       </nav>
     </ContentContainer>
   );

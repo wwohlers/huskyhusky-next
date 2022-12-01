@@ -6,6 +6,7 @@ import { connectToDB } from "../../services/database";
 import { getPublicUsers } from "../../services/users";
 import { PublicUser } from "../../services/users/user.interface";
 import stringifyIds from "../../util/stringifyIds";
+import { FaPaw } from "react-icons/fa";
 
 type WriterProps = {
   writers: PublicUser[];
@@ -36,12 +37,15 @@ const Writers: React.FC<WriterProps> = ({ writers }) => {
       <div className="flex flex-col space-y-8">
         {writers.map((writer) => (
           <Link
-            className="block"
+            className="flex flex-row items-center space-x-4 hover:translate-x-[1px] hover:translate-y-[-1px] duration-150"
             href={"/writers/" + writer.name}
             key={writer._id}
           >
-            <p className="text-lg font-semibold">{writer.name}</p>
-            <p className="text-sm text-gray-400 line-clamp-3">{writer.bio}</p>
+            <FaPaw size={20} />
+            <div>
+              <p className="text-lg font-semibold">{writer.name}</p>
+              <p className="text-sm text-gray-400 line-clamp-3">{writer.bio}</p>
+            </div>
           </Link>
         ))}
       </div>

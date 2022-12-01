@@ -1,11 +1,15 @@
 import React, { useMemo } from "react";
 
 type ButtonProps = {
+  submit?: boolean;
   type?: "primary" | "secondary";
+  onClick: () => void;
 };
 
 const Button: React.FC<ButtonProps & React.HTMLProps<HTMLButtonElement>> = ({
   type = "primary",
+  submit = false,
+  onClick,
   ...rest
 }) => {
   const typeClasses = useMemo(() => {
@@ -17,7 +21,12 @@ const Button: React.FC<ButtonProps & React.HTMLProps<HTMLButtonElement>> = ({
     return "";
   }, [type]);
 
-  const disabledClasses = rest.disabled ? "opacity-50" : "hover:scale-105";
+  const disabledClasses = rest.disabled ? "opacity-50" : "hover:scale-[1.03]";
+
+  const _onClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    onClick();
+  };
 
   return (
     <button
@@ -28,7 +37,8 @@ const Button: React.FC<ButtonProps & React.HTMLProps<HTMLButtonElement>> = ({
         disabledClasses
       }
       {...rest}
-      type="button"
+      onClick={_onClick}
+      type={submit ? "submit" : "button"}
     />
   );
 };
