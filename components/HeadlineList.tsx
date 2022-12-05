@@ -3,6 +3,10 @@ import { IHeadline } from "../services/articles/article.interface";
 import Image from "next/image";
 import Link from "next/link";
 import Label from "./atoms/Label";
+import { axiosFetcher } from "../util/client/axios";
+import useSWR from "swr";
+import { MeResponse } from "../pages/api/auth";
+import { MdModeEdit } from "react-icons/md";
 
 type HeadlineListProps = {
   headlines: IHeadline[];
@@ -10,6 +14,7 @@ type HeadlineListProps = {
 
 const HeadlineList: React.FC<HeadlineListProps> = ({ headlines }) => {
   const [numTagsToRender, setNumTagsToRender] = React.useState<number>(10);
+  const { data } = useSWR<MeResponse>("/auth", axiosFetcher);
 
   const onScroll = () => {
     if (
@@ -24,6 +29,11 @@ const HeadlineList: React.FC<HeadlineListProps> = ({ headlines }) => {
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   });
+
+  const canEditArticle = (headline: IHeadline) => {
+    if (!data || !data.authenticated) return false;
+    return data?.user?._id === headline.author._id || data?.user?.admin;
+  };
 
   return (
     <div className="flex flex-col space-y-8">
@@ -42,10 +52,19 @@ const HeadlineList: React.FC<HeadlineListProps> = ({ headlines }) => {
             />
           </div>
           <div className="w-full">
-            <div className="flex flex-row space-x-4 mt-2 md:mt-0">
-              {headline.tags.slice(0, 3).map((tag) => (
-                <Label key={tag}>{tag}</Label>
-              ))}
+            <div className="flex flex-row justify-between mt-2 md:mt-0">
+              <div className="flex flex-row space-x-4">
+                {headline.tags.slice(0, 3).map((tag) => (
+                  <Label key={tag}>{tag}</Label>
+                ))}
+              </div>
+              <div className="flex flex-row space-x-2 items-center text-gray-500">
+                {canEditArticle(headline) && (
+                  <Link href={"/edit/" + headline._id}>
+                    <MdModeEdit size={18} />
+                  </Link>
+                )}
+              </div>
             </div>
             <p className="text-xl my-1 font-medium md:line-clamp-1">
               {headline.title}

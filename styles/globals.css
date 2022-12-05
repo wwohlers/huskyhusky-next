@@ -19,3 +19,10 @@ a {
 * {
   box-sizing: border-box;
 }
+
+/**
+ * doesn't work for some reason
+ */
+.transition-height {
+  transition: max-height 150ms ease-in-out;
+}

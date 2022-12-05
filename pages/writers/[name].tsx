@@ -1,6 +1,8 @@
-import { GetStaticPaths, GetStaticProps } from "next";
+import { GetStaticPaths, GetStaticProps, NextApiRequest } from "next";
 import Head from "next/head";
 import React, { useMemo, useState } from "react";
+import { MdModeEdit, MdOutlineEdit } from "react-icons/md";
+import Button from "../../components/atoms/Button";
 import HeadlineList from "../../components/HeadlineList";
 import { getHeadlinesByUser } from "../../services/articles";
 import { IHeadline } from "../../services/articles/article.interface";
@@ -63,8 +65,21 @@ const Writer: React.FC<WriterProps> = ({ user, headlines }) => {
         <title>{`${user.name} - The Husky Husky`}</title>
         <meta name="description" content={user.bio} />
       </Head>
-      <h1 className="text-3xl font-semibold">{user.name}</h1>
-      <h2 className="text-gray-400 mb-8">{user.bio}</h2>
+      <div className="flex flex-row justify-between">
+        <div>
+          <h1 className="text-3xl font-semibold">{user.name}</h1>
+          <h2 className="text-gray-400 mb-8">{user.bio}</h2>
+        </div>
+        <div>
+          <Button
+            className="flex flex-row items-center space-x-2"
+            onClick={() => null}
+          >
+            <MdModeEdit />
+            <span>Write</span>
+          </Button>
+        </div>
+      </div>
       <HeadlineList headlines={headlines} />
     </div>
   );

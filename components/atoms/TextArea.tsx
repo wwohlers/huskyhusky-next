@@ -13,12 +13,11 @@ const TextArea: React.FC<
   };
   return (
     <textarea
-      className="p-2 w-full outline-none bg-gray-200 rounded-sm border-gray-200 border focus:border-red-800 duration-150"
+      className="p-2 w-full outline-none rounded-md bg-inherit border-[#EAEAEA] border focus:border-red-800 duration-150 text-sm font-medium"
       onChange={handleOnChange}
+      value={value}
       {...rest}
-    >
-      {value}
-    </textarea>
+    ></textarea>
   );
 };
 

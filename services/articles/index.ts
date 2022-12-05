@@ -6,6 +6,13 @@ export async function getAllArticleNames(conn: mongoose.Connection) {
   return articles.map((a) => a.name);
 }
 
+export async function getArticleById(conn: mongoose.Connection, id: string) {
+  const article = await conn.models.Article.findById(id)
+    .populate("author", "_id name")
+    .lean<IArticle | undefined>();
+  return article;
+}
+
 export async function getArticleByName(
   conn: mongoose.Connection,
   name: string
@@ -25,7 +32,8 @@ export async function getHeadlines(conn: mongoose.Connection) {
   })
     .sort({ createdAt: -1 })
     .limit(18)
-    .select("_id name title brief image tags")
+    .select("_id name title brief image tags author")
+    .populate("author", "_id name")
     .lean();
   return articles as IHeadline[];
 }
@@ -61,7 +69,7 @@ export async function searchArticles(conn: mongoose.Connection, query: string) {
   })
     .sort({ score: { $meta: "textScore" } })
     .select("_id name title brief image tags author")
-    .populate("author", "name")
+    .populate("author", "_id name")
     .lean();
   return articles as IHeadline[];
 }
@@ -76,7 +84,7 @@ export async function getHeadlinesByTag(
   })
     .sort({ createdAt: -1 })
     .select("_id name title brief image tags author")
-    .populate("author", "name")
+    .populate("author", "_id name")
     .lean();
   return articles as IHeadline[];
 }

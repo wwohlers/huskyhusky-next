@@ -30,15 +30,17 @@ const Button: React.FC<ButtonProps & React.HTMLProps<HTMLButtonElement>> = ({
 
   return (
     <button
+      type={submit ? "submit" : "button"}
+      {...rest}
       className={
         "uppercase text-sm px-3 py-2 rounded-sm duration-150 focus:outline-none " +
         typeClasses +
         " " +
-        disabledClasses
+        disabledClasses +
+        " " +
+        (rest.className ?? "")
       }
-      {...rest}
       onClick={_onClick}
-      type={submit ? "submit" : "button"}
     />
   );
 };

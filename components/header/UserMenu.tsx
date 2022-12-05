@@ -22,6 +22,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
   useClickOutside(menuContainer, () => setShowMenu(false));
 
   const onSignOut = async () => {
+    setShowMenu(false);
     const res = await apiClient.post("/auth/signOut");
     if (res.success) {
       mutate("/auth");
@@ -33,7 +34,9 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
 
   const menuContent = (
     <>
-      <Link href="/account">Account</Link>
+      <Link href="/account" onClick={() => setShowMenu(false)}>
+        Account
+      </Link>
       <div className="cursor-pointer" onClick={onSignOut}>
         Sign Out
       </div>
@@ -44,7 +47,11 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
     <div className="relative pb-4" ref={menuContainer}>
       <Label className="text-xs">Signed in as</Label>
       <div className="flex flex-row items-center space-x-1">
-        <Link href={"/writers/" + user.name} className="text-lg font-semibold">
+        <Link
+          href={"/writers/" + user.name}
+          onClick={() => setShowMenu(false)}
+          className="text-lg font-semibold"
+        >
           {user.name}
         </Link>
         <FiChevronDown
@@ -54,7 +61,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
         />
       </div>
       {showMenu && (
-        <div className="hidden lg:flex absolute top-12 right-0 py-4 px-4 w-36 text-gray-500 bg-gray-200 shadow-md rounded-md flex-col space-y-1 z-10">
+        <div className="hidden lg:flex absolute top-12 right-0 py-3 px-4 w-36 text-gray-500 font-medium bg-gray-200 shadow-md rounded-md flex-col space-y-1 z-10">
           {menuContent}
         </div>
       )}

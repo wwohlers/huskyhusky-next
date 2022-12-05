@@ -23,5 +23,5 @@ export interface IArticle {
 
 export type IHeadline = Pick<
   IArticle,
-  "_id" | "name" | "title" | "tags" | "brief" | "image"
+  "_id" | "name" | "title" | "tags" | "brief" | "image" | "author"
 >;

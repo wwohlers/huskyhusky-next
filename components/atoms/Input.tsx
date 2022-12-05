@@ -30,7 +30,7 @@ const Input: React.FC<
         {icon}
       </div>
       <input
-        className="p-1.5 flex-1 outline-none bg-transparent text-gray-800"
+        className="p-1.5 px-2 flex-1 outline-none bg-transparent text-gray-800 font-medium placeholder-gray-400"
         type="text"
         value={value}
         onChange={handleOnChange}
