@@ -1,14 +1,17 @@
 import { GetStaticPaths, GetStaticProps, NextApiRequest } from "next";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import React, { useMemo, useState } from "react";
 import { MdModeEdit, MdOutlineEdit } from "react-icons/md";
+import { toast } from "react-toastify";
 import Button from "../../components/atoms/Button";
 import HeadlineList from "../../components/HeadlineList";
 import { getHeadlinesByUser } from "../../services/articles";
-import { IHeadline } from "../../services/articles/article.interface";
+import { IArticle, IHeadline } from "../../services/articles/article.interface";
 import { connectToDB } from "../../services/database";
 import { getPublicUser, getPublicUsers } from "../../services/users";
 import { PublicUser } from "../../services/users/user.interface";
+import { apiClient } from "../../util/client";
 import stringifyIds from "../../util/stringifyIds";
 
 type WriterProps = {
@@ -59,6 +62,17 @@ export const getStaticProps: GetStaticProps<WriterProps> = async ({
 };
 
 const Writer: React.FC<WriterProps> = ({ user, headlines }) => {
+  const router = useRouter();
+
+  const write = async () => {
+    const res = await apiClient.post<IArticle>("/articles");
+    if (res.success) {
+      router.push(`/edit/${res.data._id}`);
+    } else {
+      toast.error(res.error);
+    }
+  };
+
   return (
     <div className="w-full">
       <Head>
@@ -73,7 +87,7 @@ const Writer: React.FC<WriterProps> = ({ user, headlines }) => {
         <div>
           <Button
             className="flex flex-row items-center space-x-2"
-            onClick={() => null}
+            onClick={write}
           >
             <MdModeEdit />
             <span>Write</span>

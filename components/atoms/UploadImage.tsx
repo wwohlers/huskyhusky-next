@@ -7,9 +7,14 @@ import { toast } from "react-toastify";
 type UploadImageProps = {
   imageURL: string | undefined;
   onChange: (imageURL: string) => void;
+  onBlur: () => void;
 };
 
-const UploadImage: React.FC<UploadImageProps> = ({ imageURL, onChange }) => {
+const UploadImage: React.FC<UploadImageProps> = ({
+  imageURL,
+  onChange,
+  onBlur,
+}) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const reader = useRef<FileReader | null>(null);
 
@@ -40,7 +45,10 @@ const UploadImage: React.FC<UploadImageProps> = ({ imageURL, onChange }) => {
   };
 
   return (
-    <div className="border border-gray-200 focus:border-red-800 rounded-md px-2 py-2 transition duration-150">
+    <div
+      onBlur={onBlur}
+      className="border border-gray-200 focus:border-red-800 rounded-md px-2 py-2 transition duration-150"
+    >
       <input
         ref={inputRef}
         type="file"

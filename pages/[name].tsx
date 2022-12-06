@@ -13,6 +13,8 @@ import Comment from "../components/article/Comment";
 import NewComment from "../components/article/NewComment";
 import Label from "../components/atoms/Label";
 import Button from "../components/atoms/Button";
+import ReactMarkdown from "react-markdown";
+import { isHTML } from "../util/markdown";
 
 type ArticleProps = {
   article: IArticle;
@@ -66,6 +68,10 @@ const Article: React.FC<ArticleProps> = ({ article }) => {
     return sanitizeHtml(article.text);
   }, [article]);
 
+  const isHtml = useMemo(() => {
+    return isHTML(article.text);
+  }, [article]);
+
   const onSubmitComment = (name: string, content: string) => {
     // todo: IMPLEMENT
   };
@@ -100,12 +106,20 @@ const Article: React.FC<ArticleProps> = ({ article }) => {
           src={article.image}
           alt={`Image for ${article.title}`}
         />
-        <div className="my-8 flex flex-col lg:flex-row">
-          <article
-            className="text-lg lg:w-3/4 pr-12 leading-normal"
-            dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
-          ></article>
-          <div className="mt-8 lg:w-1/4 lg:pl-8 lg:mt-0">
+        <div className="my-8 flex flex-col w-full lg:flex-row">
+          <div className="lg:w-3/4">
+            {isHtml ? (
+              <article
+                className="text-lg pr-12 leading-normal"
+                dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+              ></article>
+            ) : (
+              <ReactMarkdown className="markdown">
+                {isHtml ? sanitizedHtml : article.text}
+              </ReactMarkdown>
+            )}
+          </div>
+          <div className="mt-8 lg:pl-8 lg:mt-0">
             <p className="text-lg font-semibold">Share</p>
           </div>
         </div>

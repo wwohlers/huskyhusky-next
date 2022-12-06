@@ -1,22 +1,32 @@
 import { GetServerSideProps } from "next";
+import dynamic from "next/dynamic";
 import Head from "next/head";
-import React, { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import React, { useCallback, useState } from "react";
+import { AiOutlineEllipsis, AiOutlineLink } from "react-icons/ai";
+import { BiImage } from "react-icons/bi";
+import { IoMdAlert, IoMdArrowBack, IoMdCheckmark } from "react-icons/io";
+import { MdTitle } from "react-icons/md";
+import { toast } from "react-toastify";
+import useSWR from "swr";
+import Button from "../../components/atoms/Button";
 import Input from "../../components/atoms/Input";
 import Label from "../../components/atoms/Label";
+import TextArea from "../../components/atoms/TextArea";
+import UploadImage from "../../components/atoms/UploadImage";
 import Section from "../../components/Section";
+import TagPicker from "../../components/TagPicker";
 import { getArticleById } from "../../services/articles";
 import { IArticle } from "../../services/articles/article.interface";
 import { connectToDB } from "../../services/database";
-import stringifyIds from "../../util/stringifyIds";
-import { MdTitle } from "react-icons/md";
-import { AiOutlineLink } from "react-icons/ai";
-import TextArea from "../../components/atoms/TextArea";
-import TagPicker from "../../components/TagPicker";
-import { BiImage } from "react-icons/bi";
-import UploadImage from "../../components/atoms/UploadImage";
-import SimpleMDE from "react-simplemde-editor";
+import getUserIdFromReq from "../../util/api/getUserIdFromReq";
+import { canEditArticle } from "../../util/canEditArticle";
+import { apiClient } from "../../util/client";
+import { axiosFetcher } from "../../util/client/axios";
 import { convertHTMLToMarkdown, isHTML } from "../../util/markdown";
-import dynamic from "next/dynamic";
+import stringifyIds from "../../util/stringifyIds";
+import { MeResponse } from "../api/auth";
+import { BiLinkExternal } from "react-icons/bi";
 
 const SimpleMDEEditor = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
@@ -33,11 +43,21 @@ type EditableArticle = Pick<
 
 export const getServerSideProps: GetServerSideProps<EditProps> = async ({
   params,
+  req,
 }) => {
   const id = typeof params?.id === "object" ? params.id[0] : params?.id;
   if (!id) {
     return {
       notFound: true,
+    };
+  }
+  const userId = getUserIdFromReq(req);
+  if (!userId) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
     };
   }
   const conn = await connectToDB();
@@ -49,6 +69,16 @@ export const getServerSideProps: GetServerSideProps<EditProps> = async ({
     };
   }
   stringifyIds(article);
+  const user = await conn.models.User.findById(userId).lean();
+  stringifyIds(user);
+  if (!canEditArticle(user, article)) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
   if (isHTML(article.text)) {
     article.text = convertHTMLToMarkdown(article.text);
   }
@@ -60,9 +90,36 @@ export const getServerSideProps: GetServerSideProps<EditProps> = async ({
 };
 
 const Edit: React.FC<EditProps> = ({ article }) => {
+  const { data: authResponse } = useSWR<MeResponse>("/auth", axiosFetcher);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [savedName, setSavedName] = useState(article.name);
   const [editableArticle, setEditableArticle] = useState<EditableArticle>(
     getEditableArticle(article)
   );
+
+  const saveArticle = useCallback(async (article: IArticle) => {
+    setIsSaving(true);
+    const res = await apiClient.put<IArticle>(`/articles`, article);
+    if (res.success) {
+      setEditableArticle(getEditableArticle(res.data));
+      setIsSaving(false);
+      setHasChanges(false);
+      setSavedName(res.data.name);
+    } else {
+      setIsSaving(false);
+      toast.error("Failed to save article");
+    }
+  }, []);
+
+  const autosave = () => {
+    if (!editableArticle.public && hasChanges) {
+      saveArticle({
+        ...article,
+        ...editableArticle,
+      });
+    }
+  };
 
   const onEditTitle = (value: string) => {
     setEditableArticle({
@@ -70,6 +127,7 @@ const Edit: React.FC<EditProps> = ({ article }) => {
       title: value,
       name: convertTitleToName(value),
     });
+    setHasChanges(true);
   };
 
   const stringFieldSetter =
@@ -78,12 +136,30 @@ const Edit: React.FC<EditProps> = ({ article }) => {
         ...editableArticle,
         [fieldName]: value,
       });
+      setHasChanges(true);
     };
 
   const onTagsChange = (tags: string[]) => {
     setEditableArticle({
       ...editableArticle,
       tags,
+    });
+    setHasChanges(true);
+  };
+
+  const handleUnpublish = () => {
+    saveArticle({
+      ...article,
+      ...editableArticle,
+      public: false,
+    });
+  };
+
+  const handlePublish = () => {
+    saveArticle({
+      ...article,
+      ...editableArticle,
+      public: true,
     });
   };
 
@@ -97,6 +173,16 @@ const Edit: React.FC<EditProps> = ({ article }) => {
         />
       </Head>
       <form className="w-full max-w-3xl">
+        <Link
+          className="flex flex-row items-center font-medium space-x-1 text-sm mb-1"
+          href={
+            "/writers/" +
+            (authResponse?.authenticated ? authResponse.user.name : "")
+          }
+        >
+          <IoMdArrowBack />
+          <span>Back to your profile</span>
+        </Link>
         <h1 className="text-2xl font-medium">
           Editing <span className="font-semibold">{editableArticle.title}</span>
         </h1>
@@ -108,6 +194,7 @@ const Edit: React.FC<EditProps> = ({ article }) => {
               value={editableArticle.title}
               onChange={onEditTitle}
               name="title"
+              onBlur={autosave}
             />
           </label>
           <label>
@@ -117,6 +204,7 @@ const Edit: React.FC<EditProps> = ({ article }) => {
               value={editableArticle.name}
               onChange={stringFieldSetter("name")}
               name="name"
+              onBlur={autosave}
             />
           </label>
           <label>
@@ -126,11 +214,16 @@ const Edit: React.FC<EditProps> = ({ article }) => {
               onChange={stringFieldSetter("brief")}
               name="brief"
               rows={2}
+              onBlur={autosave}
             />
           </label>
           <div>
             <Label>Tags</Label>
-            <TagPicker tags={editableArticle.tags} setTags={onTagsChange} />
+            <TagPicker
+              tags={editableArticle.tags}
+              setTags={onTagsChange}
+              onBlur={autosave}
+            />
           </div>
         </Section>
         <Section title="Image" className="flex flex-col space-y-3">
@@ -139,6 +232,7 @@ const Edit: React.FC<EditProps> = ({ article }) => {
             <UploadImage
               imageURL={editableArticle.image}
               onChange={stringFieldSetter("image")}
+              onBlur={autosave}
             />
           </label>
           <label>
@@ -148,11 +242,68 @@ const Edit: React.FC<EditProps> = ({ article }) => {
               value={editableArticle.attr}
               onChange={stringFieldSetter("attr")}
               name="attr"
+              onBlur={autosave}
             />
           </label>
         </Section>
         <Section title="Text" className="flex flex-col space-y-3">
-          <SimpleMDEEditor value={editableArticle.text} />
+          <SimpleMDEEditor
+            value={editableArticle.text}
+            onChange={stringFieldSetter("text")}
+            onBlur={autosave}
+          />
+        </Section>
+        <Section title="Save & Publish">
+          <p className="my-2 text-sm text-gray-400 font-medium">
+            {editableArticle.public
+              ? "This article is public. Your changes won't be saved unless you republish or unpublish."
+              : "This article is private. Your changes will save automatically."}
+          </p>
+          {editableArticle.public && (
+            <Link
+              className="my-2 w-max font-medium text-sm flex flex-row space-x-1"
+              href={"/" + savedName}
+              target="_blank"
+            >
+              <span className="border-b border-gray-900">
+                {process.env.NEXT_PUBLIC_BASE_URL + "/" + savedName}
+              </span>
+              <BiLinkExternal />
+            </Link>
+          )}
+          <p className="my-2 flex flex-row items-center space-x-1 font-medium">
+            <span>
+              {isSaving ? (
+                <AiOutlineEllipsis size={18} />
+              ) : hasChanges ? (
+                <IoMdAlert size={18} />
+              ) : (
+                <IoMdCheckmark size={18} />
+              )}
+            </span>
+            <span>
+              {isSaving
+                ? "Saving..."
+                : hasChanges
+                ? "You have unsaved changes."
+                : "All changes saved."}
+            </span>
+          </p>
+          <div className="flex flex-row items-center space-x-4">
+            <Button
+              onClick={handlePublish}
+              disabled={editableArticle.public && !hasChanges}
+            >
+              {editableArticle.public
+                ? "Save and publish changes"
+                : "Make public"}
+            </Button>
+            {editableArticle.public && (
+              <Button type="secondary" onClick={handleUnpublish}>
+                Unpublish
+              </Button>
+            )}
+          </div>
         </Section>
       </form>
     </>

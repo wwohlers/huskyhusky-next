@@ -28,7 +28,7 @@ export default function createHandler(
     }
     const handler = methodHandlers[(req.method as Methods) ?? "GET"];
     if (handler) {
-      const userId = await getUserIdFromReq(req);
+      const userId = getUserIdFromReq(req);
       if (requireAuth && !userId) {
         conn.close();
         return res.status(401).json({ error: "Unauthorized" });

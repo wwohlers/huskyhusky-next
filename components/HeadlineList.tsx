@@ -7,6 +7,7 @@ import { axiosFetcher } from "../util/client/axios";
 import useSWR from "swr";
 import { MeResponse } from "../pages/api/auth";
 import { MdModeEdit } from "react-icons/md";
+import { canEditArticle } from "../util/canEditArticle";
 
 type HeadlineListProps = {
   headlines: IHeadline[];
@@ -30,10 +31,7 @@ const HeadlineList: React.FC<HeadlineListProps> = ({ headlines }) => {
     return () => window.removeEventListener("scroll", onScroll);
   });
 
-  const canEditArticle = (headline: IHeadline) => {
-    if (!data || !data.authenticated) return false;
-    return data?.user?._id === headline.author._id || data?.user?.admin;
-  };
+  const user = data?.authenticated ? data.user : undefined;
 
   return (
     <div className="flex flex-col space-y-8">
@@ -59,7 +57,7 @@ const HeadlineList: React.FC<HeadlineListProps> = ({ headlines }) => {
                 ))}
               </div>
               <div className="flex flex-row space-x-2 items-center text-gray-500">
-                {canEditArticle(headline) && (
+                {canEditArticle(user, headline) && (
                   <Link href={"/edit/" + headline._id}>
                     <MdModeEdit size={18} />
                   </Link>

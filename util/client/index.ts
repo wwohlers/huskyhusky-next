@@ -48,7 +48,20 @@ export async function post<R>(url: string, body?: any): Promise<ApiResponse<R>> 
   }
 }
 
+export async function put<R>(url: string, body?: any): Promise<ApiResponse<R>> {
+  try {
+    const res = await axios.put(url, body);
+    return {
+      success: true,
+      data: res.data,
+    };
+  } catch (e) {
+    return handleError(e);
+  }
+}
+
 export const apiClient = {
   get,
   post,
+  put,
 };

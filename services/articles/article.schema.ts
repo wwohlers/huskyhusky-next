@@ -20,6 +20,7 @@ export const ArticleSchema = new mongoose.Schema<IArticle>({
     type: String,
     maxlength: 100,
     unique: true,
+    required: true,
   },
 
   // title: title of the article.
@@ -29,26 +30,33 @@ export const ArticleSchema = new mongoose.Schema<IArticle>({
   },
 
   // tags: list of the article's tags
-  tags: [String],
+  tags: {
+    type: [String],
+    default: [],
+  },
 
   // brief: brief description of the article (displayed on the homepage).
   brief: {
     type: String,
+    default: "",
   },
 
   // image: url of the article's image.
   image: {
     type: String,
+    default: "",
   },
 
   // attr: attribution of the image, displayed on the article page under the image.
   attr: {
     type: String,
+    default: "",
   },
 
   // text: text of the article.
   text: {
     type: String,
+    default: "",
   },
 
   // public: whether the article is public.
@@ -58,23 +66,26 @@ export const ArticleSchema = new mongoose.Schema<IArticle>({
   },
 
   // List of comments
-  comments: [
-    {
-      name: {
-        type: String,
-        required: true,
+  comments: {
+    type: [
+      {
+        name: {
+          type: String,
+          required: true,
+        },
+        content: {
+          type: String,
+          required: true,
+        },
+        createdAt: {
+          type: Number,
+          required: true,
+          default: now,
+        },
       },
-      content: {
-        type: String,
-        required: true,
-      },
-      createdAt: {
-        type: Number,
-        required: true,
-        default: now,
-      },
-    },
-  ],
+    ],
+    default: [],
+  },
 
   // clicks: number of times someone has opened the article
   clicks: {

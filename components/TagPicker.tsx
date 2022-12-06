@@ -10,9 +10,10 @@ import { GrClose } from "react-icons/gr";
 type TagPickerProps = {
   tags: string[];
   setTags: (tags: string[]) => void;
+  onBlur: () => void;
 };
 
-const TagPicker: React.FC<TagPickerProps> = ({ tags, setTags }) => {
+const TagPicker: React.FC<TagPickerProps> = ({ tags, setTags, onBlur }) => {
   const { data: allTags } = useSWR<string[]>("/tags", axiosFetcher);
   const [showAllTags, setShowAllTags] = useState(false);
   const [input, setInput] = useState("");
@@ -42,7 +43,7 @@ const TagPicker: React.FC<TagPickerProps> = ({ tags, setTags }) => {
   };
 
   return (
-    <div className="relative" ref={containerRef}>
+    <div className="relative" ref={containerRef} onBlur={onBlur}>
       <Input
         icon={<AiOutlineTag size={18} />}
         value={input}
@@ -55,13 +56,13 @@ const TagPicker: React.FC<TagPickerProps> = ({ tags, setTags }) => {
       {!!tagsMatchingInput && (
         <div
           className={
-            "w-full max-w-xs overflow-scroll absolute top-10 bg-[#f8f8f8] border border-[#EAEAEA] rounded-md py-3 px-4 box-border transition-height shadow-md " +
+            "w-full max-w-xs overflow-scroll absolute top-10 bg-white border border-[#EAEAEA] rounded-md py-3 px-4 box-border transition-height shadow-md " +
             (showAllTags ? "block max-h-52" : "hidden max-h-0")
           }
         >
           {tagsMatchingInput.map((tag) => (
             <div
-              className="cursor-pointer font-medium uppercase py-px flex flex-row items-center space-x-1 my-px"
+              className="cursor-pointer text-sm font-medium uppercase py-px flex flex-row items-center space-x-1 my-px"
               key={tag}
               onClick={() => onTagSelected(tag)}
             >

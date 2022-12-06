@@ -22,7 +22,7 @@ const Input: React.FC<
   return (
     <label
       className={
-        "flex flex-row justify-center items-stretch rounded-md overflow-hidden border border-[#EAEAEA] focus-within:border-red-800 duration-150 " +
+        "flex flex-row justify-center items-stretch rounded-md overflow-hidden border border-[#EAEAEA] focus-within:border-red-800 duration-150 bg-white " +
         className
       }
     >
