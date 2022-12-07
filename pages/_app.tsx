@@ -7,6 +7,7 @@ import Footer from "../components/Footer";
 import ContentContainer from "../components/ContentContainer";
 import Head from "next/head";
 import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const raleway = Raleway({ subsets: ["latin"] });
 

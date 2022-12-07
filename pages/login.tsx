@@ -46,7 +46,7 @@ const Login: React.FC = () => {
       mutate("/auth");
       router.push("/");
     } else {
-      toast(result.error);
+      toast.error(result.error);
     }
   };
 

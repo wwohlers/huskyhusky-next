@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Model } from "mongoose";
 import { IUser, PublicUser } from "./user.interface";
 import bcrypt from "bcrypt";
 import { signJWT } from "../../util/jwt";
@@ -59,4 +59,89 @@ export async function signIn(
     user,
     token,
   };
+}
+
+export async function updateUserName(
+  conn: mongoose.Connection,
+  userId: string,
+  name: string,
+) {
+  try {
+    const user = await conn.models.User.findByIdAndUpdate<IUser>(
+      userId,
+      {
+        name,
+      },
+      {
+        new: true, // return the modified document rather than the original
+      }
+    );
+    return user;
+  } catch (e) {
+    throw new Error("Name already taken");
+  }
+}
+
+export async function updateUserBio(
+  conn: mongoose.Connection,
+  userId: string,
+  bio: string,
+) {
+  const user = await conn.models.User.findByIdAndUpdate<IUser>(
+    userId,
+    {
+      bio,
+    },
+    {
+      new: true, // return the modified document rather than the original
+    }
+  ).lean();
+  return user;
+}
+
+export async function updateUserEmail(
+  conn: mongoose.Connection,
+  userId: string,
+  email: string,
+  password: string,
+) {
+  const user = await (conn.models.User as Model<IUser>).findById(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+  const validPassword = await bcrypt.compare(password, user.password);
+  if (!validPassword) {
+    throw new Error("Invalid password");
+  }
+  try {
+    user.email = email;
+    await user.save();
+    return user.toObject();
+  } catch (e) {
+    throw new Error("Email already taken");
+  }
+}
+
+export async function updateUserPassword(
+  conn: mongoose.Connection,
+  userId: string,
+  newPassword: string,
+  password: string,
+) {
+  const user = await (conn.models.User as Model<IUser>).findById(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+  const validPassword = await bcrypt.compare(password, user.password);
+  if (!validPassword) {
+    throw new Error("Invalid password");
+  }
+  try {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+    return user.toObject();
+  } catch (e) {
+    throw new Error("Email already taken");
+  }
 }
