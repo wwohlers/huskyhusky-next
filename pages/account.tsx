@@ -1,7 +1,7 @@
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import React, { useState } from "react";
-import { AiOutlineMail, AiOutlineKey } from "react-icons/ai";
+import { AiOutlineKey, AiOutlineMail } from "react-icons/ai";
 import { MdTitle } from "react-icons/md";
 import { toast } from "react-toastify";
 import Button from "../components/atoms/Button";
@@ -19,7 +19,6 @@ import {
   validateEmail,
   validatePassword,
 } from "../util/validate";
-import { EditUserResponse } from "./api/user/bio";
 
 type AccountProps = {
   user: IUser;

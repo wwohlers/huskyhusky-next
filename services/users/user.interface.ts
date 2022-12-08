@@ -13,3 +13,8 @@ export interface IUser {
 }
 
 export type PublicUser = Pick<IUser, "_id" | "name" | "bio" | "createdAt">;
+
+export type AdminUser = Pick<
+  IUser,
+  "_id" | "name" | "email" | "admin" | "removed" | "createdAt"
+>;

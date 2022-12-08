@@ -1,5 +1,5 @@
 import mongoose, { Document, Model } from "mongoose";
-import { IUser, PublicUser } from "./user.interface";
+import { AdminUser, IUser, PublicUser } from "./user.interface";
 import bcrypt from "bcrypt";
 import { signJWT } from "../../util/jwt";
 
@@ -16,6 +16,14 @@ export async function getPublicUsers(conn: mongoose.Connection) {
     .select("_id name bio createdAt")
     .lean();
   return users as PublicUser[];
+}
+
+export async function getAdminUsers(conn: mongoose.Connection) {
+  const users = await conn.models.User.find()
+    .sort({ name: 1 })
+    .select("_id name email admin removed createdAt")
+    .lean();
+  return users as AdminUser[];
 }
 
 export async function getPublicUser(conn: mongoose.Connection, name: string) {
@@ -144,4 +152,22 @@ export async function updateUserPassword(
   } catch (e) {
     throw new Error("Email already taken");
   }
+}
+
+export async function adminUpdateUser(
+  conn: mongoose.Connection,
+  update: AdminUser,
+) {
+  const user = await conn.models.User.findByIdAndUpdate<IUser>(
+    update._id,
+    {
+      name: update.name,
+      admin: update.admin,
+      removed: update.removed,
+    },
+    {
+      new: true, // return the modified document rather than the original
+    }
+  ).lean();
+  return user;
 }

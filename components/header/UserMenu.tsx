@@ -35,8 +35,13 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
   const menuContent = (
     <>
       <Link href="/account" onClick={() => setShowMenu(false)}>
-        Account
+        My Account
       </Link>
+      {user.admin && (
+        <Link href="/users" onClick={() => setShowMenu(false)}>
+          Manage Users
+        </Link>
+      )}
       <div className="cursor-pointer" onClick={onSignOut}>
         Sign Out
       </div>
@@ -61,7 +66,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
         />
       </div>
       {showMenu && (
-        <div className="hidden lg:flex absolute top-12 right-0 py-3 px-4 w-36 text-gray-500 font-medium bg-gray-200 shadow-md rounded-md flex-col space-y-1 z-10">
+        <div className="hidden lg:flex absolute top-12 right-0 py-3 px-4 w-36 text-sm uppercase font-medium bg-[#EAEAEA] shadow-md rounded-sm flex-col space-y-2 z-10">
           {menuContent}
         </div>
       )}
