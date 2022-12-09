@@ -8,16 +8,11 @@ type CommentProps = {
 };
 
 const Comment: React.FC<CommentProps> = ({ comment }) => {
-  const timeAgoStr = useMemo(() => {
-    const dt = DateTime.fromMillis(comment.createdAt * 1000);
-    return timeAgo(dt);
-  }, [comment]);
-
   return (
     <div className="my-6">
       <div className="flex flex-row justify-between items-center text-gray-600 text-sm">
         <span className="font-semibold">{comment.name}</span>
-        <span>{timeAgoStr}</span>
+        <span>{timeAgo(comment.createdAt)}</span>
       </div>
       <p>{comment.content}</p>
     </div>

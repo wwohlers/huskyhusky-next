@@ -168,6 +168,6 @@ export async function adminUpdateUser(
     {
       new: true, // return the modified document rather than the original
     }
-  ).lean();
+  ).select("_id name email admin removed createdAt").lean();
   return user;
 }
