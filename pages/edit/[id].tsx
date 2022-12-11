@@ -4,7 +4,7 @@ import Head from "next/head";
 import Link from "next/link";
 import React, { useCallback, useState } from "react";
 import { AiOutlineEllipsis, AiOutlineLink } from "react-icons/ai";
-import { BiImage } from "react-icons/bi";
+import { BiImage, BiLinkExternal } from "react-icons/bi";
 import { IoMdAlert, IoMdArrowBack, IoMdCheckmark } from "react-icons/io";
 import { MdTitle } from "react-icons/md";
 import { toast } from "react-toastify";
@@ -16,17 +16,15 @@ import TextArea from "../../components/atoms/TextArea";
 import UploadImage from "../../components/atoms/UploadImage";
 import Section from "../../components/Section";
 import TagPicker from "../../components/TagPicker";
-import { getArticleById } from "../../services/articles";
+import { getArticleById } from "../../services/articles/server";
 import { IArticle } from "../../services/articles/article.interface";
-import { connectToDB } from "../../services/database";
+import { withDB } from "../../services/database";
 import getUserIdFromReq from "../../util/api/getUserIdFromReq";
 import { canEditArticle } from "../../util/canEditArticle";
 import { apiClient } from "../../util/client";
 import { axiosFetcher } from "../../util/client/axios";
 import { convertHTMLToMarkdown, isHTML } from "../../util/markdown";
-import stringifyIds from "../../util/stringifyIds";
 import { MeResponse } from "../api/auth";
-import { BiLinkExternal } from "react-icons/bi";
 
 const SimpleMDEEditor = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
@@ -45,48 +43,46 @@ export const getServerSideProps: GetServerSideProps<EditProps> = async ({
   params,
   req,
 }) => {
-  const id = typeof params?.id === "object" ? params.id[0] : params?.id;
-  if (!id) {
-    return {
-      notFound: true,
-    };
-  }
-  const userId = getUserIdFromReq(req);
-  if (!userId) {
-    return {
-      redirect: {
-        destination: "/login",
-        permanent: false,
-      },
-    };
-  }
-  const conn = await connectToDB();
-  const article = await getArticleById(conn, id);
-  conn.close();
-  if (!article) {
-    return {
-      notFound: true,
-    };
-  }
-  stringifyIds(article);
-  const user = await conn.models.User.findById(userId).lean();
-  stringifyIds(user);
-  if (!canEditArticle(user, article)) {
+  const [rejected, article] = await withDB(async (conn) => {
+    const id = typeof params?.id === "object" ? params.id[0] : params?.id;
+    if (!id) {
+      return [false, undefined];
+    }
+    const userId = getUserIdFromReq(req);
+    if (!userId) {
+      return [true, undefined];
+    }
+    const article = await getArticleById(conn, id);
+    if (!article) {
+      return [false, undefined];
+    }
+    const user = await conn.models.User.findById(userId).lean();
+    if (!canEditArticle(user, article)) {
+      return [true, undefined];
+    }
+    if (isHTML(article.text)) {
+      article.text = convertHTMLToMarkdown(article.text);
+    }
+    return [false, article];
+  });
+  if (rejected) {
     return {
       redirect: {
         destination: "/login",
         permanent: false,
       },
     };
+  } else if (!article) {
+    return {
+      notFound: true,
+    };
+  } else {
+    return {
+      props: {
+        article,
+      },
+    };
   }
-  if (isHTML(article.text)) {
-    article.text = convertHTMLToMarkdown(article.text);
-  }
-  return {
-    props: {
-      article,
-    },
-  };
 };
 
 const Edit: React.FC<EditProps> = ({ article }) => {

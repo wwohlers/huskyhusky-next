@@ -1,4 +1,4 @@
-import { updateUserBio, updateUserName } from "../../../services/users";
+import { updateUserBio, updateUserName } from "../../../services/users/server";
 import { IUser } from "../../../services/users/user.interface";
 import createHandler from "../../../util/api/createHandler";
 

@@ -1,4 +1,4 @@
-import { createUser, userIsAdmin } from "../../../services/users";
+import { createUser, userIsAdmin } from "../../../services/users/server";
 import createHandler from "../../../util/api/createHandler";
 
 const createUserHandler = createHandler(true, {

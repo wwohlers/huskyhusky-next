@@ -3,7 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 import React from "react";
 import { connectToDB } from "../../services/database";
-import { getPublicUsers } from "../../services/users";
+import { getPublicUsers } from "../../services/users/server";
 import { PublicUser } from "../../services/users/user.interface";
 import stringifyIds from "../../util/stringifyIds";
 import { FaPaw } from "react-icons/fa";

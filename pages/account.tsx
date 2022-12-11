@@ -9,11 +9,10 @@ import Input from "../components/atoms/Input";
 import Label from "../components/atoms/Label";
 import TextArea from "../components/atoms/TextArea";
 import Section from "../components/Section";
-import { connectToDB } from "../services/database";
+import { withDB } from "../services/database";
 import { IUser } from "../services/users/user.interface";
 import getUserIdFromReq from "../util/api/getUserIdFromReq";
 import { apiClient } from "../util/client";
-import stringifyIds from "../util/stringifyIds";
 import {
   passwordRequirements,
   validateEmail,
@@ -27,10 +26,8 @@ type AccountProps = {
 export const getServerSideProps: GetServerSideProps<AccountProps> = async ({
   req,
 }) => {
-  const conn = await connectToDB();
   const userId = getUserIdFromReq(req);
   if (!userId) {
-    conn.close();
     return {
       redirect: {
         destination: "/login",
@@ -38,19 +35,20 @@ export const getServerSideProps: GetServerSideProps<AccountProps> = async ({
       },
     };
   }
-  const user = await conn.models.User.findById<IUser>(userId).lean();
-  conn.close();
-  stringifyIds(user);
+  const user = await withDB((conn) => {
+    return conn.models.User.findById(userId).lean();
+  });
   if (!user) {
     return {
       notFound: true,
     };
+  } else {
+    return {
+      props: {
+        user,
+      },
+    };
   }
-  return {
-    props: {
-      user,
-    },
-  };
 };
 
 enum EditMode {

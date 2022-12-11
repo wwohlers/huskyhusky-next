@@ -14,7 +14,11 @@ export interface IUser {
 
 export type PublicUser = Pick<IUser, "_id" | "name" | "bio" | "createdAt">;
 
+export const publicUserSelector = "_id name bio createdAt";
+
 export type AdminUser = Pick<
   IUser,
   "_id" | "name" | "email" | "admin" | "removed" | "createdAt"
 >;
+
+export const adminUserSelector = "_id name email admin removed createdAt";

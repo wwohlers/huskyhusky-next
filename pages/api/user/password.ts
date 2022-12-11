@@ -1,4 +1,4 @@
-import { updateUserPassword } from "../../../services/users";
+import { updateUserPassword } from "../../../services/users/server";
 import createHandler from "../../../util/api/createHandler";
 
 const changePasswordHandler = createHandler(true, {

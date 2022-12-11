@@ -1,40 +1,53 @@
-import mongoose, { Document, Model } from "mongoose";
-import { AdminUser, IUser, PublicUser } from "./user.interface";
 import bcrypt from "bcrypt";
+import mongoose, { Model } from "mongoose";
 import { signJWT } from "../../util/jwt";
+import { HuskyHuskyDB } from "../database";
+import {
+  AdminUser,
+  adminUserSelector,
+  IUser,
+  PublicUser,
+  publicUserSelector,
+} from "./user.interface";
 
-export async function userIsAdmin(conn: mongoose.Connection, userId: string) {
+export function canEditArticle(user: IUser | undefined | null, article: { author: IUser }) {
+  if (!user) return false;
+  console.log(user._id, article.author._id);
+  return user._id === article.author._id || user.admin;
+}
+
+export async function userIsAdmin(conn: HuskyHuskyDB, userId: string) {
   const user = await conn.models.User.findById(userId);
   return user?.admin;
 }
 
-export async function getPublicUsers(conn: mongoose.Connection) {
+export async function getPublicUsers(conn: HuskyHuskyDB) {
   const users = await conn.models.User.find({
     removed: false,
   })
     .sort({ name: 1 })
-    .select("_id name bio createdAt")
+    .select(publicUserSelector)
     .lean();
   return users as PublicUser[];
 }
 
-export async function getAdminUsers(conn: mongoose.Connection) {
+export async function getAdminUsers(conn: HuskyHuskyDB) {
   const users = await conn.models.User.find()
     .sort({ name: 1 })
-    .select("_id name email admin removed createdAt")
+    .select(adminUserSelector)
     .lean();
   return users as AdminUser[];
 }
 
-export async function getPublicUser(conn: mongoose.Connection, name: string) {
+export async function getPublicUser(conn: HuskyHuskyDB, name: string) {
   const user = await conn.models.User.findOne({ name, removed: false })
-    .select("_id name bio createdAt")
+    .select(publicUserSelector)
     .lean();
   return user as PublicUser;
 }
 
 export async function createUser(
-  conn: mongoose.Connection,
+  conn: HuskyHuskyDB,
   user: Pick<IUser, "name" | "email" | "password">
 ) {
   const hashedPassword = await bcrypt.hash(user.password, 10);
@@ -47,7 +60,7 @@ export async function createUser(
 }
 
 export async function signIn(
-  conn: mongoose.Connection,
+  conn: HuskyHuskyDB,
   email: string,
   password: string
 ) {
@@ -70,12 +83,12 @@ export async function signIn(
 }
 
 export async function updateUserName(
-  conn: mongoose.Connection,
+  conn: HuskyHuskyDB,
   userId: string,
-  name: string,
+  name: string
 ) {
   try {
-    const user = await conn.models.User.findByIdAndUpdate<IUser>(
+    const user = await conn.models.User.findByIdAndUpdate(
       userId,
       {
         name,
@@ -91,11 +104,11 @@ export async function updateUserName(
 }
 
 export async function updateUserBio(
-  conn: mongoose.Connection,
+  conn: HuskyHuskyDB,
   userId: string,
-  bio: string,
+  bio: string
 ) {
-  const user = await conn.models.User.findByIdAndUpdate<IUser>(
+  const user = await conn.models.User.findByIdAndUpdate(
     userId,
     {
       bio,
@@ -108,12 +121,12 @@ export async function updateUserBio(
 }
 
 export async function updateUserEmail(
-  conn: mongoose.Connection,
+  conn: HuskyHuskyDB,
   userId: string,
   email: string,
-  password: string,
+  password: string
 ) {
-  const user = await (conn.models.User as Model<IUser>).findById(userId);
+  const user = await conn.models.User.findById(userId);
   if (!user) {
     throw new Error("User not found");
   }
@@ -131,12 +144,12 @@ export async function updateUserEmail(
 }
 
 export async function updateUserPassword(
-  conn: mongoose.Connection,
+  conn: HuskyHuskyDB,
   userId: string,
   newPassword: string,
-  password: string,
+  password: string
 ) {
-  const user = await (conn.models.User as Model<IUser>).findById(userId);
+  const user = await conn.models.User.findById(userId);
   if (!user) {
     throw new Error("User not found");
   }
@@ -154,11 +167,8 @@ export async function updateUserPassword(
   }
 }
 
-export async function adminUpdateUser(
-  conn: mongoose.Connection,
-  update: AdminUser,
-) {
-  const user = await conn.models.User.findByIdAndUpdate<IUser>(
+export async function adminUpdateUser(conn: HuskyHuskyDB, update: AdminUser) {
+  const user = await conn.models.User.findByIdAndUpdate(
     update._id,
     {
       name: update.name,
@@ -168,6 +178,8 @@ export async function adminUpdateUser(
     {
       new: true, // return the modified document rather than the original
     }
-  ).select("_id name email admin removed createdAt").lean();
-  return user;
+  )
+    .select(adminUserSelector)
+    .lean();
+  return user as AdminUser;
 }

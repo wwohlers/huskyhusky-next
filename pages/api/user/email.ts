@@ -1,4 +1,4 @@
-import { updateUserEmail } from "../../../services/users";
+import { updateUserEmail } from "../../../services/users/server";
 import createHandler from "../../../util/api/createHandler";
 
 const changeEmailHandler = createHandler(true, {

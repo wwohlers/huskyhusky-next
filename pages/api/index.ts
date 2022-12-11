@@ -1,7 +1,7 @@
 import mongoose, { Model } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import { connectToDB } from "../../services/database";
-import getUserIdFromReq from "./getUserIdFromReq";
+import { getUserIdFromReq } from "../../util/jwt";
 
 // type for an individual handler for each method (GET, POST, etc)
 export type MethodHandler = (params: {
@@ -13,7 +13,7 @@ export type MethodHandler = (params: {
 
 type Methods = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
-export default function createHandler(
+export function createHandler(
   requireAuth: boolean,
   methodHandlers: Partial<Record<Methods, MethodHandler>>,
 ) {
@@ -48,3 +48,11 @@ export default function createHandler(
     }
   };
 }
+
+const healthCheckHandler = createHandler(false, {
+  GET: async () => {
+    return [200, { status: "OK" }];
+  },
+});
+
+export default healthCheckHandler;

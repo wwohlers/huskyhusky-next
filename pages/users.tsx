@@ -3,18 +3,16 @@ import Head from "next/head";
 import React, { useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import Button from "../components/atoms/Button";
-import Modal from "../components/Modal";
 import CreateUser from "../components/users/CreateUser";
 import EditUser, {
   EditUserProps,
   UserEditMode,
 } from "../components/users/EditUser";
-import { connectToDB } from "../services/database";
-import { getAdminUsers, userIsAdmin } from "../services/users";
-import { AdminUser, IUser } from "../services/users/user.interface";
+import { withDB } from "../services/database";
+import { getAdminUsers, userIsAdmin } from "../services/users/server";
+import { AdminUser } from "../services/users/user.interface";
 import getUserIdFromReq from "../util/api/getUserIdFromReq";
 import { formatDateTime } from "../util/datetime";
-import stringifyIds from "../util/stringifyIds";
 
 type UsersProps = {
   users: AdminUser[];
@@ -32,24 +30,24 @@ export const getServerSideProps: GetServerSideProps<UsersProps> = async ({
       },
     };
   }
-  const conn = await connectToDB();
-  if (!(await userIsAdmin(conn, userId))) {
-    conn.close();
+  const res = await withDB(async (conn) => {
+    const isAdmin = await userIsAdmin(conn, userId);
+    if (!isAdmin) {
+      return {
+        redirect: {
+          destination: "/login",
+          permanent: false,
+        },
+      };
+    }
+    const users = await getAdminUsers(conn);
     return {
-      redirect: {
-        destination: "/login",
-        permanent: false,
+      props: {
+        users,
       },
     };
-  }
-  const users = await getAdminUsers(conn);
-  conn.close();
-  stringifyIds(users);
-  return {
-    props: {
-      users,
-    },
-  };
+  });
+  return res;
 };
 
 const Users: React.FC<UsersProps> = ({ users: initialUsers }) => {

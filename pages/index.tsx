@@ -1,23 +1,20 @@
 import { GetStaticProps } from "next";
 import Head from "next/head";
 import React from "react";
-import ContentContainer from "../components/ContentContainer";
 import Headline from "../components/home/Headline";
 import HeadlineGroup from "../components/home/HeadlineGroup";
-import { getHeadlines } from "../services/articles";
+import { getHeadlines } from "../services/articles/server";
 import { IHeadline } from "../services/articles/article.interface";
-import { connectToDB } from "../services/database";
-import stringifyIds from "../util/stringifyIds";
+import { withDB } from "../services/database";
 
 type HomeProps = {
   headlines: IHeadline[];
 };
 
 export const getStaticProps: GetStaticProps<HomeProps> = async () => {
-  const conn = await connectToDB();
-  const headlines = await getHeadlines(conn);
-  conn.close();
-  stringifyIds(headlines);
+  const headlines = await withDB((conn) => {
+    return getHeadlines(conn);
+  });
   return {
     props: {
       headlines,

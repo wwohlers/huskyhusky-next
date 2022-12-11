@@ -4,9 +4,9 @@ import Head from "next/head";
 import React from "react";
 import Label from "../components/atoms/Label";
 import HeadlineList from "../components/HeadlineList";
-import { searchArticles } from "../services/articles";
+import { searchArticles } from "../services/articles/server";
 import { IHeadline } from "../services/articles/article.interface";
-import { connectToDB } from "../services/database";
+import { withDB } from "../services/database";
 import stringifyIds from "../util/stringifyIds";
 
 type SearchProps = {
@@ -25,10 +25,9 @@ export const getServerSideProps: GetServerSideProps<SearchProps> = async ({
       },
     };
   }
-  const conn = await connectToDB();
-  const headlines = await searchArticles(conn, query.q as string);
-  conn.close();
-  stringifyIds(headlines);
+  const headlines = await withDB((conn) => {
+    return searchArticles(conn, query.q as string);
+  });
   return {
     props: {
       query: query.q as string,

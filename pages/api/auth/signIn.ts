@@ -1,4 +1,4 @@
-import { signIn } from "../../../services/users";
+import { signIn } from "../../../services/users/server";
 import createHandler from "../../../util/api/createHandler";
 import { serialize } from "cookie";
 

@@ -1,4 +1,4 @@
-import { updateUserName } from "../../../services/users";
+import { updateUserName } from "../../../services/users/server";
 import createHandler from "../../../util/api/createHandler";
 
 const changeNameHandler = createHandler(true, {

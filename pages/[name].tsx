@@ -1,29 +1,30 @@
-import { DateTime } from "luxon";
 import { GetStaticPaths, GetStaticProps } from "next";
 import Head from "next/head";
-import React, { useMemo, useState } from "react";
-import { connectToDB } from "../services/database";
-import { getAllArticleNames, getArticleByName } from "../services/articles";
-import { IArticle } from "../services/articles/article.interface";
-import { timeAgo } from "../util/datetime";
-import stringifyIds from "../util/stringifyIds";
-import { sanitizeHtml } from "../util/sanitizeHtml";
 import Link from "next/link";
+import React, { useMemo, useState } from "react";
+import ReactMarkdown from "react-markdown";
 import Comment from "../components/article/Comment";
 import NewComment from "../components/article/NewComment";
-import Label from "../components/atoms/Label";
 import Button from "../components/atoms/Button";
-import ReactMarkdown from "react-markdown";
+import Label from "../components/atoms/Label";
+import {
+  getAllArticleNames,
+  getArticleByName,
+} from "../services/articles/server";
+import { IArticle } from "../services/articles/article.interface";
+import { withDB } from "../services/database";
+import { timeAgo } from "../util/datetime";
 import { isHTML } from "../util/markdown";
+import { sanitizeHtml } from "../util/sanitizeHtml";
 
 type ArticleProps = {
   article: IArticle;
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const conn = await connectToDB();
-  const names = await getAllArticleNames(conn);
-  conn.close();
+  const names = await withDB((conn) => {
+    return getAllArticleNames(conn);
+  });
   return {
     fallback: "blocking",
     paths: names.map((name) => ({
@@ -39,10 +40,9 @@ export const getStaticProps: GetStaticProps<ArticleProps> = async ({
 }) => {
   const name = params?.name;
   if (name) {
-    const conn = await connectToDB();
-    const article = await getArticleByName(conn, name as string);
-    conn.close();
-    stringifyIds(article);
+    const article = await withDB((conn) => {
+      return getArticleByName(conn, name as string);
+    });
     if (article) {
       return {
         props: {
@@ -58,11 +58,6 @@ export const getStaticProps: GetStaticProps<ArticleProps> = async ({
 
 const Article: React.FC<ArticleProps> = ({ article }) => {
   const [showNewComment, setShowNewComment] = useState(false);
-
-  const timeAgoStr = useMemo(() => {
-    const dt = DateTime.fromMillis(article.createdAt * 1000);
-    return timeAgo(dt);
-  }, [article]);
 
   const sanitizedHtml = useMemo(() => {
     return sanitizeHtml(article.text);
@@ -99,7 +94,7 @@ const Article: React.FC<ArticleProps> = ({ article }) => {
         </div>
         <h1 className="text-4xl font-semibold my-1">{article.title}</h1>
         <p className="my-2 text-gray-500">
-          Published {timeAgoStr} by {article.author.name}
+          Published {timeAgo(article.createdAt)} by {article.author.name}
         </p>
         <img
           className="mt-4 w-full rounded-md"

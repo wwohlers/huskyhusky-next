@@ -3,10 +3,9 @@ import Head from "next/head";
 import React from "react";
 import Label from "../components/atoms/Label";
 import HeadlineList from "../components/HeadlineList";
-import { getHeadlinesByTag, searchArticles } from "../services/articles";
+import { getHeadlinesByTag } from "../services/articles/server";
 import { IHeadline } from "../services/articles/article.interface";
-import { connectToDB } from "../services/database";
-import stringifyIds from "../util/stringifyIds";
+import { withDB } from "../services/database";
 
 type TagProps = {
   tag: string;
@@ -24,10 +23,9 @@ export const getServerSideProps: GetServerSideProps<TagProps> = async ({
       },
     };
   }
-  const conn = await connectToDB();
-  const headlines = await getHeadlinesByTag(conn, query.t as string);
-  conn.close();
-  stringifyIds(headlines);
+  const headlines = await withDB((conn) => {
+    return getHeadlinesByTag(conn, query.t as string);
+  });
   return {
     props: {
       tag: query.t as string,

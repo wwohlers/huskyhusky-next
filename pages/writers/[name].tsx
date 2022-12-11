@@ -6,10 +6,10 @@ import { MdModeEdit, MdOutlineEdit } from "react-icons/md";
 import { toast } from "react-toastify";
 import Button from "../../components/atoms/Button";
 import HeadlineList from "../../components/HeadlineList";
-import { getHeadlinesByUser } from "../../services/articles";
+import { getHeadlinesByUser } from "../../services/articles/server";
 import { IArticle, IHeadline } from "../../services/articles/article.interface";
-import { connectToDB } from "../../services/database";
-import { getPublicUser, getPublicUsers } from "../../services/users";
+import { withDB } from "../../services/database";
+import { getPublicUser, getPublicUsers } from "../../services/users/server";
 import { PublicUser } from "../../services/users/user.interface";
 import { apiClient } from "../../util/client";
 import stringifyIds from "../../util/stringifyIds";
@@ -20,9 +20,9 @@ type WriterProps = {
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const conn = await connectToDB();
-  const users = await getPublicUsers(conn);
-  conn.close();
+  const users = await withDB((conn) => {
+    return conn.models.User.find().lean();
+  });
   return {
     fallback: "blocking",
     paths: users.map(({ name }) => ({
@@ -36,29 +36,30 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps<WriterProps> = async ({
   params,
 }) => {
-  const name = params?.name;
-  if (name) {
-    const conn = await connectToDB();
-    const user = await getPublicUser(conn, name as string);
-    stringifyIds(user);
-    if (user) {
-      const headlines = await getHeadlinesByUser(conn, user._id);
-      conn.close();
-      stringifyIds(headlines);
-      if (headlines) {
-        return {
-          props: {
-            user,
-            headlines,
-          },
-        };
-      }
+  const [user, headlines] = await withDB(async (conn) => {
+    const name = params?.name;
+    if (!name) {
+      return [undefined, undefined];
     }
-    conn.close();
+    const user = await getPublicUser(conn, name as string);
+    if (!user) {
+      return [undefined, undefined];
+    }
+    const headlines = await getHeadlinesByUser(conn, user._id);
+    return [user, headlines];
+  });
+  if (!user || !headlines) {
+    return {
+      notFound: true,
+    };
+  } else {
+    return {
+      props: {
+        user,
+        headlines,
+      },
+    };
   }
-  return {
-    notFound: true,
-  };
 };
 
 const Writer: React.FC<WriterProps> = ({ user, headlines }) => {

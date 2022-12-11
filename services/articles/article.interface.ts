@@ -25,3 +25,5 @@ export type IHeadline = Pick<
   IArticle,
   "_id" | "name" | "title" | "tags" | "brief" | "image" | "author"
 >;
+
+export const headlineSelector = "_id name title tags brief image author";

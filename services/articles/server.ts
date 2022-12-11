@@ -1,44 +1,42 @@
 import mongoose from "mongoose";
-import { IArticle, IHeadline } from "./article.interface";
+import { HuskyHuskyDB } from "../database";
+import { headlineSelector, IArticle, IHeadline } from "./article.interface";
 
-export async function getAllArticleNames(conn: mongoose.Connection) {
-  const articles = await conn.models.Article.find().lean<IArticle[]>();
+export async function getAllArticleNames(conn: HuskyHuskyDB) {
+  const articles = await conn.models.Article.find().lean();
   return articles.map((a) => a.name);
 }
 
-export async function getArticleById(conn: mongoose.Connection, id: string) {
+export async function getArticleById(conn: HuskyHuskyDB, id: string) {
   const article = await conn.models.Article.findById(id)
     .populate("author", "_id name")
-    .lean<IArticle | undefined>();
+    .lean();
   return article;
 }
 
-export async function getArticleByName(
-  conn: mongoose.Connection,
-  name: string
-) {
+export async function getArticleByName(conn: HuskyHuskyDB, name: string) {
   const article = await conn.models.Article.findOne({
     name,
   })
     .populate("author", "_id name")
     .populate("comments")
-    .lean<IArticle | null>();
+    .lean();
   return article;
 }
 
-export async function getHeadlines(conn: mongoose.Connection) {
+export async function getHeadlines(conn: HuskyHuskyDB) {
   const articles = await conn.models.Article.find({
     public: true,
   })
     .sort({ createdAt: -1 })
     .limit(18)
-    .select("_id name title brief image tags author")
+    .select(headlineSelector)
     .populate("author", "_id name")
     .lean();
   return articles as IHeadline[];
 }
 
-export async function getArticleTags(conn: mongoose.Connection) {
+export async function getArticleTags(conn: HuskyHuskyDB) {
   const result = await conn.models.Article.aggregate([
     {
       $group: {
@@ -61,43 +59,37 @@ export async function getArticleTags(conn: mongoose.Connection) {
   return result[0].tags as string[];
 }
 
-export async function searchArticles(conn: mongoose.Connection, query: string) {
+export async function searchArticles(conn: HuskyHuskyDB, query: string) {
   const articles = await conn.models.Article.find({
     $text: { $search: query },
     score: { $meta: "textScore" },
     public: true,
   })
     .sort({ score: { $meta: "textScore" } })
-    .select("_id name title brief image tags author")
+    .select(headlineSelector)
     .populate("author", "_id name")
     .lean();
   return articles as IHeadline[];
 }
 
-export async function getHeadlinesByTag(
-  conn: mongoose.Connection,
-  tag: string
-) {
+export async function getHeadlinesByTag(conn: HuskyHuskyDB, tag: string) {
   const articles = await conn.models.Article.find({
     public: true,
     tags: tag,
   })
     .sort({ createdAt: -1 })
-    .select("_id name title brief image tags author")
+    .select(headlineSelector)
     .populate("author", "_id name")
     .lean();
   return articles as IHeadline[];
 }
 
-export async function getHeadlinesByUser(
-  conn: mongoose.Connection,
-  userId: string
-) {
+export async function getHeadlinesByUser(conn: HuskyHuskyDB, userId: string) {
   const articles = await conn.models.Article.find({
     public: true,
   })
     .sort({ createdAt: -1 })
-    .select("_id name title brief image tags author")
+    .select(headlineSelector)
     .populate("author", "_id name")
     .lean();
   return articles.filter(
