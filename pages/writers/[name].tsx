@@ -1,18 +1,17 @@
-import { GetStaticPaths, GetStaticProps, NextApiRequest } from "next";
+import { GetStaticPaths, GetStaticProps } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import React, { useMemo, useState } from "react";
-import { MdModeEdit, MdOutlineEdit } from "react-icons/md";
+import React from "react";
+import { MdModeEdit } from "react-icons/md";
 import { toast } from "react-toastify";
 import Button from "../../components/atoms/Button";
 import HeadlineList from "../../components/HeadlineList";
-import { getHeadlinesByUser } from "../../services/articles/server";
 import { IArticle, IHeadline } from "../../services/articles/article.interface";
+import { getHeadlinesByUser } from "../../services/articles/server";
 import { withDB } from "../../services/database";
-import { getPublicUser, getPublicUsers } from "../../services/users/server";
+import { getPublicUser } from "../../services/users/server";
 import { PublicUser } from "../../services/users/user.interface";
 import { apiClient } from "../../util/client";
-import stringifyIds from "../../util/stringifyIds";
 
 type WriterProps = {
   user: PublicUser;
