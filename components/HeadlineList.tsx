@@ -46,7 +46,7 @@ const HeadlineList: React.FC<HeadlineListProps> = ({ headlines }) => {
               src={headline.image}
               alt={`Thumbnail for '${headline.title}'`}
               fill
-              objectFit="cover"
+              className="object-cover"
             />
           </div>
           <div className="w-full">

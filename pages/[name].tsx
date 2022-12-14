@@ -93,9 +93,12 @@ const Article: React.FC<ArticleProps> = ({ article }) => {
           ))}
         </div>
         <h1 className="text-4xl font-semibold my-1">{article.title}</h1>
-        <p className="my-2 text-gray-500">
+        <Link
+          href={"/writers/" + article.author.name}
+          className="my-2 text-gray-500"
+        >
           Published {timeAgo(article.createdAt)} by {article.author.name}
-        </p>
+        </Link>
         <img
           className="mt-4 w-full rounded-md"
           src={article.image}
