@@ -1,5 +1,10 @@
 import bcrypt from "bcrypt";
-import mongoose, { Model } from "mongoose";
+import mongoose, { Document, Model } from "mongoose";
+import {
+  ConflictError,
+  NotFoundError,
+  UnauthorizedError,
+} from "../../api/handleError";
 import { signJWT } from "../../util/jwt";
 import { HuskyHuskyDB } from "../database";
 import {
@@ -10,7 +15,10 @@ import {
   publicUserSelector,
 } from "./user.interface";
 
-export function canEditArticle(user: IUser | undefined | null, article: { author: IUser }) {
+export function canEditArticle(
+  user: IUser | undefined | null,
+  article: { author: IUser }
+) {
   if (!user) return false;
   console.log(user._id, article.author._id);
   return user._id === article.author._id || user.admin;
@@ -51,12 +59,20 @@ export async function createUser(
   user: Pick<IUser, "name" | "email" | "password">
 ) {
   const hashedPassword = await bcrypt.hash(user.password, 10);
-  const newUser = await conn.models.User.create({
-    name: user.name,
-    email: user.email,
-    password: hashedPassword,
-  });
-  return newUser;
+  try {
+    const newUser = await conn.models.User.create({
+      name: user.name,
+      email: user.email,
+      password: hashedPassword,
+    });
+    return newUser;
+  } catch (e) {
+    throw new ConflictError("Name or email already in use");
+  }
+}
+
+export async function comparePassword(user: IUser, password: string) {
+  return await bcrypt.compare(password, user.password);
 }
 
 export async function signIn(
@@ -66,120 +82,53 @@ export async function signIn(
 ) {
   const user = await conn.models.User.findOne({ email });
   if (!user || user.removed) {
-    throw new Error("Invalid email or user account removed");
+    throw new NotFoundError("Invalid email or user account removed");
   }
 
-  const validPassword = await bcrypt.compare(password, user.password);
-  if (!validPassword) {
-    throw new Error("Invalid password");
+  const valid = await comparePassword(user, password);
+  if (!valid) {
+    throw new UnauthorizedError("Invalid password");
   }
-
   const token = signJWT({ id: user._id });
-
   return {
     user,
     token,
   };
 }
 
-export async function updateUserName(
-  conn: HuskyHuskyDB,
-  userId: string,
-  name: string
+export async function selfUpdateUser(
+  user: mongoose.Document & IUser,
+  userUpdate: Partial<Pick<IUser, "name" | "bio" | "email" | "password">>
 ) {
-  try {
-    const user = await conn.models.User.findByIdAndUpdate(
-      userId,
-      {
-        name,
-      },
-      {
-        new: true, // return the modified document rather than the original
-      }
-    );
-    return user;
-  } catch (e) {
-    throw new Error("Name already taken");
+  if (userUpdate.email) {
+    user.email = userUpdate.email;
   }
-}
-
-export async function updateUserBio(
-  conn: HuskyHuskyDB,
-  userId: string,
-  bio: string
-) {
-  const user = await conn.models.User.findByIdAndUpdate(
-    userId,
-    {
-      bio,
-    },
-    {
-      new: true, // return the modified document rather than the original
-    }
-  ).lean();
+  if (userUpdate.password) {
+    user.password = await bcrypt.hash(userUpdate.password, 10);
+  }
+  if (userUpdate.name) {
+    user.name = userUpdate.name;
+  }
+  if (userUpdate.bio) {
+    user.bio = userUpdate.bio;
+  }
+  await user.save();
   return user;
 }
 
-export async function updateUserEmail(
-  conn: HuskyHuskyDB,
-  userId: string,
-  email: string,
-  password: string
+export async function adminUpdateUser(
+  user: mongoose.Document & IUser,
+  userUpdate: Partial<Pick<IUser, "name" | "admin" | "removed">>
 ) {
-  const user = await conn.models.User.findById(userId);
-  if (!user) {
-    throw new Error("User not found");
+  if (userUpdate.name) {
+    user.name = userUpdate.name;
   }
-  const validPassword = await bcrypt.compare(password, user.password);
-  if (!validPassword) {
-    throw new Error("Invalid password");
+  if (userUpdate.admin) {
+    user.admin = userUpdate.admin;
   }
-  try {
-    user.email = email;
-    await user.save();
-    return user.toObject();
-  } catch (e) {
-    throw new Error("Email already taken");
+  if (userUpdate.removed) {
+    user.removed = userUpdate.removed;
   }
-}
-
-export async function updateUserPassword(
-  conn: HuskyHuskyDB,
-  userId: string,
-  newPassword: string,
-  password: string
-) {
-  const user = await conn.models.User.findById(userId);
-  if (!user) {
-    throw new Error("User not found");
-  }
-  const validPassword = await bcrypt.compare(password, user.password);
-  if (!validPassword) {
-    throw new Error("Invalid password");
-  }
-  try {
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password = hashedPassword;
-    await user.save();
-    return user.toObject();
-  } catch (e) {
-    throw new Error("Email already taken");
-  }
-}
-
-export async function adminUpdateUser(conn: HuskyHuskyDB, update: AdminUser) {
-  const user = await conn.models.User.findByIdAndUpdate(
-    update._id,
-    {
-      name: update.name,
-      admin: update.admin,
-      removed: update.removed,
-    },
-    {
-      new: true, // return the modified document rather than the original
-    }
-  )
-    .select(adminUserSelector)
-    .lean();
-  return user as AdminUser;
+  await user.save();
+  return user;
 }

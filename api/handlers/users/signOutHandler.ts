@@ -1,8 +1,7 @@
-import createHandler from "../../../util/api/createHandler";
+import { MethodHandler } from "../../createHandler";
 import { serialize } from "cookie";
 
-const signOutHandler = createHandler(false, {
-  POST: async ({ res }) => {
+const signOutHandler: MethodHandler<{}, {}> = async ({ res }) => {
     res.setHeader(
       "Set-Cookie",
       serialize("auth", "0", {
@@ -13,8 +12,7 @@ const signOutHandler = createHandler(false, {
         secure: process.env.NODE_ENV === "production",
       })
     );
-    return [201, {}];
-  },
-});
+    return {};
+}
 
 export default signOutHandler;

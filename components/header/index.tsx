@@ -5,7 +5,7 @@ import { AiOutlineSearch } from "react-icons/ai";
 import { FaPaw } from "react-icons/fa";
 import { GiHamburgerMenu } from "react-icons/gi";
 import useSWR from "swr";
-import { MeResponse } from "../../pages/api/auth";
+import { MeResponse } from "../../pages/api/user";
 import { axiosFetcher } from "../../util/client/axios";
 import Input from "../atoms/Input";
 import ContentContainer from "../ContentContainer";

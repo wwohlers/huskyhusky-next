@@ -5,7 +5,7 @@ import Link from "next/link";
 import Label from "./atoms/Label";
 import { axiosFetcher } from "../util/client/axios";
 import useSWR from "swr";
-import { MeResponse } from "../pages/api/auth";
+import { MeResponse } from "../pages/api/user";
 import { MdModeEdit } from "react-icons/md";
 import { canEditArticle } from "../util/canEditArticle";
 

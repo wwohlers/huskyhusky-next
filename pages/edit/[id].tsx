@@ -24,7 +24,7 @@ import { canEditArticle } from "../../util/canEditArticle";
 import { apiClient } from "../../util/client";
 import { axiosFetcher } from "../../util/client/axios";
 import { convertHTMLToMarkdown, isHTML } from "../../util/markdown";
-import { MeResponse } from "../api/auth";
+import { MeResponse } from "../api/user";
 
 const SimpleMDEEditor = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,

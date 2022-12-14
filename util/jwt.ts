@@ -1,5 +1,6 @@
 import JWT from "jsonwebtoken";
 import { NextApiResponse } from "next";
+import { UnauthorizedError } from "../api/handleError";
 
 export type JWTPayload = {
   id: string;
@@ -27,7 +28,7 @@ export function verifyJWT(token: string): JWTPayload {
     !Object.hasOwn(payload, "id") ||
     typeof payload["id"] !== "string"
   ) {
-    throw new Error("Invalid JWT payload");
+    throw new UnauthorizedError("Absent or invalid JWT payload");
   }
   return payload;
 }
@@ -41,7 +42,6 @@ export function getUserIdFromReq(
     const payload = verifyJWT(token);
     return payload.id;
   } catch (e) {
-    console.error(e);
     return undefined;
   }
 }
