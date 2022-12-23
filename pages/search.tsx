@@ -1,13 +1,12 @@
-import { connection } from "mongoose";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import React from "react";
 import Label from "../components/atoms/Label";
 import HeadlineList from "../components/HeadlineList";
-import { searchArticles } from "../services/articles/server";
 import { IHeadline } from "../services/articles/article.interface";
+import { searchArticles } from "../services/articles/server";
 import { withDB } from "../services/database";
-import stringifyIds from "../util/stringifyIds";
+import { returnProps, returnRedirect } from "../util/next";
 
 type SearchProps = {
   query: string;
@@ -18,22 +17,15 @@ export const getServerSideProps: GetServerSideProps<SearchProps> = async ({
   query,
 }) => {
   if (!Object.hasOwn(query, "q")) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: true,
-      },
-    };
+    return returnRedirect("/", true);
   }
   const headlines = await withDB((conn) => {
     return searchArticles(conn, query.q as string);
   });
-  return {
-    props: {
-      query: query.q as string,
-      headlines,
-    },
-  };
+  return returnProps({
+    query: query.q as string,
+    headlines,
+  });
 };
 
 const Search: React.FC<SearchProps> = ({ query, headlines }) => {

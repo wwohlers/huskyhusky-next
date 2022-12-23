@@ -1,10 +1,10 @@
-import bcrypt from "bcrypt";
-import mongoose, { Document, Model } from "mongoose";
+import mongoose from "mongoose";
 import {
   ConflictError,
   NotFoundError,
   UnauthorizedError,
 } from "../../api/handleError";
+import { comparePassword, hashPassword } from "../../util/bcrypt";
 import { signJWT } from "../../util/jwt";
 import { HuskyHuskyDB } from "../database";
 import {
@@ -20,13 +20,15 @@ export function canEditArticle(
   article: { author: IUser }
 ) {
   if (!user) return false;
-  console.log(user._id, article.author._id);
-  return user._id === article.author._id || user.admin;
+  return !user.removed && (user._id === article.author._id || user.admin);
 }
 
 export async function userIsAdmin(conn: HuskyHuskyDB, userId: string) {
   const user = await conn.models.User.findById(userId);
-  return user?.admin;
+  if (user) {
+    return !user.removed && user.admin;
+  }
+  return false;
 }
 
 export async function getPublicUsers(conn: HuskyHuskyDB) {
@@ -58,7 +60,7 @@ export async function createUser(
   conn: HuskyHuskyDB,
   user: Pick<IUser, "name" | "email" | "password">
 ) {
-  const hashedPassword = await bcrypt.hash(user.password, 10);
+  const hashedPassword = await hashPassword(user.password);
   try {
     const newUser = await conn.models.User.create({
       name: user.name,
@@ -71,21 +73,16 @@ export async function createUser(
   }
 }
 
-export async function comparePassword(user: IUser, password: string) {
-  return await bcrypt.compare(password, user.password);
-}
-
 export async function signIn(
   conn: HuskyHuskyDB,
   email: string,
   password: string
 ) {
-  const user = await conn.models.User.findOne({ email });
-  if (!user || user.removed) {
+  const user = await conn.models.User.findOne({ email, removed: false });
+  if (!user) {
     throw new NotFoundError("Invalid email or user account removed");
   }
-
-  const valid = await comparePassword(user, password);
+  const valid = await comparePassword(password, user.password);
   if (!valid) {
     throw new UnauthorizedError("Invalid password");
   }
@@ -104,7 +101,7 @@ export async function selfUpdateUser(
     user.email = userUpdate.email;
   }
   if (userUpdate.password) {
-    user.password = await bcrypt.hash(userUpdate.password, 10);
+    user.password = await hashPassword(userUpdate.password);
   }
   if (userUpdate.name) {
     user.name = userUpdate.name;

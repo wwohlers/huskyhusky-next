@@ -61,9 +61,18 @@ export function handleError(error: Error, res: NextApiResponse) {
  * @param response respnose from the server
  */
 export function propagateError(status: number, responseData: any) {
-  for (const key in errorStatusCodes) {
-    if (errorStatusCodes[key as keyof typeof errorStatusCodes] === status) {
-      throw new Error(responseData?.message);
-    }
+  switch (status) {
+    case 400:
+      throw new ValidationError(responseData.message);
+    case 401:
+      throw new UnauthorizedError(responseData.message);
+    case 404:
+      throw new NotFoundError(responseData.message);
+    case 405:
+      throw new MethodNotAllowedError(responseData.message);
+    case 409:
+      throw new ConflictError(responseData.message);
+    default:
+      throw new Error(responseData.message);
   }
 }

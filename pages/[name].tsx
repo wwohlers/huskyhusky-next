@@ -16,6 +16,8 @@ import { withDB } from "../services/database";
 import { timeAgo } from "../util/datetime";
 import { isHTML } from "../util/markdown";
 import { sanitizeHtml } from "../util/sanitizeHtml";
+import { returnNotFound, returnProps } from "../util/next";
+import { IComment } from "../services/articles/comment.interface";
 
 type ArticleProps = {
   article: IArticle;
@@ -44,19 +46,14 @@ export const getStaticProps: GetStaticProps<ArticleProps> = async ({
       return getArticleByName(conn, name as string);
     });
     if (article) {
-      return {
-        props: {
-          article,
-        },
-      };
+      return returnProps({ article });
     }
   }
-  return {
-    notFound: true,
-  };
+  return returnNotFound();
 };
 
-const Article: React.FC<ArticleProps> = ({ article }) => {
+const Article: React.FC<ArticleProps> = ({ article: initialArticle }) => {
+  const [article, setArticle] = useState(initialArticle);
   const [showNewComment, setShowNewComment] = useState(false);
 
   const sanitizedHtml = useMemo(() => {
@@ -67,8 +64,12 @@ const Article: React.FC<ArticleProps> = ({ article }) => {
     return isHTML(article.text);
   }, [article]);
 
-  const onSubmitComment = (name: string, content: string) => {
-    // todo: IMPLEMENT
+  const onCommentCreated = (comment: IComment) => {
+    setShowNewComment(false);
+    setArticle((prev) => ({
+      ...prev,
+      comments: [...prev.comments, comment],
+    }));
   };
 
   return (
@@ -100,7 +101,7 @@ const Article: React.FC<ArticleProps> = ({ article }) => {
           Published {timeAgo(article.createdAt)} by {article.author.name}
         </Link>
         <img
-          className="mt-4 w-full rounded-md"
+          className="mt-2 w-full rounded-md"
           src={article.image}
           alt={`Image for ${article.title}`}
         />
@@ -134,7 +135,7 @@ const Article: React.FC<ArticleProps> = ({ article }) => {
           </div>
           {showNewComment && (
             <NewComment
-              onSubmit={onSubmitComment}
+              onSuccess={onCommentCreated}
               onCancel={() => setShowNewComment(false)}
             />
           )}

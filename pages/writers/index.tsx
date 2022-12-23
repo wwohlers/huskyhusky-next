@@ -2,26 +2,21 @@ import { GetStaticProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import React from "react";
-import { connectToDB } from "../../services/database";
 import { getPublicUsers } from "../../services/users/server";
 import { PublicUser } from "../../services/users/user.interface";
-import stringifyIds from "../../util/stringifyIds";
 import { FaPaw } from "react-icons/fa";
+import { withDB } from "../../services/database";
+import { returnProps } from "../../util/next";
 
 type WriterProps = {
   writers: PublicUser[];
 };
 
 export const getStaticProps: GetStaticProps<WriterProps> = async () => {
-  const conn = await connectToDB();
-  const writers = await getPublicUsers(conn);
-  conn.close();
-  stringifyIds(writers);
-  return {
-    props: {
-      writers,
-    },
-  };
+  const writers = await withDB((conn) => {
+    return getPublicUsers(conn);
+  });
+  return returnProps({ writers });
 };
 
 const Writers: React.FC<WriterProps> = ({ writers }) => {

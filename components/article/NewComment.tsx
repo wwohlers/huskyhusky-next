@@ -1,57 +1,72 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
+import { BiRename } from "react-icons/bi";
+import { useForm } from "../../hooks/useForm";
+import {
+  createCommentContentValidator,
+  createCommentNameValidator,
+  IComment,
+} from "../../services/articles/comment.interface";
 import Button from "../atoms/Button";
-import Input from "../atoms/Input";
-import Label from "../atoms/Label";
 import TextArea from "../atoms/TextArea";
+import TextInput from "../atoms/TextInput";
+import Form from "../forms/Form";
 
 type NewCommentProps = {
-  onSubmit: (name: string, content: string) => void;
+  onSuccess: (comment: IComment) => void;
   onCancel: () => void;
 };
 
-enum InvalidReasons {
-  SHORT_NAME = "Name must be at least 3 letters, excluding spaces",
-  NO_CONTENT = "Please enter some content",
-}
+type NewCommentForm = {
+  name: string;
+  content: string;
+};
 
-const NewComment: React.FC<NewCommentProps> = ({ onSubmit, onCancel }) => {
-  const [name, setName] = useState("");
-  const [content, setContent] = useState("");
-
-  const invalidReasons = useMemo(() => {
-    let result: InvalidReasons[] = [];
-    if (name.trim().length < 3) {
-      result.push(InvalidReasons.SHORT_NAME);
+const NewComment: React.FC<NewCommentProps> = ({ onSuccess, onCancel }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const { values, errors, onFieldChange, hasErrors } = useForm<NewCommentForm>(
+    {
+      name: "",
+      content: "",
+    },
+    {
+      name: createCommentNameValidator(),
+      content: createCommentContentValidator(),
     }
-    if (content.trim().length < 1) {
-      result.push(InvalidReasons.NO_CONTENT);
-    }
-    return result;
-  }, [name, content]);
+  );
 
-  const isValid = useMemo(() => {
-    return invalidReasons.length === 0;
-  }, [invalidReasons]);
+  const onSubmit = () => {
+    setIsLoading(true);
+    // TODO: Implement
+    onSuccess({
+      name: values.name,
+      content: values.content,
+      createdAt: Date.now(),
+    });
+    setIsLoading(false);
+  };
 
   return (
-    <div className="my-6">
-      <label className="block my-4">
-        <Label>Name</Label>
-        <Input value={name} onChange={setName} />
-      </label>
-      <label className="block my-4">
-        <Label>Comment</Label>
-        <TextArea value={content} onChange={setContent} />
-      </label>
-      <div className="flex flex-row justify-end space-x-2 items-center">
+    <Form>
+      <Form.Item title="Name" error={errors.name}>
+        <TextInput
+          name="name"
+          icon={<BiRename size={18} />}
+          type="text"
+          onChange={onFieldChange("name")}
+        />
+      </Form.Item>
+      <Form.Item title="Comment" error={errors.content}>
+        <TextArea name="content" onChange={onFieldChange("content")} />
+      </Form.Item>
+      <Form.Buttons>
         <Button onClick={onCancel} type="secondary">
           Cancel
         </Button>
-        <Button disabled={!isValid} onClick={() => onSubmit(name, content)}>
+        <Button disabled={hasErrors || isLoading} onClick={onSubmit}>
           Submit
         </Button>
-      </div>
-    </div>
+      </Form.Buttons>
+    </Form>
   );
 };
 

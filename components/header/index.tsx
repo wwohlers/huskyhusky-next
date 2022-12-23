@@ -4,10 +4,8 @@ import React, { useState } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
 import { FaPaw } from "react-icons/fa";
 import { GiHamburgerMenu } from "react-icons/gi";
-import useSWR from "swr";
-import { MeResponse } from "../../pages/api/user";
-import { axiosFetcher } from "../../util/client/axios";
-import Input from "../atoms/Input";
+import { useUser } from "../../hooks/useUser";
+import TextInput from "../atoms/TextInput";
 import ContentContainer from "../ContentContainer";
 import UserMenu from "./UserMenu";
 
@@ -17,7 +15,7 @@ const Header: React.FC = () => {
   const router = useRouter();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { data } = useSWR<MeResponse>("/auth", axiosFetcher);
+  const user = useUser();
 
   const extraContainerClasses = mobileNavOpen ? "h-screen lg:h-auto" : "";
   const extraNavClasses = mobileNavOpen ? "block mt-2" : "hidden lg:flex";
@@ -62,10 +60,10 @@ const Header: React.FC = () => {
             </Link>
           </span>
         ))}
-        {data?.authenticated ? (
-          <UserMenu user={data.user} />
+        {user ? (
+          <UserMenu user={user} />
         ) : (
-          <Input
+          <TextInput
             icon={<AiOutlineSearch size={20} color={"#AAA"} />}
             value={searchQuery}
             onChange={setSearchQuery}

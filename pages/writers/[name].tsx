@@ -3,15 +3,17 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import React from "react";
 import { MdModeEdit } from "react-icons/md";
-import { toast } from "react-toastify";
 import Button from "../../components/atoms/Button";
 import HeadlineList from "../../components/HeadlineList";
-import { IArticle, IHeadline } from "../../services/articles/article.interface";
+import { useUser } from "../../hooks/useUser";
+import { IHeadline } from "../../services/articles/article.interface";
 import { getHeadlinesByUser } from "../../services/articles/server";
 import { withDB } from "../../services/database";
 import { getPublicUser } from "../../services/users/server";
 import { PublicUser } from "../../services/users/user.interface";
-import { apiClient } from "../../util/client";
+import { returnNotFound, returnProps } from "../../util/next";
+import toastError from "../../util/toastError";
+import { createArticle } from "../api/articles";
 
 type WriterProps = {
   user: PublicUser;
@@ -48,30 +50,26 @@ export const getStaticProps: GetStaticProps<WriterProps> = async ({
     return [user, headlines];
   });
   if (!user || !headlines) {
-    return {
-      notFound: true,
-    };
+    return returnNotFound();
   } else {
-    return {
-      props: {
-        user,
-        headlines,
-      },
-    };
+    return returnProps({ user, headlines });
   }
 };
 
 const Writer: React.FC<WriterProps> = ({ user, headlines }) => {
   const router = useRouter();
+  const authUser = useUser();
 
   const write = async () => {
-    const res = await apiClient.post<IArticle>("/articles");
-    if (res.success) {
-      router.push(`/edit/${res.data._id}`);
-    } else {
-      toast.error(res.error);
+    try {
+      const data = await createArticle();
+      router.push(`/edit/${data._id}`);
+    } catch (e) {
+      toastError(e);
     }
   };
+
+  const canWrite = authUser && authUser._id === user._id;
 
   return (
     <div className="w-full">
@@ -85,13 +83,15 @@ const Writer: React.FC<WriterProps> = ({ user, headlines }) => {
           <h2 className="text-gray-400 mb-8">{user.bio}</h2>
         </div>
         <div>
-          <Button
-            className="flex flex-row items-center space-x-2"
-            onClick={write}
-          >
-            <MdModeEdit />
-            <span>Write</span>
-          </Button>
+          {canWrite && (
+            <Button
+              className="flex flex-row items-center space-x-2"
+              onClick={write}
+            >
+              <MdModeEdit />
+              <span>Write</span>
+            </Button>
+          )}
         </div>
       </div>
       <HeadlineList headlines={headlines} />

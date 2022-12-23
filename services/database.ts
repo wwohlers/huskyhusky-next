@@ -39,7 +39,7 @@ export async function withDB<K>(
   const conn = await connectToDB();
   const result = await handler(conn);
   conn.close();
-  return stringifyIds(result) as WithoutPromise<K>;
+  return result as WithoutPromise<K>;
 }
 
 /**

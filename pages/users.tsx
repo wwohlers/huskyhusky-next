@@ -11,8 +11,9 @@ import EditUser, {
 import { withDB } from "../services/database";
 import { getAdminUsers, userIsAdmin } from "../services/users/server";
 import { AdminUser } from "../services/users/user.interface";
-import getUserIdFromReq from "../util/api/getUserIdFromReq";
 import { formatDateTime } from "../util/datetime";
+import { getUserIdFromReq } from "../util/jwt";
+import { returnProps, returnRedirect } from "../util/next";
 
 type UsersProps = {
   users: AdminUser[];
@@ -23,29 +24,15 @@ export const getServerSideProps: GetServerSideProps<UsersProps> = async ({
 }) => {
   const userId = getUserIdFromReq(req);
   if (!userId) {
-    return {
-      redirect: {
-        destination: "/login",
-        permanent: false,
-      },
-    };
+    return returnRedirect("/login");
   }
   const res = await withDB(async (conn) => {
     const isAdmin = await userIsAdmin(conn, userId);
     if (!isAdmin) {
-      return {
-        redirect: {
-          destination: "/login",
-          permanent: false,
-        },
-      };
+      return returnRedirect("/login");
     }
     const users = await getAdminUsers(conn);
-    return {
-      props: {
-        users,
-      },
-    };
+    return returnProps({ users });
   });
   return res;
 };

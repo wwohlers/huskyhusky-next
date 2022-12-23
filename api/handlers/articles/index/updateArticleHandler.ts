@@ -1,4 +1,15 @@
-import { IArticle } from "../../../../services/articles/article.interface";
+import {
+  IArticle,
+  createArticleTitleValidator,
+} from "../../../../services/articles/article.interface";
+import {
+  createArrayValidator,
+  createIdValidator,
+  createSchemaValidator,
+  createTextFieldValidator,
+  isBoolean,
+  isString,
+} from "../../../../util/validation";
 import { MethodHandler } from "../../../createHandler";
 import requireAuth from "../../../guards/requireAuth";
 import { NotFoundError } from "../../../handleError";
@@ -17,6 +28,18 @@ type UpdateArticleRequest = Pick<
 >;
 type UpdateArticleResponse = IArticle;
 
+const requestBodyValidator = createSchemaValidator<UpdateArticleRequest>({
+  _id: createIdValidator(),
+  name: createArticleTitleValidator(),
+  title: createArticleTitleValidator(),
+  tags: createArrayValidator(isString),
+  brief: createTextFieldValidator(1, 200),
+  image: isString,
+  attr: createTextFieldValidator(1, 200),
+  text: isString,
+  public: isBoolean,
+});
+
 const updateArticleHandler: MethodHandler<
   UpdateArticleRequest,
   UpdateArticleResponse
@@ -32,11 +55,8 @@ const updateArticleHandler: MethodHandler<
     attr,
     text,
     public: isPublic,
-  } = req.body;
-  if (!_id) {
-    throw new NotFoundError("Article not found");
-  }
-  const article = await conn.models.Article.findByIdAndUpdate<IArticle>(
+  } = requestBodyValidator(req.body);
+  const article = await conn.models.Article.findByIdAndUpdate(
     _id,
     {
       name,
@@ -56,7 +76,7 @@ const updateArticleHandler: MethodHandler<
   if (!article) {
     throw new NotFoundError("Article not found");
   }
-  return article;
+  return article.toObject();
 };
 
 export default updateArticleHandler;

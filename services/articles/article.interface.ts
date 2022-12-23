@@ -1,3 +1,4 @@
+import { createTextFieldValidator } from "../../util/validation";
 import { IUser } from "../users/user.interface";
 import { IComment } from "./comment.interface";
 
@@ -27,3 +28,15 @@ export type IHeadline = Pick<
 >;
 
 export const headlineSelector = "_id name title tags brief image author";
+
+export function createArticleNameValidator() {
+  return createTextFieldValidator(1, 200);
+}
+
+export function createArticleTitleValidator() {
+  return createTextFieldValidator(1, 100);
+}
+
+export function createArticleBriefValidator() {
+  return createTextFieldValidator(1, 200);
+}

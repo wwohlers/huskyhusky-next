@@ -3,7 +3,7 @@ import React, { useMemo } from "react";
 type ButtonProps = {
   submit?: boolean;
   type?: "primary" | "secondary";
-  onClick: () => void;
+  onClick?: () => void;
 };
 
 const Button: React.FC<ButtonProps & React.HTMLProps<HTMLButtonElement>> = ({
@@ -24,8 +24,10 @@ const Button: React.FC<ButtonProps & React.HTMLProps<HTMLButtonElement>> = ({
   const disabledClasses = rest.disabled ? "opacity-50" : "hover:scale-[1.03]";
 
   const _onClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    onClick();
+    if (onClick) {
+      e.preventDefault();
+      onClick();
+    }
   };
 
   return (

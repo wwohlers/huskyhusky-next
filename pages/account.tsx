@@ -5,19 +5,16 @@ import { AiOutlineKey, AiOutlineMail } from "react-icons/ai";
 import { MdTitle } from "react-icons/md";
 import { toast } from "react-toastify";
 import Button from "../components/atoms/Button";
-import Input from "../components/atoms/Input";
+import TextInput from "../components/atoms/TextInput";
 import Label from "../components/atoms/Label";
 import TextArea from "../components/atoms/TextArea";
 import Section from "../components/Section";
 import { withDB } from "../services/database";
 import { IUser } from "../services/users/user.interface";
-import getUserIdFromReq from "../util/api/getUserIdFromReq";
-import { apiClient } from "../util/client";
-import {
-  passwordRequirements,
-  validateEmail,
-  validatePassword,
-} from "../util/validate";
+import { getUserIdFromReq } from "../util/jwt";
+import { returnNotFound, returnProps, returnRedirect } from "../util/next";
+import toastError from "../util/toastError";
+import { editUser } from "./api/users";
 
 type AccountProps = {
   user: IUser;
@@ -28,26 +25,15 @@ export const getServerSideProps: GetServerSideProps<AccountProps> = async ({
 }) => {
   const userId = getUserIdFromReq(req);
   if (!userId) {
-    return {
-      redirect: {
-        destination: "/login",
-        permanent: false,
-      },
-    };
+    return returnRedirect("/login");
   }
   const user = await withDB((conn) => {
     return conn.models.User.findById(userId).lean();
   });
   if (!user) {
-    return {
-      notFound: true,
-    };
+    return returnNotFound();
   } else {
-    return {
-      props: {
-        user,
-      },
-    };
+    return returnProps({ user });
   }
 };
 
@@ -69,68 +55,19 @@ const Account: React.FC<AccountProps> = ({ user: initialUser }) => {
   const [repeatPassword, setRepeatPassword] = useState("");
   const [oldPassword, setOldPassword] = useState("");
 
-  const submitName = async () => {
+  const submitChanges = async (user: Partial<IUser>) => {
     setLoading(true);
-    const res = await apiClient.patch<IUser>("/user/name", { name });
-    setLoading(false);
-    if (res.success) {
-      console.log(res.data);
-      setUser(res.data);
-      setEditMode(EditMode.None);
-      toast.success("Name updated");
-    } else {
-      toast.error(res.error);
-    }
-  };
-
-  const submitBio = async () => {
-    setLoading(true);
-    const res = await apiClient.patch<IUser>("/user/bio", { bio });
-    setLoading(false);
-    if (res.success) {
-      setUser(res.data);
-      setEditMode(EditMode.None);
-      toast.success("Bio updated");
-    } else {
-      toast.error(res.error);
-    }
-  };
-
-  const submitEmail = async () => {
-    setLoading(true);
-    const res = await apiClient.patch<IUser>("/user/email", {
-      email,
-      password: oldPassword,
-    });
-    setLoading(false);
-    if (res.success) {
-      setUser(res.data);
-      setEditMode(EditMode.None);
-      toast.success("Email updated");
-    } else {
-      toast.error(res.error);
-    }
-  };
-
-  const submitPassword = async () => {
-    if (newPassword !== repeatPassword) {
-      return toast.error("Passwords do not match");
-    }
-    if (!validatePassword(newPassword)) {
-      return toast.error(passwordRequirements);
-    }
-    setLoading(true);
-    const res = await apiClient.patch<IUser>("/user/password", {
-      oldPassword,
-      newPassword,
-    });
-    setLoading(false);
-    if (res.success) {
-      setUser(res.data);
-      setEditMode(EditMode.None);
-      toast.success("Password updated");
-    } else {
-      toast.error(res.error);
+    try {
+      await editUser({
+        admin: false,
+        oldPassword,
+        userUpdate: user,
+      });
+      toast.success("Changes saved");
+    } catch (e) {
+      toastError(e);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -153,14 +90,17 @@ const Account: React.FC<AccountProps> = ({ user: initialUser }) => {
             </p>
           ) : (
             <div className="flex flex-col space-y-2">
-              <Input
+              <TextInput
                 icon={<MdTitle size={18} />}
                 className="w-min"
                 value={name}
                 onChange={setName}
               />
               <div className="flex flex-row space-x-2 items-center">
-                <Button disabled={!name || loading} onClick={submitName}>
+                <Button
+                  disabled={!name || loading}
+                  onClick={() => submitChanges({ name })}
+                >
                   Save
                 </Button>
                 <Button
@@ -175,7 +115,11 @@ const Account: React.FC<AccountProps> = ({ user: initialUser }) => {
         </div>
         <label className="my-4">
           <Label>Bio</Label>
-          <TextArea value={bio} onChange={setBio} onBlur={submitBio} />
+          <TextArea
+            value={bio}
+            onChange={setBio}
+            onBlur={() => submitChanges({ bio })}
+          />
         </label>
       </Section>
       <Section title="Authentication">
@@ -191,7 +135,7 @@ const Account: React.FC<AccountProps> = ({ user: initialUser }) => {
           ) : (
             <div className="flex flex-col space-y-2">
               <label>
-                <Input
+                <TextInput
                   value={email}
                   onChange={setEmail}
                   icon={<AiOutlineMail size={20} />}
@@ -199,7 +143,7 @@ const Account: React.FC<AccountProps> = ({ user: initialUser }) => {
               </label>
               <label>
                 <Label>Enter Your Password</Label>
-                <Input
+                <TextInput
                   type="password"
                   value={oldPassword}
                   onChange={setOldPassword}
@@ -208,8 +152,8 @@ const Account: React.FC<AccountProps> = ({ user: initialUser }) => {
               </label>
               <div className="flex flex-row items-center space-x-2">
                 <Button
-                  disabled={!validateEmail(email) || !oldPassword || loading}
-                  onClick={submitEmail}
+                  disabled={!oldPassword || loading}
+                  onClick={() => submitChanges({ email })}
                 >
                   Save
                 </Button>
@@ -235,7 +179,7 @@ const Account: React.FC<AccountProps> = ({ user: initialUser }) => {
           ) : (
             <div className="flex flex-col space-y-2">
               <label>
-                <Input
+                <TextInput
                   type="password"
                   value={newPassword}
                   onChange={setNewPassword}
@@ -243,7 +187,7 @@ const Account: React.FC<AccountProps> = ({ user: initialUser }) => {
               </label>
               <label>
                 <Label>Repeat New Password</Label>
-                <Input
+                <TextInput
                   type="password"
                   value={repeatPassword}
                   onChange={setRepeatPassword}
@@ -251,7 +195,7 @@ const Account: React.FC<AccountProps> = ({ user: initialUser }) => {
               </label>
               <label>
                 <Label>Old Password</Label>
-                <Input
+                <TextInput
                   type="password"
                   value={oldPassword}
                   onChange={setOldPassword}
@@ -260,7 +204,7 @@ const Account: React.FC<AccountProps> = ({ user: initialUser }) => {
               <div className="flex flex-row items-center space-x-2">
                 <Button
                   disabled={!newPassword || !oldPassword || loading}
-                  onClick={submitPassword}
+                  onClick={() => submitChanges({ password: newPassword })}
                 >
                   Save
                 </Button>

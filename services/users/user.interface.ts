@@ -1,3 +1,6 @@
+import { createEmailValidator, createNewPasswordValidator } from "../../util/validation";
+import { createTextFieldValidator } from "../../util/validation";
+
 /**
  * Represents a User object.
  */
@@ -22,3 +25,11 @@ export type AdminUser = Pick<
 >;
 
 export const adminUserSelector = "_id name email admin removed createdAt";
+
+export function createUserNameValidator() {
+  return createTextFieldValidator(3, 20);
+}
+
+export function createUserBioValidator() {
+  return createTextFieldValidator(0, 200);
+}

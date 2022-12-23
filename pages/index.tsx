@@ -6,6 +6,7 @@ import HeadlineGroup from "../components/home/HeadlineGroup";
 import { getHeadlines } from "../services/articles/server";
 import { IHeadline } from "../services/articles/article.interface";
 import { withDB } from "../services/database";
+import { returnProps } from "../util/next";
 
 type HomeProps = {
   headlines: IHeadline[];
@@ -15,11 +16,7 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
   const headlines = await withDB((conn) => {
     return getHeadlines(conn);
   });
-  return {
-    props: {
-      headlines,
-    },
-  };
+  return returnProps({ headlines });
 };
 
 const Home: React.FC<HomeProps> = ({ headlines }) => {

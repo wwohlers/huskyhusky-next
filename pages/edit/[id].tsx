@@ -10,7 +10,7 @@ import { MdTitle } from "react-icons/md";
 import { toast } from "react-toastify";
 import useSWR from "swr";
 import Button from "../../components/atoms/Button";
-import Input from "../../components/atoms/Input";
+import TextInput from "../../components/atoms/TextInput";
 import Label from "../../components/atoms/Label";
 import TextArea from "../../components/atoms/TextArea";
 import UploadImage from "../../components/atoms/UploadImage";
@@ -19,12 +19,15 @@ import TagPicker from "../../components/TagPicker";
 import { getArticleById } from "../../services/articles/server";
 import { IArticle } from "../../services/articles/article.interface";
 import { withDB } from "../../services/database";
-import getUserIdFromReq from "../../util/api/getUserIdFromReq";
-import { canEditArticle } from "../../util/canEditArticle";
-import { apiClient } from "../../util/client";
-import { axiosFetcher } from "../../util/client/axios";
 import { convertHTMLToMarkdown, isHTML } from "../../util/markdown";
-import { MeResponse } from "../api/user";
+import { updateArticle } from "../api/articles";
+import toastError from "../../util/toastError";
+import { axiosFetcher } from "../../api/request/axios";
+import { canEditArticle } from "../../services/users/server";
+import { getUserIdFromReq } from "../../util/jwt";
+import { MeResponse } from "../../api/handlers/users/meHandler";
+import { returnNotFound, returnProps, returnRedirect } from "../../util/next";
+import { useUser } from "../../hooks/useUser";
 
 const SimpleMDEEditor = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
@@ -43,50 +46,32 @@ export const getServerSideProps: GetServerSideProps<EditProps> = async ({
   params,
   req,
 }) => {
-  const [rejected, article] = await withDB(async (conn) => {
+  return withDB(async (conn) => {
     const id = typeof params?.id === "object" ? params.id[0] : params?.id;
     if (!id) {
-      return [false, undefined];
+      return returnNotFound();
     }
     const userId = getUserIdFromReq(req);
     if (!userId) {
-      return [true, undefined];
+      return returnRedirect("/login");
     }
     const article = await getArticleById(conn, id);
     if (!article) {
-      return [false, undefined];
+      return returnNotFound();
     }
     const user = await conn.models.User.findById(userId).lean();
     if (!canEditArticle(user, article)) {
-      return [true, undefined];
+      return returnRedirect("/login");
     }
     if (isHTML(article.text)) {
       article.text = convertHTMLToMarkdown(article.text);
     }
-    return [false, article];
+    return returnProps({ article });
   });
-  if (rejected) {
-    return {
-      redirect: {
-        destination: "/login",
-        permanent: false,
-      },
-    };
-  } else if (!article) {
-    return {
-      notFound: true,
-    };
-  } else {
-    return {
-      props: {
-        article,
-      },
-    };
-  }
 };
 
 const Edit: React.FC<EditProps> = ({ article }) => {
-  const { data: authResponse } = useSWR<MeResponse>("/auth", axiosFetcher);
+  const user = useUser();
   const [hasChanges, setHasChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [savedName, setSavedName] = useState(article.name);
@@ -96,15 +81,15 @@ const Edit: React.FC<EditProps> = ({ article }) => {
 
   const saveArticle = useCallback(async (article: IArticle) => {
     setIsSaving(true);
-    const res = await apiClient.put<IArticle>(`/articles`, article);
-    if (res.success) {
-      setEditableArticle(getEditableArticle(res.data));
+    try {
+      const data = await updateArticle(article);
+      setEditableArticle(getEditableArticle(data));
       setIsSaving(false);
       setHasChanges(false);
-      setSavedName(res.data.name);
-    } else {
+      setSavedName(data.name);
+    } catch (e) {
       setIsSaving(false);
-      toast.error("Failed to save article");
+      toastError(e);
     }
   }, []);
 
@@ -171,10 +156,7 @@ const Edit: React.FC<EditProps> = ({ article }) => {
       <form className="w-full max-w-3xl">
         <Link
           className="flex flex-row items-center font-medium space-x-1 text-sm mb-1"
-          href={
-            "/writers/" +
-            (authResponse?.authenticated ? authResponse.user.name : "")
-          }
+          href={"/writers/" + (user?.name ?? "")}
         >
           <IoMdArrowBack />
           <span>Back to your profile</span>
@@ -185,7 +167,7 @@ const Edit: React.FC<EditProps> = ({ article }) => {
         <Section title="Basic Info" className="flex flex-col space-y-3">
           <label>
             <Label>Title</Label>
-            <Input
+            <TextInput
               icon={<MdTitle size={18} />}
               value={editableArticle.title}
               onChange={onEditTitle}
@@ -195,7 +177,7 @@ const Edit: React.FC<EditProps> = ({ article }) => {
           </label>
           <label>
             <Label>Name</Label>
-            <Input
+            <TextInput
               icon={<AiOutlineLink size={18} />}
               value={editableArticle.name}
               onChange={stringFieldSetter("name")}
@@ -233,7 +215,7 @@ const Edit: React.FC<EditProps> = ({ article }) => {
           </label>
           <label>
             <Label>Attribution</Label>
-            <Input
+            <TextInput
               icon={<BiImage size={18} />}
               value={editableArticle.attr}
               onChange={stringFieldSetter("attr")}

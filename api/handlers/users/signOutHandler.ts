@@ -1,7 +1,7 @@
 import { MethodHandler } from "../../createHandler";
 import { serialize } from "cookie";
 
-const signOutHandler: MethodHandler<{}, {}> = async ({ res }) => {
+const signOutHandler: MethodHandler<void, void> = async ({ res }) => {
     res.setHeader(
       "Set-Cookie",
       serialize("auth", "0", {
@@ -12,7 +12,7 @@ const signOutHandler: MethodHandler<{}, {}> = async ({ res }) => {
         secure: process.env.NODE_ENV === "production",
       })
     );
-    return {};
+    return;
 }
 
 export default signOutHandler;

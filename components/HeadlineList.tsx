@@ -1,13 +1,11 @@
-import React, { useEffect } from "react";
-import { IHeadline } from "../services/articles/article.interface";
 import Image from "next/image";
 import Link from "next/link";
-import Label from "./atoms/Label";
-import { axiosFetcher } from "../util/client/axios";
-import useSWR from "swr";
-import { MeResponse } from "../pages/api/user";
+import React, { useEffect } from "react";
 import { MdModeEdit } from "react-icons/md";
-import { canEditArticle } from "../util/canEditArticle";
+import { useUser } from "../hooks/useUser";
+import { IHeadline } from "../services/articles/article.interface";
+import { IUser } from "../services/users/user.interface";
+import Label from "./atoms/Label";
 
 type HeadlineListProps = {
   headlines: IHeadline[];
@@ -15,7 +13,7 @@ type HeadlineListProps = {
 
 const HeadlineList: React.FC<HeadlineListProps> = ({ headlines }) => {
   const [numTagsToRender, setNumTagsToRender] = React.useState<number>(10);
-  const { data } = useSWR<MeResponse>("/auth", axiosFetcher);
+  const user = useUser();
 
   const onScroll = () => {
     if (
@@ -31,7 +29,13 @@ const HeadlineList: React.FC<HeadlineListProps> = ({ headlines }) => {
     return () => window.removeEventListener("scroll", onScroll);
   });
 
-  const user = data?.authenticated ? data.user : undefined;
+  const canEditArticle = (
+    user: IUser | undefined | null,
+    article: { author: IUser }
+  ) => {
+    if (!user) return false;
+    return user._id === article.author._id || user.admin;
+  };
 
   return (
     <div className="flex flex-col space-y-8">

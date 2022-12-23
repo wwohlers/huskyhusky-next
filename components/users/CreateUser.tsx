@@ -1,14 +1,24 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AiOutlineKey, AiOutlineMail } from "react-icons/ai";
 import { BiRename } from "react-icons/bi";
 import { toast } from "react-toastify";
-import { AdminUser, IUser } from "../../services/users/user.interface";
-import { apiClient } from "../../util/client";
-import { passwordRequirements, validatePassword } from "../../util/validate";
+import { createUser } from "../../pages/api/users/createUser";
+import {
+  AdminUser,
+  createUserNameValidator,
+  IUser,
+} from "../../services/users/user.interface";
+import toastError from "../../util/toastError";
 import Button from "../atoms/Button";
-import Input from "../atoms/Input";
+import TextInput from "../atoms/TextInput";
 import Label from "../atoms/Label";
 import Modal from "../Modal";
+import { useForm } from "../../hooks/useForm";
+import {
+  createEmailValidator,
+  createNewPasswordValidator,
+} from "../../util/validation";
+import Form from "../forms/Form";
 
 type CreateUserProps = {
   active: boolean;
@@ -16,81 +26,101 @@ type CreateUserProps = {
   onFinish: (user: AdminUser) => void;
 };
 
+type CreateUserForm = {
+  name: string;
+  email: string;
+  password: string;
+  repeatPassword: string;
+};
+
 const CreateUser: React.FC<CreateUserProps> = ({
   active,
   onCancel,
   onFinish,
 }) => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [repeatPassword, setRepeatPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [passwordsMatch, setPasswordsMatch] = useState(true);
+  const { values, errors, hasErrors, onFieldChange } = useForm<CreateUserForm>(
+    {
+      name: "",
+      email: "",
+      password: "",
+      repeatPassword: "",
+    },
+    {
+      name: createUserNameValidator(),
+      email: createEmailValidator(),
+      password: createNewPasswordValidator(),
+    }
+  );
+
+  useEffect(() => {
+    setPasswordsMatch(values.password === values.repeatPassword);
+  }, [values]);
 
   const onSubmit = async () => {
-    if (password !== repeatPassword) {
-      toast.error("Passwords do not match");
-      return;
-    } else if (!validatePassword(password)) {
-      toast.error(passwordRequirements);
-      return;
-    } else if (!name.trim()) {
-      toast.error("Please enter a name");
-      return;
-    }
-    const user: Pick<IUser, "name" | "email" | "password"> = {
-      name,
-      email,
-      password,
-    };
-    const res = await apiClient.post<AdminUser>("/auth/createUser", user);
-    if (res.success) {
+    setIsLoading(true);
+    try {
+      const data = await createUser({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      });
       toast.success("User created");
-      onFinish(res.data);
-    } else {
-      toast.error(res.error);
+      onFinish(data);
+    } catch (e) {
+      toastError(e);
     }
+    setIsLoading(false);
   };
 
   if (!active) return null;
   return (
     <Modal title="Create a User" onClose={onCancel}>
-      <label className="block my-4">
-        <Label>Name</Label>
-        <Input icon={<BiRename size={18} />} value={name} onChange={setName} />
-      </label>
-      <label className="block my-4">
-        <Label>Email</Label>
-        <Input
-          icon={<AiOutlineMail size={18} />}
-          type="email"
-          value={email}
-          onChange={setEmail}
-        />
-      </label>
-      <label className="block my-4">
-        <Label>Temporary Password</Label>
-        <Input
-          icon={<AiOutlineKey size={18} />}
-          type="password"
-          value={password}
-          onChange={setPassword}
-        />
-      </label>
-      <label className="block my-4">
-        <Label>Repeat Temporary Password</Label>
-        <Input
-          icon={<AiOutlineKey size={18} />}
-          type="password"
-          value={repeatPassword}
-          onChange={setRepeatPassword}
-        />
-      </label>
-      <div className="my-2 flex flex-row justify-end items-center space-x-2">
-        <Button type="secondary" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button onClick={onSubmit}>Submit</Button>
-      </div>
+      <Form>
+        <Form.Item title="Name" error={errors.name}>
+          <TextInput
+            icon={<BiRename size={18} />}
+            onChange={onFieldChange("name")}
+          />
+        </Form.Item>
+        <Form.Item title="Email" error={errors.email}>
+          <TextInput
+            icon={<AiOutlineMail size={18} />}
+            type="email"
+            onChange={onFieldChange("email")}
+          />
+        </Form.Item>
+        <Form.Item title="Temporary Password" error={errors.password}>
+          <TextInput
+            icon={<AiOutlineKey size={18} />}
+            type="password"
+            onChange={onFieldChange("password")}
+          />
+        </Form.Item>
+        <Form.Item
+          title="Repeat Temporary Password"
+          error={!passwordsMatch ? "Passwords do not match" : ""}
+        >
+          <TextInput
+            icon={<AiOutlineKey size={18} />}
+            type="password"
+            onChange={onFieldChange("repeatPassword")}
+          />
+        </Form.Item>
+        <Form.Buttons>
+          <Button type="secondary" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button
+            submit
+            disabled={hasErrors || !passwordsMatch || isLoading}
+            onClick={onSubmit}
+          >
+            Submit
+          </Button>
+        </Form.Buttons>
+      </Form>
     </Modal>
   );
 };

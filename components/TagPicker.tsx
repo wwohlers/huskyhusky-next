@@ -1,11 +1,10 @@
 import React, { useMemo, useRef, useState } from "react";
-import { unstable_batchedUpdates } from "react-dom";
 import { AiOutlinePlus, AiOutlineTag } from "react-icons/ai";
-import useSWR from "swr";
-import { useClickOutside } from "../hooks/useClickOutside";
-import { axiosFetcher } from "../util/client/axios";
-import Input from "./atoms/Input";
 import { GrClose } from "react-icons/gr";
+import useSWR from "swr";
+import { axiosFetcher } from "../api/request/axios";
+import { useClickOutside } from "../hooks/useClickOutside";
+import TextInput from "./atoms/TextInput";
 
 type TagPickerProps = {
   tags: string[];
@@ -44,7 +43,7 @@ const TagPicker: React.FC<TagPickerProps> = ({ tags, setTags, onBlur }) => {
 
   return (
     <div className="relative" ref={containerRef} onBlur={onBlur}>
-      <Input
+      <TextInput
         icon={<AiOutlineTag size={18} />}
         value={input}
         onChange={setInput}

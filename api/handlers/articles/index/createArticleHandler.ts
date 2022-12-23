@@ -20,7 +20,7 @@ const createArticleHandler: MethodHandler<
     title,
     public: false,
   });
-  return article;
+  return article.toObject();
 };
 
 export default createArticleHandler;

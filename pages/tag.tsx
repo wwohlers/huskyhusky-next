@@ -6,6 +6,7 @@ import HeadlineList from "../components/HeadlineList";
 import { getHeadlinesByTag } from "../services/articles/server";
 import { IHeadline } from "../services/articles/article.interface";
 import { withDB } from "../services/database";
+import { returnProps, returnRedirect } from "../util/next";
 
 type TagProps = {
   tag: string;
@@ -16,22 +17,15 @@ export const getServerSideProps: GetServerSideProps<TagProps> = async ({
   query,
 }) => {
   if (!Object.hasOwn(query, "t")) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: true,
-      },
-    };
+    return returnRedirect("/", true);
   }
   const headlines = await withDB((conn) => {
     return getHeadlinesByTag(conn, query.t as string);
   });
-  return {
-    props: {
-      tag: query.t as string,
-      headlines,
-    },
-  };
+  return returnProps({
+    tag: query.t as string,
+    headlines,
+  });
 };
 
 const Search: React.FC<TagProps> = ({ tag, headlines }) => {

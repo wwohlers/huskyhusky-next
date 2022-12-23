@@ -10,4 +10,4 @@ const methodHandlers = {
 
 export default createHandler(methodHandlers);
 
-export const { get: getMe } = createRequestMakers("/users", methodHandlers);
+export const { get: getMe, patch: editUser } = createRequestMakers("/users", methodHandlers);

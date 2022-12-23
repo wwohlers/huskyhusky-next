@@ -1,8 +1,7 @@
-import React, { ChangeEvent, useEffect, useRef } from "react";
 import Image from "next/image";
-import { apiClient } from "../../util/client";
-import { UploadResponse } from "../../pages/api/articles/upload";
-import { toast } from "react-toastify";
+import React, { ChangeEvent, useEffect, useRef } from "react";
+import { uploadArticleImage } from "../../pages/api/articles/upload";
+import toastError from "../../util/toastError";
 
 type UploadImageProps = {
   imageURL: string | undefined;
@@ -24,13 +23,13 @@ const UploadImage: React.FC<UploadImageProps> = ({
     fileReader.onloadend = async (e) => {
       const result = e.target?.result;
       if (result) {
-        const res = await apiClient.post<UploadResponse>("/articles/upload", {
-          data: result,
-        });
-        if (res.success) {
-          onChange(res.data.url);
-        } else {
-          toast(res.error);
+        try {
+          const data = await uploadArticleImage({
+            data: result,
+          });
+          onChange(data.url);
+        } catch (e) {
+          toastError(e);
         }
       }
     };

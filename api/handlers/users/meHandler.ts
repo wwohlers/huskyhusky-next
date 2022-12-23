@@ -1,7 +1,7 @@
 import { IUser } from "../../../services/users/user.interface";
 import { MethodHandler } from "../../createHandler";
 
-type MeResponse =
+export type MeResponse =
   | {
       authenticated: false;
     }
@@ -16,7 +16,7 @@ const meHandler: MethodHandler<{}, MeResponse> = async ({ conn, userId }) => {
     if (me && !me.removed) {
       return {
         authenticated: true,
-        user: me,
+        user: me.toObject(),
       };
     }
   }

@@ -1,20 +1,20 @@
-import React, { useRef, useState } from "react";
-import { IUser } from "../../services/users/user.interface";
-import { FiChevronDown } from "react-icons/fi";
 import Link from "next/link";
-import { useClickOutside } from "../../hooks/useClickOutside";
-import Label from "../atoms/Label";
-import { apiClient } from "../../util/client";
 import { useRouter } from "next/router";
-import { toast } from "react-toastify";
-import { useSWRConfig } from "swr";
+import React, { useRef, useState } from "react";
+import { FiChevronDown } from "react-icons/fi";
+import { useClickOutside } from "../../hooks/useClickOutside";
+import { useRefreshUser } from "../../hooks/useUser";
+import { signOut } from "../../pages/api/users/signOut";
+import { IUser } from "../../services/users/user.interface";
+import toastError from "../../util/toastError";
+import Label from "../atoms/Label";
 
 type UserMenuProps = {
   user: IUser;
 };
 
 const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
-  const { mutate } = useSWRConfig();
+  const refreshUser = useRefreshUser();
   const router = useRouter();
   const [showMenu, setShowMenu] = useState(false);
   const menuContainer = useRef<HTMLDivElement>(null);
@@ -23,12 +23,12 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
 
   const onSignOut = async () => {
     setShowMenu(false);
-    const res = await apiClient.post("/auth/signOut");
-    if (res.success) {
-      mutate("/auth");
+    try {
+      await signOut();
+      refreshUser();
       router.push("/login");
-    } else {
-      toast(res.error);
+    } catch (e) {
+      toastError(e);
     }
   };
 

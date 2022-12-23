@@ -2,72 +2,126 @@ import mongoose from "mongoose";
 import {
   adminUpdateUser,
   selfUpdateUser,
-  comparePassword,
 } from "../../../services/users/server";
-import { IUser } from "../../../services/users/user.interface";
+import {
+  createUserBioValidator,
+  createUserNameValidator,
+  IUser,
+} from "../../../services/users/user.interface";
+import { comparePassword } from "../../../util/bcrypt";
+import {
+  allowUndefined,
+  createEmailValidator,
+  createIdValidator,
+  createNewPasswordValidator,
+  createSchemaValidator,
+  isBoolean,
+  isString,
+  createOneOfValidator,
+} from "../../../util/validation";
 import { MethodHandler } from "../../createHandler";
 import requireAuth from "../../guards/requireAuth";
 import { NotFoundError } from "../../handleError";
 
-type EditUserRequest =
-  | {
-      admin: true;
-      userUpdate: {
-        _id: string;
-        name: string;
-        admin: boolean;
-        removed: boolean;
-      };
-    }
-  | {
-      admin: false;
-      oldPassword?: string;
-      userUpdate: {
-        name: string;
-        bio: string;
-        email: string;
-        password: string;
-      };
-    };
+type AdminEditUserRequest = {
+  admin: true;
+  userUpdate: {
+    _id: string;
+    name?: string;
+    admin?: boolean;
+    removed?: boolean;
+  };
+};
+type SelfEditUserRequest = {
+  admin: false;
+  oldPassword?: string;
+  userUpdate: {
+    name?: string;
+    bio?: string;
+    email?: string;
+    password?: string;
+  };
+};
+type EditUserRequest = AdminEditUserRequest | SelfEditUserRequest;
 type EditUserResponse = IUser;
+
+const adminEditUserValidator = createSchemaValidator<AdminEditUserRequest>({
+  admin: (value) => {
+    if (value !== true) {
+      throw new Error("Invalid admin value");
+    }
+    return value;
+  },
+  userUpdate: createSchemaValidator<AdminEditUserRequest["userUpdate"]>({
+    _id: createIdValidator(),
+    name: allowUndefined(createUserNameValidator()),
+    admin: allowUndefined(isBoolean),
+    removed: allowUndefined(isBoolean),
+  }),
+});
+
+const selfEditUserValidator = createSchemaValidator<SelfEditUserRequest>({
+  admin: (value) => {
+    if (value !== false) {
+      throw new Error("Invalid admin value");
+    }
+    return value;
+  },
+  oldPassword: allowUndefined(isString),
+  userUpdate: createSchemaValidator<SelfEditUserRequest["userUpdate"]>({
+    name: allowUndefined(createUserNameValidator()),
+    bio: allowUndefined(createUserBioValidator()),
+    email: allowUndefined(createEmailValidator()),
+    password: allowUndefined(createNewPasswordValidator()),
+  }),
+});
+
+const requestBodyValidator = createOneOfValidator<EditUserRequest>(
+  adminEditUserValidator,
+  selfEditUserValidator
+);
 
 const editUserHandler: MethodHandler<
   EditUserRequest,
   EditUserResponse
 > = async ({ conn, userId, req }) => {
+  const body = requestBodyValidator(req.body);
   let user: (mongoose.Document & IUser) | null = await requireAuth(
     conn,
     userId,
-    req.body.admin
+    body.admin
   );
-  if (req.body.admin) {
-    user = await conn.models.User.findById(req.body.userUpdate._id);
+  if (body.admin) {
+    user = await conn.models.User.findById(body.userUpdate._id);
     if (!user) {
       throw new NotFoundError("User not found");
     }
     user = await adminUpdateUser(user, {
-      name: req.body.userUpdate.name,
-      admin: req.body.userUpdate.admin,
-      removed: req.body.userUpdate.removed,
+      name: body.userUpdate.name,
+      admin: body.userUpdate.admin,
+      removed: body.userUpdate.removed,
     });
   } else {
-    if (req.body.userUpdate.email || req.body.userUpdate.password) {
-      if (!req.body.oldPassword) {
+    if (body.userUpdate.email || body.userUpdate.password) {
+      if (!body.oldPassword) {
         throw new NotFoundError("Invalid password");
       }
-      const validPassword = await comparePassword(user, req.body.oldPassword);
+      const validPassword = await comparePassword(
+        body.oldPassword,
+        user.password
+      );
       if (!validPassword) {
         throw new NotFoundError("Invalid password");
       }
     }
     user = await selfUpdateUser(user, {
-      name: req.body.userUpdate.name,
-      bio: req.body.userUpdate.bio,
-      email: req.body.userUpdate.email,
-      password: req.body.userUpdate.password,
+      name: body.userUpdate.name,
+      bio: body.userUpdate.bio,
+      email: body.userUpdate.email,
+      password: body.userUpdate.password,
     });
   }
-  return user;
+  return user.toObject();
 };
 
 export default editUserHandler;

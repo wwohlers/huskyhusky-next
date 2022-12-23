@@ -1,11 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { BiRename } from "react-icons/bi";
-import { MdTitle } from "react-icons/md";
 import { toast } from "react-toastify";
-import { AdminUser, IUser } from "../../services/users/user.interface";
-import { apiClient } from "../../util/client";
+import { editUser } from "../../pages/api/users";
+import {
+  AdminUser,
+  createUserNameValidator,
+} from "../../services/users/user.interface";
+import toastError from "../../util/toastError";
 import Button from "../atoms/Button";
-import Input from "../atoms/Input";
+import TextInput from "../atoms/TextInput";
+import Form from "../forms/Form";
 import Modal from "../Modal";
 
 export enum UserEditMode {
@@ -23,12 +27,26 @@ export type EditUserProps = {
 
 const EditUser: React.FC<EditUserProps> = ({ editMode, user, onFinish }) => {
   const [newName, setNewName] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (user) {
       setNewName(user.name);
     }
   }, [user]);
+
+  const handleNameChange = (value: string) => {
+    try {
+      createUserNameValidator()(value);
+      setError("");
+    } catch (e) {
+      if (e instanceof Error) {
+        setError(e.message);
+      }
+    }
+    setNewName(value);
+  };
 
   const title = useMemo(() => {
     if (!user) return "";
@@ -69,36 +87,42 @@ const EditUser: React.FC<EditUserProps> = ({ editMode, user, onFinish }) => {
         newUser.removed = !newUser.removed;
         break;
     }
-    const res = await apiClient.patch<{ user: AdminUser }>("/user/admin", {
-      user: newUser,
-    });
-    if (res.success) {
-      onFinish(res.data.user);
-      toast.success(`Successfully updated ${newUser.name}`);
-    } else {
-      toast.error(res.error ?? "An unknown error occurred");
+    setIsLoading(true);
+    try {
+      const data = await editUser({
+        admin: true,
+        userUpdate: newUser,
+      });
+      onFinish(data);
+    } catch (e) {
+      toastError(e);
     }
+    setIsLoading(false);
   };
 
   return (
     <Modal title={title} onClose={() => onFinish(user)}>
-      <div className="my-4">
-        {editMode === UserEditMode.NAME ? (
-          <Input
-            icon={<BiRename size={18} />}
-            value={newName}
-            onChange={setNewName}
-          />
-        ) : (
-          <p>{`Are you sure you want to ${title.toLowerCase()}?`}</p>
-        )}
-      </div>
-      <div className="flex flex-row mt-2 justify-end items-center space-x-2">
-        <Button type="secondary" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button onClick={onConfirm}>OK</Button>
-      </div>
+      <Form>
+        <Form.Item title="" error={error}>
+          {editMode === UserEditMode.NAME ? (
+            <TextInput
+              icon={<BiRename size={18} />}
+              value={newName}
+              onChange={handleNameChange}
+            />
+          ) : (
+            <p>{`Are you sure you want to ${title.toLowerCase()}?`}</p>
+          )}
+        </Form.Item>
+        <Form.Buttons>
+          <Button type="secondary" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button submit onClick={onConfirm} disabled={!!error || isLoading}>
+            OK
+          </Button>
+        </Form.Buttons>
+      </Form>
     </Modal>
   );
 };
