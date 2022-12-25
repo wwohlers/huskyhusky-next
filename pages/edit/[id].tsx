@@ -1,46 +1,22 @@
 import { GetServerSideProps } from "next";
-import dynamic from "next/dynamic";
 import Head from "next/head";
 import Link from "next/link";
 import React, { useCallback, useState } from "react";
-import { AiOutlineEllipsis, AiOutlineLink } from "react-icons/ai";
-import { BiImage, BiLinkExternal } from "react-icons/bi";
-import { IoMdAlert, IoMdArrowBack, IoMdCheckmark } from "react-icons/io";
-import { MdTitle } from "react-icons/md";
-import { toast } from "react-toastify";
-import useSWR from "swr";
-import Button from "../../components/atoms/Button";
-import TextInput from "../../components/atoms/TextInput";
-import Label from "../../components/atoms/Label";
-import TextArea from "../../components/atoms/TextArea";
-import UploadImage from "../../components/atoms/UploadImage";
-import Section from "../../components/Section";
-import TagPicker from "../../components/TagPicker";
-import { getArticleById } from "../../services/articles/server";
+import { IoMdArrowBack } from "react-icons/io";
+import EditArticle from "../../components/article/EditArticle";
+import { useUser } from "../../hooks/useUser";
 import { IArticle } from "../../services/articles/article.interface";
+import { getArticleById } from "../../services/articles/server";
 import { withDB } from "../../services/database";
-import { convertHTMLToMarkdown, isHTML } from "../../util/markdown";
-import { updateArticle } from "../api/articles";
-import toastError from "../../util/toastError";
-import { axiosFetcher } from "../../api/request/axios";
 import { canEditArticle } from "../../services/users/server";
 import { getUserIdFromReq } from "../../util/jwt";
-import { MeResponse } from "../../api/handlers/users/meHandler";
+import { convertHTMLToMarkdown, isHTML } from "../../util/markdown";
 import { returnNotFound, returnProps, returnRedirect } from "../../util/next";
-import { useUser } from "../../hooks/useUser";
-
-const SimpleMDEEditor = dynamic(() => import("react-simplemde-editor"), {
-  ssr: false,
-});
+import { updateArticle } from "../api/articles";
 
 type EditProps = {
   article: IArticle;
 };
-
-type EditableArticle = Pick<
-  IArticle,
-  "name" | "title" | "tags" | "brief" | "image" | "attr" | "text" | "public"
->;
 
 export const getServerSideProps: GetServerSideProps<EditProps> = async ({
   params,
@@ -70,79 +46,14 @@ export const getServerSideProps: GetServerSideProps<EditProps> = async ({
   });
 };
 
-const Edit: React.FC<EditProps> = ({ article }) => {
+const Edit: React.FC<EditProps> = ({ article: initialArticle }) => {
   const user = useUser();
-  const [hasChanges, setHasChanges] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [savedName, setSavedName] = useState(article.name);
-  const [editableArticle, setEditableArticle] = useState<EditableArticle>(
-    getEditableArticle(article)
-  );
+  const [article, setArticle] = useState<IArticle>(initialArticle);
 
-  const saveArticle = useCallback(async (article: IArticle) => {
-    setIsSaving(true);
-    try {
-      const data = await updateArticle(article);
-      setEditableArticle(getEditableArticle(data));
-      setIsSaving(false);
-      setHasChanges(false);
-      setSavedName(data.name);
-    } catch (e) {
-      setIsSaving(false);
-      toastError(e);
-    }
+  const onSave = useCallback(async (article: IArticle) => {
+    const res = await updateArticle(article);
+    setArticle(res);
   }, []);
-
-  const autosave = () => {
-    if (!editableArticle.public && hasChanges) {
-      saveArticle({
-        ...article,
-        ...editableArticle,
-      });
-    }
-  };
-
-  const onEditTitle = (value: string) => {
-    setEditableArticle({
-      ...editableArticle,
-      title: value,
-      name: convertTitleToName(value),
-    });
-    setHasChanges(true);
-  };
-
-  const stringFieldSetter =
-    (fieldName: keyof EditableArticle) => (value: string) => {
-      setEditableArticle({
-        ...editableArticle,
-        [fieldName]: value,
-      });
-      setHasChanges(true);
-    };
-
-  const onTagsChange = (tags: string[]) => {
-    setEditableArticle({
-      ...editableArticle,
-      tags,
-    });
-    setHasChanges(true);
-  };
-
-  const handleUnpublish = () => {
-    saveArticle({
-      ...article,
-      ...editableArticle,
-      public: false,
-    });
-  };
-
-  const handlePublish = () => {
-    saveArticle({
-      ...article,
-      ...editableArticle,
-      public: true,
-    });
-  };
 
   return (
     <>
@@ -153,7 +64,7 @@ const Edit: React.FC<EditProps> = ({ article }) => {
           content={`Edit ${article.title} on The Husky Husky.`}
         />
       </Head>
-      <form className="w-full max-w-3xl">
+      <div className="w-full max-w-3xl">
         <Link
           className="flex flex-row items-center font-medium space-x-1 text-sm mb-1"
           href={"/writers/" + (user?.name ?? "")}
@@ -162,152 +73,12 @@ const Edit: React.FC<EditProps> = ({ article }) => {
           <span>Back to your profile</span>
         </Link>
         <h1 className="text-2xl font-medium">
-          Editing <span className="font-semibold">{editableArticle.title}</span>
+          Editing <span className="font-semibold">{article.title}</span>
         </h1>
-        <Section title="Basic Info" className="flex flex-col space-y-3">
-          <label>
-            <Label>Title</Label>
-            <TextInput
-              icon={<MdTitle size={18} />}
-              value={editableArticle.title}
-              onChange={onEditTitle}
-              name="title"
-              onBlur={autosave}
-            />
-          </label>
-          <label>
-            <Label>Name</Label>
-            <TextInput
-              icon={<AiOutlineLink size={18} />}
-              value={editableArticle.name}
-              onChange={stringFieldSetter("name")}
-              name="name"
-              onBlur={autosave}
-            />
-          </label>
-          <label>
-            <Label>Brief</Label>
-            <TextArea
-              value={editableArticle.brief}
-              onChange={stringFieldSetter("brief")}
-              name="brief"
-              rows={2}
-              onBlur={autosave}
-            />
-          </label>
-          <div>
-            <Label>Tags</Label>
-            <TagPicker
-              tags={editableArticle.tags}
-              setTags={onTagsChange}
-              onBlur={autosave}
-            />
-          </div>
-        </Section>
-        <Section title="Image" className="flex flex-col space-y-3">
-          <label>
-            <Label>Upload</Label>
-            <UploadImage
-              imageURL={editableArticle.image}
-              onChange={stringFieldSetter("image")}
-              onBlur={autosave}
-            />
-          </label>
-          <label>
-            <Label>Attribution</Label>
-            <TextInput
-              icon={<BiImage size={18} />}
-              value={editableArticle.attr}
-              onChange={stringFieldSetter("attr")}
-              name="attr"
-              onBlur={autosave}
-            />
-          </label>
-        </Section>
-        <Section title="Text" className="flex flex-col space-y-3">
-          <SimpleMDEEditor
-            value={editableArticle.text}
-            onChange={stringFieldSetter("text")}
-            onBlur={autosave}
-          />
-        </Section>
-        <Section title="Save & Publish">
-          <p className="my-2 text-sm text-gray-400 font-medium">
-            {editableArticle.public
-              ? "This article is public. Your changes won't be saved unless you republish or unpublish."
-              : "This article is private. Your changes will save automatically."}
-          </p>
-          {editableArticle.public && (
-            <Link
-              className="my-2 w-max font-medium text-sm flex flex-row space-x-1"
-              href={"/" + savedName}
-              target="_blank"
-            >
-              <span className="border-b border-gray-900">
-                {process.env.NEXT_PUBLIC_BASE_URL + "/" + savedName}
-              </span>
-              <BiLinkExternal />
-            </Link>
-          )}
-          <p className="my-2 flex flex-row items-center space-x-1 font-medium">
-            <span>
-              {isSaving ? (
-                <AiOutlineEllipsis size={18} />
-              ) : hasChanges ? (
-                <IoMdAlert size={18} />
-              ) : (
-                <IoMdCheckmark size={18} />
-              )}
-            </span>
-            <span>
-              {isSaving
-                ? "Saving..."
-                : hasChanges
-                ? "You have unsaved changes."
-                : "All changes saved."}
-            </span>
-          </p>
-          <div className="flex flex-row items-center space-x-4">
-            <Button
-              onClick={handlePublish}
-              disabled={editableArticle.public && !hasChanges}
-            >
-              {editableArticle.public
-                ? "Save and publish changes"
-                : "Make public"}
-            </Button>
-            {editableArticle.public && (
-              <Button type="secondary" onClick={handleUnpublish}>
-                Unpublish
-              </Button>
-            )}
-          </div>
-        </Section>
-      </form>
+        <EditArticle article={article} onSave={onSave} />
+      </div>
     </>
   );
-};
-
-const getEditableArticle = (article: IArticle): EditableArticle => {
-  return {
-    name: article.name,
-    title: article.title,
-    tags: article.tags,
-    brief: article.brief,
-    image: article.image,
-    attr: article.attr,
-    text: article.text,
-    public: article.public,
-  };
-};
-
-const convertTitleToName = (title: string): string => {
-  return title
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
 };
 
 export default Edit;

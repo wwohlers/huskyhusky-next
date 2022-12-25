@@ -12,7 +12,7 @@ export interface IUser {
   admin: boolean;
   removed: boolean;
   bio: string;
-  createdAt: number;
+  createdAt: number; // all dates in seconds since Jan 1, 1970 (NOT MILLISECONDS)
 }
 
 export type PublicUser = Pick<IUser, "_id" | "name" | "bio" | "createdAt">;

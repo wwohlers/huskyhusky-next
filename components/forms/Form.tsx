@@ -20,12 +20,6 @@ const FormItem: React.FC<{
   );
 };
 
-const FormSection: React.FC<{
-  children: React.ReactNode;
-}> = ({ children }) => {
-  return <div className="flex flex-col space-y-2 my-4">{children}</div>;
-};
-
 const FormButtons: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
@@ -37,21 +31,23 @@ const FormButtons: React.FC<{
 };
 
 const Form: React.FC<{
+  className?: string;
   children: React.ReactNode;
 }> & {
   Item: typeof FormItem;
-  Section: typeof FormSection;
   Buttons: typeof FormButtons;
-} = ({ children }) => {
+} = ({ className = "", children }) => {
   return (
-    <form className="flex flex-col" onSubmit={(e) => e.preventDefault()}>
+    <form
+      className={"flex flex-col " + className}
+      onSubmit={(e) => e.preventDefault()}
+    >
       {children}
     </form>
   );
 };
 
 Form.Item = FormItem;
-Form.Section = FormSection;
 Form.Buttons = FormButtons;
 
 export default Form;

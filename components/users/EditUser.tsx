@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { BiRename } from "react-icons/bi";
-import { toast } from "react-toastify";
+import { useValidatedState } from "../../hooks/useValidatedState";
 import { editUser } from "../../pages/api/users";
 import {
   AdminUser,
@@ -25,28 +25,20 @@ export type EditUserProps = {
   onFinish: (user: AdminUser) => void;
 };
 
+const userNameValidator = createUserNameValidator();
+
 const EditUser: React.FC<EditUserProps> = ({ editMode, user, onFinish }) => {
-  const [newName, setNewName] = useState("");
-  const [error, setError] = useState("");
+  const [newName, setNewName, newNameError] = useValidatedState(
+    "",
+    userNameValidator
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (user) {
       setNewName(user.name);
     }
-  }, [user]);
-
-  const handleNameChange = (value: string) => {
-    try {
-      createUserNameValidator()(value);
-      setError("");
-    } catch (e) {
-      if (e instanceof Error) {
-        setError(e.message);
-      }
-    }
-    setNewName(value);
-  };
+  }, [user, setNewName]);
 
   const title = useMemo(() => {
     if (!user) return "";
@@ -74,10 +66,6 @@ const EditUser: React.FC<EditUserProps> = ({ editMode, user, onFinish }) => {
     let newUser = user;
     switch (editMode) {
       case UserEditMode.NAME:
-        if (!newName.trim()) {
-          toast.error("Name cannot be empty");
-          return;
-        }
         newUser.name = newName;
         break;
       case UserEditMode.ADMIN:
@@ -103,12 +91,12 @@ const EditUser: React.FC<EditUserProps> = ({ editMode, user, onFinish }) => {
   return (
     <Modal title={title} onClose={() => onFinish(user)}>
       <Form>
-        <Form.Item title="" error={error}>
+        <Form.Item title="" error={newNameError}>
           {editMode === UserEditMode.NAME ? (
             <TextInput
               icon={<BiRename size={18} />}
               value={newName}
-              onChange={handleNameChange}
+              onChange={setNewName}
             />
           ) : (
             <p>{`Are you sure you want to ${title.toLowerCase()}?`}</p>
@@ -118,7 +106,11 @@ const EditUser: React.FC<EditUserProps> = ({ editMode, user, onFinish }) => {
           <Button type="secondary" onClick={onCancel}>
             Cancel
           </Button>
-          <Button submit onClick={onConfirm} disabled={!!error || isLoading}>
+          <Button
+            submit
+            onClick={onConfirm}
+            disabled={!!newNameError || isLoading}
+          >
             OK
           </Button>
         </Form.Buttons>

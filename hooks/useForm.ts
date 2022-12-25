@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Validator } from "../util/validation";
 
 type FormFields = Record<string, any>;
@@ -30,7 +30,7 @@ export function useForm<K extends FormFields>(
     ) as FormData<K>
   );
 
-  const onFieldChange = (field: keyof K) => (value: K[typeof field]) => {
+  const onFieldChange = useCallback((field: keyof K) => (value: K[typeof field]) => {
     const validator = state[field].validator;
     try {
       validator(value);
@@ -57,7 +57,7 @@ export function useForm<K extends FormFields>(
         },
       }));
     }
-  };
+  }, [state]);
 
   const values = useMemo(() => {
     return Object.fromEntries(

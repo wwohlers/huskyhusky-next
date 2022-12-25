@@ -1,9 +1,9 @@
-import mongoose from "mongoose";
+import { DateTime } from "luxon";
 import { HuskyHuskyDB } from "../database";
-import { headlineSelector, IArticle, IHeadline } from "./article.interface";
+import { headlineSelector, IHeadline } from "./article.interface";
 
 export async function getAllArticleNames(conn: HuskyHuskyDB) {
-  const articles = await conn.models.Article.find().lean();
+  const articles = await conn.models.Article.find({ public: true }).lean();
   return articles.map((a) => a.name);
 }
 
@@ -17,6 +17,7 @@ export async function getArticleById(conn: HuskyHuskyDB, id: string) {
 export async function getArticleByName(conn: HuskyHuskyDB, name: string) {
   const article = await conn.models.Article.findOne({
     name,
+    public: true,
   })
     .populate("author", "_id name")
     .populate("comments")
@@ -87,12 +88,32 @@ export async function getHeadlinesByTag(conn: HuskyHuskyDB, tag: string) {
 export async function getHeadlinesByUser(conn: HuskyHuskyDB, userId: string) {
   const articles = await conn.models.Article.find({
     public: true,
+    author: userId,
   })
     .sort({ createdAt: -1 })
     .select(headlineSelector)
     .populate("author", "_id name")
     .lean();
-  return articles.filter(
-    (a) => a.author._id.toString() === userId
-  ) as IHeadline[];
+  return articles as IHeadline[];
+}
+
+export async function getHeadlinesByMonth(
+  conn: HuskyHuskyDB,
+  year: number,
+  month: number
+) {
+  const monthStart = DateTime.fromObject({ year, month });
+  const monthEnd = monthStart.plus({ month: 1 });
+  const articles = await conn.models.Article.find({
+    public: true,
+    createdAt: {
+      $gte: Math.floor(monthStart.toMillis() / 1000),
+      $lt: Math.ceil(monthEnd.toMillis() / 1000),
+    },
+  })
+    .sort({ createdAt: -1 })
+    .select(headlineSelector)
+    .populate("author", "_id name")
+    .lean();
+  return articles as IHeadline[];
 }

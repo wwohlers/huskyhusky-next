@@ -10,11 +10,22 @@ import Label from "../components/atoms/Label";
 import TextArea from "../components/atoms/TextArea";
 import Section from "../components/Section";
 import { withDB } from "../services/database";
-import { IUser } from "../services/users/user.interface";
+import {
+  createUserBioValidator,
+  createUserNameValidator,
+  IUser,
+} from "../services/users/user.interface";
 import { getUserIdFromReq } from "../util/jwt";
 import { returnNotFound, returnProps, returnRedirect } from "../util/next";
 import toastError from "../util/toastError";
 import { editUser } from "./api/users";
+import Form from "../components/forms/Form";
+import { useValidatedState } from "../hooks/useValidatedState";
+import {
+  createEmailValidator,
+  createEnteredPasswordValidator,
+  createNewPasswordValidator,
+} from "../util/validation";
 
 type AccountProps = {
   user: IUser;
@@ -44,25 +55,45 @@ enum EditMode {
   Password,
 }
 
+const userNameValidator = createUserNameValidator();
+const userBioValidator = createUserBioValidator();
+const emailValidator = createEmailValidator();
+const newPasswordValidator = createNewPasswordValidator();
+const oldPasswordValidator = createEnteredPasswordValidator();
+
 const Account: React.FC<AccountProps> = ({ user: initialUser }) => {
   const [user, setUser] = useState(initialUser);
   const [loading, setLoading] = useState(false);
   const [editMode, setEditMode] = useState<EditMode>(EditMode.None);
-  const [name, setName] = useState(user.name);
-  const [bio, setBio] = useState(user.bio);
-  const [email, setEmail] = useState(user.email);
-  const [newPassword, setNewPassword] = useState("");
+  const [name, setName, nameError] = useValidatedState(
+    user.name,
+    userNameValidator
+  );
+  const [bio, setBio, bioError] = useValidatedState(user.bio, userBioValidator);
+  const [email, setEmail, emailError] = useValidatedState(
+    user.email,
+    emailValidator
+  );
+  const [newPassword, setNewPassword, newPasswordError] = useValidatedState(
+    "",
+    newPasswordValidator
+  );
   const [repeatPassword, setRepeatPassword] = useState("");
-  const [oldPassword, setOldPassword] = useState("");
+  const [oldPassword, setOldPassword, oldPasswordError] = useValidatedState(
+    "",
+    oldPasswordValidator
+  );
 
   const submitChanges = async (user: Partial<IUser>) => {
     setLoading(true);
     try {
-      await editUser({
+      const result = await editUser({
         admin: false,
         oldPassword,
         userUpdate: user,
       });
+      setUser(result);
+      setEditMode(EditMode.None);
       toast.success("Changes saved");
     } catch (e) {
       toastError(e);
@@ -80,50 +111,44 @@ const Account: React.FC<AccountProps> = ({ user: initialUser }) => {
       {user.admin && <p className="text-sm text-gray-400 font-medium">Admin</p>}
       <Section title="Profile">
         <div className="my-4">
-          <Label>Name</Label>
-          {editMode !== EditMode.Name ? (
-            <p
-              className="cursor-pointer font-medium"
-              onClick={() => setEditMode(EditMode.Name)}
-            >
-              {user.name}
-            </p>
-          ) : (
-            <div className="flex flex-col space-y-2">
+          <Form.Item
+            title="Name"
+            error={editMode === EditMode.Name ? nameError : ""}
+          >
+            {editMode !== EditMode.Name ? (
+              <p
+                className="cursor-pointer font-medium"
+                onClick={() => setEditMode(EditMode.Name)}
+              >
+                {user.name}
+              </p>
+            ) : (
               <TextInput
                 icon={<MdTitle size={18} />}
-                className="w-min"
+                disabled={loading}
+                className="w-64"
                 value={name}
                 onChange={setName}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !nameError) {
+                    submitChanges({ name });
+                  }
+                }}
+                onBlur={() => setEditMode(EditMode.None)}
               />
-              <div className="flex flex-row space-x-2 items-center">
-                <Button
-                  disabled={!name || loading}
-                  onClick={() => submitChanges({ name })}
-                >
-                  Save
-                </Button>
-                <Button
-                  type="secondary"
-                  onClick={() => setEditMode(EditMode.None)}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          )}
+            )}
+          </Form.Item>
         </div>
-        <label className="my-4">
-          <Label>Bio</Label>
+        <Form.Item title="Bio" error={bioError}>
           <TextArea
             value={bio}
             onChange={setBio}
-            onBlur={() => submitChanges({ bio })}
+            onBlur={() => !bioError && submitChanges({ bio })}
           />
-        </label>
+        </Form.Item>
       </Section>
       <Section title="Authentication">
-        <div className="my-4">
+        <div className="my-4 w-64">
           <Label>Email</Label>
           {editMode !== EditMode.Email ? (
             <p
@@ -133,89 +158,95 @@ const Account: React.FC<AccountProps> = ({ user: initialUser }) => {
               {user.email}
             </p>
           ) : (
-            <div className="flex flex-col space-y-2">
-              <label>
+            <Form className="w-64">
+              <Form.Item title="" error={emailError}>
                 <TextInput
                   value={email}
                   onChange={setEmail}
                   icon={<AiOutlineMail size={20} />}
                 />
-              </label>
-              <label>
-                <Label>Enter Your Password</Label>
+              </Form.Item>
+              <Form.Item title="Enter Your Password" error={oldPasswordError}>
                 <TextInput
                   type="password"
                   value={oldPassword}
                   onChange={setOldPassword}
                   icon={<AiOutlineKey size={20} />}
                 />
-              </label>
-              <div className="flex flex-row items-center space-x-2">
-                <Button
-                  disabled={!oldPassword || loading}
-                  onClick={() => submitChanges({ email })}
-                >
-                  Save
-                </Button>
+              </Form.Item>
+              <Form.Buttons>
                 <Button
                   type="secondary"
                   onClick={() => setEditMode(EditMode.None)}
                 >
                   Cancel
                 </Button>
-              </div>
-            </div>
+                <Button
+                  disabled={!!emailError || !!oldPasswordError || loading}
+                  onClick={() => submitChanges({ email })}
+                >
+                  Save
+                </Button>
+              </Form.Buttons>
+            </Form>
           )}
         </div>
         <div className="my-4">
           <Label>Password</Label>
           {editMode !== EditMode.Password ? (
-            <i
-              className="cursor-pointer font-medium text-gray-400"
+            <div
+              className="cursor-pointer text-sm italic font-medium text-gray-400"
               onClick={() => setEditMode(EditMode.Password)}
             >
               Click here to change your password
-            </i>
+            </div>
           ) : (
-            <div className="flex flex-col space-y-2">
-              <label>
+            <Form className="w-64">
+              <Form.Item title="" error={newPasswordError}>
                 <TextInput
                   type="password"
                   value={newPassword}
                   onChange={setNewPassword}
+                  icon={<AiOutlineKey size={20} />}
                 />
-              </label>
-              <label>
-                <Label>Repeat New Password</Label>
+              </Form.Item>
+              <Form.Item
+                title="Repeat New Password"
+                error={
+                  repeatPassword !== newPassword ? "Passwords must match" : ""
+                }
+              >
                 <TextInput
                   type="password"
                   value={repeatPassword}
                   onChange={setRepeatPassword}
+                  icon={<AiOutlineKey size={20} />}
                 />
-              </label>
-              <label>
-                <Label>Old Password</Label>
+              </Form.Item>
+              <Form.Item title="Old Password" error={oldPasswordError}>
                 <TextInput
                   type="password"
                   value={oldPassword}
                   onChange={setOldPassword}
+                  icon={<AiOutlineKey size={20} />}
                 />
-              </label>
-              <div className="flex flex-row items-center space-x-2">
-                <Button
-                  disabled={!newPassword || !oldPassword || loading}
-                  onClick={() => submitChanges({ password: newPassword })}
-                >
-                  Save
-                </Button>
+              </Form.Item>
+              <Form.Buttons>
                 <Button
                   type="secondary"
                   onClick={() => setEditMode(EditMode.None)}
                 >
                   Cancel
                 </Button>
-              </div>
-            </div>
+                <Button
+                  submit
+                  disabled={!newPassword || !oldPassword || loading}
+                  onClick={() => submitChanges({ password: newPassword })}
+                >
+                  Save
+                </Button>
+              </Form.Buttons>
+            </Form>
           )}
         </div>
       </Section>

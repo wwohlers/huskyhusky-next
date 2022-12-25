@@ -38,5 +38,18 @@ export function createArticleTitleValidator() {
 }
 
 export function createArticleBriefValidator() {
-  return createTextFieldValidator(1, 200);
+  return createTextFieldValidator(1, 500);
+}
+
+export function createArticleAttrValidator() {
+  return createTextFieldValidator(0, 100);
+}
+
+export function convertTitleToName(title: string): string {
+  return title
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
 }
