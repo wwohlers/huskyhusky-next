@@ -20,8 +20,8 @@ export type WithDBHandler<K> = (conn: HuskyHuskyDB) => K;
 
 type WithoutPromise<T> = T extends Promise<infer U> ? U : T;
 
-function connectToDB(): HuskyHuskyDB {
-  const conn = mongoose.createConnection(DATABASE_URL as string);
+async function connectToDB(): Promise<HuskyHuskyDB> {
+  const conn = await mongoose.createConnection(DATABASE_URL as string);
   conn.model("Article", ArticleSchema);
   conn.model("Sub", SubSchema);
   conn.model("User", UserSchema);

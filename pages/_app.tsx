@@ -1,5 +1,5 @@
 import "../styles/globals.css";
-import "../styles/SimpleMDE.css";
+import "../styles/simpleMDE.css";
 import type { AppProps } from "next/app";
 import Header from "../components/header";
 import { Raleway } from "@next/font/google";

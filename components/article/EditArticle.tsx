@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AiOutlineEllipsis, AiOutlineLink } from "react-icons/ai";
 import { BiImage, BiLinkExternal } from "react-icons/bi";
 import { IoMdAlert, IoMdCheckmark } from "react-icons/io";
