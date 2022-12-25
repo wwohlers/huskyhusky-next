@@ -1,11 +1,11 @@
 import { serialize } from "cookie";
-import { signIn } from "../../../services/users/server";
-import { IUser } from "../../../services/users/user.interface";
+import { signIn } from "../../../users/server";
+import { IUser } from "../../../users/user.interface";
 import {
   createSchemaValidator,
   createEmailValidator,
   createEnteredPasswordValidator,
-} from "../../../util/validation";
+} from "../../../../util/validation";
 import { MethodHandler } from "../../createHandler";
 
 type SignInRequest = {

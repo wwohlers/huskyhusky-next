@@ -3,7 +3,7 @@ import {
   ConflictError,
   NotFoundError,
   UnauthorizedError,
-} from "../../api/handleError";
+} from "../api/handleError";
 import { comparePassword, hashPassword } from "../../util/bcrypt";
 import { signJWT } from "../../util/jwt";
 import { HuskyHuskyDB } from "../database";

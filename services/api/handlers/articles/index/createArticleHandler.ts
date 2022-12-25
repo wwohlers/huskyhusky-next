@@ -1,4 +1,4 @@
-import { IArticle } from "../../../../services/articles/article.interface";
+import { IArticle } from "../../../../articles/article.interface";
 import { MethodHandler } from "../../../createHandler";
 import requireAuth from "../../../guards/requireAuth";
 

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import { HuskyHuskyDB } from "../../services/database";
-import { IUser } from "../../services/users/user.interface";
+import { HuskyHuskyDB } from "../../database";
+import { IUser } from "../../users/user.interface";
 import { UnauthorizedError } from "../handleError";
 
 export default async function requireAuth(conn: HuskyHuskyDB, userId: string | undefined, requireAdmin = false): Promise<IUser & mongoose.Document> {

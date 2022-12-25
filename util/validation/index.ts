@@ -1,4 +1,4 @@
-import { ValidationError } from "../../api/handleError";
+import { ValidationError } from "../../services/api/handleError";
 
 export type Validator<K> = (value: any) => K;
 

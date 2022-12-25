@@ -1,6 +1,6 @@
-import createHandler from "../../../api/createHandler";
-import createRequestMakers from "../../../api/createRequestMaker";
-import createUserHandler from "../../../api/handlers/users/createUserHandler";
+import createHandler from "../../../services/api/createHandler";
+import createRequestMakers from "../../../services/api/createRequestMaker";
+import createUserHandler from "../../../services/api/handlers/users/createUserHandler";
 
 const methodHandlers = {
   post: createUserHandler,

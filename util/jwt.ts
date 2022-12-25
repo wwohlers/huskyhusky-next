@@ -1,6 +1,6 @@
 import JWT from "jsonwebtoken";
 import { NextApiResponse } from "next";
-import { UnauthorizedError } from "../api/handleError";
+import { UnauthorizedError } from "../services/api/handleError";
 
 export type JWTPayload = {
   id: string;

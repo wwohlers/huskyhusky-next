@@ -1,4 +1,4 @@
-import { createSchemaValidator, isString, isNumber, createIdValidator } from "../../../../util/validation";
+import { createSchemaValidator, isString, isNumber, createIdValidator } from "../../../../../util/validation";
 import { MethodHandler } from "../../../createHandler";
 import requireAuth from "../../../guards/requireAuth";
 import { NotFoundError } from "../../../handleError";

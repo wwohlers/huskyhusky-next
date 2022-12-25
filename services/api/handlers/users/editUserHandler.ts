@@ -2,13 +2,13 @@ import mongoose from "mongoose";
 import {
   adminUpdateUser,
   selfUpdateUser,
-} from "../../../services/users/server";
+} from "../../../users/server";
 import {
   createUserBioValidator,
   createUserNameValidator,
   IUser,
-} from "../../../services/users/user.interface";
-import { comparePassword } from "../../../util/bcrypt";
+} from "../../../users/user.interface";
+import { comparePassword } from "../../../../util/bcrypt";
 import {
   allowUndefined,
   createEmailValidator,
@@ -18,7 +18,7 @@ import {
   isBoolean,
   isString,
   createOneOfValidator,
-} from "../../../util/validation";
+} from "../../../../util/validation";
 import { MethodHandler } from "../../createHandler";
 import requireAuth from "../../guards/requireAuth";
 import { NotFoundError } from "../../handleError";

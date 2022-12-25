@@ -1,13 +1,13 @@
-import { createUser } from "../../../services/users/server";
+import { createUser } from "../../../users/server";
 import {
   IUser,
   createUserNameValidator,
-} from "../../../services/users/user.interface";
+} from "../../../users/user.interface";
 import {
   createEmailValidator,
   createNewPasswordValidator,
   createSchemaValidator,
-} from "../../../util/validation";
+} from "../../../../util/validation";
 import { MethodHandler } from "../../createHandler";
 import requireAuth from "../../guards/requireAuth";
 

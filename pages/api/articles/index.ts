@@ -1,7 +1,7 @@
-import createHandler from "../../../api/createHandler";
-import createRequestMakers from "../../../api/createRequestMaker";
-import createArticleHandler from "../../../api/handlers/articles/index/createArticleHandler";
-import updateArticleHandler from "../../../api/handlers/articles/index/updateArticleHandler";
+import createHandler from "../../../services/api/createHandler";
+import createRequestMakers from "../../../services/api/createRequestMaker";
+import createArticleHandler from "../../../services/api/handlers/articles/index/createArticleHandler";
+import updateArticleHandler from "../../../services/api/handlers/articles/index/updateArticleHandler";
 
 const methodHandlers = {
   put: updateArticleHandler,

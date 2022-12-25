@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { HuskyHuskyDB, withDB } from "../services/database";
-import { getUserIdFromReq } from "../util/jwt";
+import { HuskyHuskyDB, withDB } from "../database";
+import { getUserIdFromReq } from "../../util/jwt";
 import { handleError, MethodNotAllowedError } from "./handleError";
 
 export type MethodHandlers = {

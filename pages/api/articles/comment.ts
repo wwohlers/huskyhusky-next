@@ -1,7 +1,7 @@
-import createHandler from "../../../api/createHandler";
-import createRequestMakers from "../../../api/createRequestMaker";
-import createCommentHandler from "../../../api/handlers/articles/comment/createCommentHandler";
-import deleteCommentHandler from "../../../api/handlers/articles/comment/deleteCommentHandler";
+import createHandler from "../../../services/api/createHandler";
+import createRequestMakers from "../../../services/api/createRequestMaker";
+import createCommentHandler from "../../../services/api/handlers/articles/comment/createCommentHandler";
+import deleteCommentHandler from "../../../services/api/handlers/articles/comment/deleteCommentHandler";
 
 const methodHandlers = {
   post: createCommentHandler,

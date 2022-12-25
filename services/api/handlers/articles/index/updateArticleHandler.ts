@@ -1,7 +1,7 @@
 import {
   IArticle,
   createArticleTitleValidator,
-} from "../../../../services/articles/article.interface";
+} from "../../../../articles/article.interface";
 import {
   createArrayValidator,
   createIdValidator,
@@ -9,7 +9,7 @@ import {
   createTextFieldValidator,
   isBoolean,
   isString,
-} from "../../../../util/validation";
+} from "../../../../../util/validation";
 import { MethodHandler } from "../../../createHandler";
 import requireAuth from "../../../guards/requireAuth";
 import { NotFoundError } from "../../../handleError";

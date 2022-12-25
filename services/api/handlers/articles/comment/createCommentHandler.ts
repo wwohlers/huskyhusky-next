@@ -3,13 +3,13 @@ import {
   createCommentContentValidator,
   createCommentNameValidator,
   IComment,
-} from "../../../../services/articles/comment.interface";
-import { now } from "../../../../util/datetime";
+} from "../../../../articles/comment.interface";
+import { now } from "../../../../../util/datetime";
 import {
   createIdValidator,
   createSchemaValidator,
   isString,
-} from "../../../../util/validation";
+} from "../../../../../util/validation";
 import { MethodHandler } from "../../../createHandler";
 import { NotFoundError } from "../../../handleError";
 

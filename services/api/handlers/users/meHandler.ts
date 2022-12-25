@@ -1,4 +1,4 @@
-import { IUser } from "../../../services/users/user.interface";
+import { IUser } from "../../../users/user.interface";
 import { MethodHandler } from "../../createHandler";
 
 export type MeResponse =

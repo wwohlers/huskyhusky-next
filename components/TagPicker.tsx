@@ -2,7 +2,7 @@ import React, { useMemo, useRef, useState } from "react";
 import { AiOutlinePlus, AiOutlineTag } from "react-icons/ai";
 import { GrClose } from "react-icons/gr";
 import useSWR from "swr";
-import { axiosFetcher } from "../api/request/axios";
+import { axiosFetcher } from "../services/api/request/axios";
 import { useClickOutside } from "../hooks/useClickOutside";
 import TextInput from "./atoms/TextInput";
 
