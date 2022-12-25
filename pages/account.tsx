@@ -18,7 +18,7 @@ import {
 import { getUserIdFromReq } from "../util/jwt";
 import { returnNotFound, returnProps, returnRedirect } from "../util/next";
 import toastError from "../util/toastError";
-import { editUser } from "./api/users";
+import { makeEditUserRequest } from "./api/users";
 import Form from "../components/forms/Form";
 import { useValidatedState } from "../hooks/useValidatedState";
 import {
@@ -87,7 +87,7 @@ const Account: React.FC<AccountProps> = ({ user: initialUser }) => {
   const submitChanges = async (user: Partial<IUser>) => {
     setLoading(true);
     try {
-      const result = await editUser({
+      const result = await makeEditUserRequest({
         admin: false,
         oldPassword,
         userUpdate: user,

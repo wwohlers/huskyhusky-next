@@ -3,6 +3,7 @@ import { createTextFieldValidator } from "../../util/validation";
 export interface IComment {
   name: string;
   content: string;
+  deleted: boolean;
   createdAt: number;
 }
 
@@ -11,5 +12,5 @@ export function createCommentNameValidator() {
 }
 
 export function createCommentContentValidator() {
-  return createTextFieldValidator(1, 1000);
+  return createTextFieldValidator(1, 500);
 }

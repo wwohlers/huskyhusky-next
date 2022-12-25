@@ -4,7 +4,7 @@ import React, { useRef, useState } from "react";
 import { FiChevronDown } from "react-icons/fi";
 import { useClickOutside } from "../../hooks/useClickOutside";
 import { useRefreshUser } from "../../hooks/useUser";
-import { signOut } from "../../pages/api/users/signOut";
+import { makeSignOutRequest } from "../../pages/api/users/signOut";
 import { IUser } from "../../services/users/user.interface";
 import toastError from "../../util/toastError";
 import Label from "../atoms/Label";
@@ -24,7 +24,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
   const onSignOut = async () => {
     setShowMenu(false);
     try {
-      await signOut();
+      await makeSignOutRequest();
       refreshUser();
       router.push("/login");
     } catch (e) {

@@ -8,4 +8,4 @@ const methodHandlers = {
 
 export default createHandler(methodHandlers);
 
-export const { post: uploadArticleImage } = createRequestMakers("/articles/upload", methodHandlers);
+export const { post: makeUploadImageRequest } = createRequestMakers("/articles/upload", methodHandlers);

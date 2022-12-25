@@ -120,10 +120,10 @@ export async function adminUpdateUser(
   if (userUpdate.name) {
     user.name = userUpdate.name;
   }
-  if (userUpdate.admin) {
+  if (userUpdate.admin !== undefined) {
     user.admin = userUpdate.admin;
   }
-  if (userUpdate.removed) {
+  if (userUpdate.removed !== undefined) {
     user.removed = userUpdate.removed;
   }
   await user.save();

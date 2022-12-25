@@ -4,8 +4,11 @@ import signInHandler from "../../../api/handlers/users/signInHandler";
 
 const methodHandlers = {
   post: signInHandler,
-}
+};
 
 export default createHandler(methodHandlers);
 
-export const { post: signIn } = createRequestMakers("/users/signIn", methodHandlers);
+export const { post: makeSignInRequest } = createRequestMakers(
+  "/users/signIn",
+  methodHandlers
+);

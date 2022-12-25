@@ -18,6 +18,12 @@ import { isHTML } from "../util/markdown";
 import { sanitizeHtml } from "../util/sanitizeHtml";
 import { returnNotFound, returnProps } from "../util/next";
 import { IComment } from "../services/articles/comment.interface";
+import {
+  makeCreateCommentRequest,
+  makeDeleteCommentRequest,
+} from "./api/articles/comment";
+import toastError from "../util/toastError";
+import { toast } from "react-toastify";
 
 type ArticleProps = {
   article: IArticle;
@@ -64,13 +70,49 @@ const Article: React.FC<ArticleProps> = ({ article: initialArticle }) => {
     return isHTML(article.text);
   }, [article]);
 
-  const onCommentCreated = (comment: IComment) => {
-    setShowNewComment(false);
-    setArticle((prev) => ({
-      ...prev,
-      comments: [...prev.comments, comment],
-    }));
+  const onCommentCreated = async (name: string, content: string) => {
+    try {
+      const comment = await makeCreateCommentRequest({
+        articleId: article._id,
+        name,
+        content,
+      });
+      setArticle((prev) => ({
+        ...prev,
+        comments: [...prev.comments, comment],
+      }));
+      setShowNewComment(false);
+    } catch (e) {
+      toastError(e);
+    }
   };
+
+  const onCommentDeleted = async (idx: number) => {
+    try {
+      await makeDeleteCommentRequest({
+        articleId: article._id,
+        commentIndex: idx,
+      });
+      toast.success("Comment deleted");
+      setArticle((prev) => ({
+        ...prev,
+        comments: prev.comments.map((comment, i) => {
+          if (i === idx)
+            return {
+              ...comment,
+              deleted: true,
+            };
+          return comment;
+        }),
+      }));
+    } catch (e) {
+      toastError(e);
+    }
+  };
+
+  const commentCount = useMemo(() => {
+    return article.comments.filter((comment) => !comment.deleted).length;
+  }, [article]);
 
   return (
     <>
@@ -122,11 +164,9 @@ const Article: React.FC<ArticleProps> = ({ article: initialArticle }) => {
             <p className="text-lg font-semibold">Share</p>
           </div>
         </div>
-        <div className="my-16">
+        <div className="my-16 max-w-lg">
           <div className="flex flex-row justify-between items-center">
-            <p className="text-xl font-semibold">
-              {article.comments.length} comments
-            </p>
+            <p className="text-xl font-semibold">{commentCount} comments</p>
             {!showNewComment && (
               <Button onClick={() => setShowNewComment(true)}>
                 New Comment
@@ -135,12 +175,16 @@ const Article: React.FC<ArticleProps> = ({ article: initialArticle }) => {
           </div>
           {showNewComment && (
             <NewComment
-              onSuccess={onCommentCreated}
+              onSubmit={onCommentCreated}
               onCancel={() => setShowNewComment(false)}
             />
           )}
           {article.comments.map((comment, i) => (
-            <Comment key={i} comment={comment} />
+            <Comment
+              key={i}
+              comment={comment}
+              onDeletePressed={() => onCommentDeleted(i)}
+            />
           ))}
         </div>
       </div>

@@ -13,7 +13,7 @@ import { getPublicUser } from "../../services/users/server";
 import { PublicUser } from "../../services/users/user.interface";
 import { returnNotFound, returnProps } from "../../util/next";
 import toastError from "../../util/toastError";
-import { createArticle } from "../api/articles";
+import { makeCreateArticleRequest } from "../api/articles";
 
 type WriterProps = {
   user: PublicUser;
@@ -62,7 +62,7 @@ const Writer: React.FC<WriterProps> = ({ user, headlines }) => {
 
   const write = async () => {
     try {
-      const data = await createArticle();
+      const data = await makeCreateArticleRequest();
       router.push(`/edit/${data._id}`);
     } catch (e) {
       toastError(e);

@@ -12,7 +12,7 @@ import { canEditArticle } from "../../services/users/server";
 import { getUserIdFromReq } from "../../util/jwt";
 import { convertHTMLToMarkdown, isHTML } from "../../util/markdown";
 import { returnNotFound, returnProps, returnRedirect } from "../../util/next";
-import { updateArticle } from "../api/articles";
+import { makeUpdateArticleRequest } from "../api/articles";
 
 type EditProps = {
   article: IArticle;
@@ -51,7 +51,7 @@ const Edit: React.FC<EditProps> = ({ article: initialArticle }) => {
   const [article, setArticle] = useState<IArticle>(initialArticle);
 
   const onSave = useCallback(async (article: IArticle) => {
-    const res = await updateArticle(article);
+    const res = await makeUpdateArticleRequest(article);
     setArticle(res);
   }, []);
 

@@ -1,8 +1,7 @@
 import * as mongoose from "mongoose";
 import { Model } from "mongoose";
+import { now } from "../../util/datetime";
 import { IArticle } from "./article.interface";
-
-const now = () => Math.floor(Date.now() / 1000);
 
 /**
  * Represents an Article document in the database.
@@ -76,6 +75,10 @@ export const ArticleSchema = new mongoose.Schema<IArticle>({
         content: {
           type: String,
           required: true,
+        },
+        deleted: {
+          type: Boolean,
+          default: false,
         },
         createdAt: {
           type: Number,

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { AiOutlineKey, AiOutlineMail } from "react-icons/ai";
 import { useForm } from "../../hooks/useForm";
 import { useRefreshUser } from "../../hooks/useUser";
-import { signIn } from "../../pages/api/users/signIn";
+import { makeSignInRequest } from "../../pages/api/users/signIn";
 import { IUser } from "../../services/users/user.interface";
 import {
   createEmailValidator,
@@ -40,7 +40,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onError }) => {
     setIsLoading(true);
     try {
       console.log(1);
-      const user = await signIn({
+      const user = await makeSignInRequest({
         email: values.email,
         password: values.password,
       });

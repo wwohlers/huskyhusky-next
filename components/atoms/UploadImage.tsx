@@ -1,6 +1,6 @@
 import Image from "next/image";
 import React, { ChangeEvent, useEffect, useRef } from "react";
-import { uploadArticleImage } from "../../pages/api/articles/upload";
+import { makeUploadImageRequest } from "../../pages/api/articles/upload";
 import toastError from "../../util/toastError";
 
 type UploadImageProps = {
@@ -24,7 +24,7 @@ const UploadImage: React.FC<UploadImageProps> = ({
       const result = e.target?.result;
       if (result) {
         try {
-          const data = await uploadArticleImage({
+          const data = await makeUploadImageRequest({
             data: result,
           });
           onChange(data.url);

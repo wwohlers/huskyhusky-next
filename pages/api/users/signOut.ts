@@ -8,4 +8,4 @@ const methodHandlers = {
 
 export default createHandler(methodHandlers);
 
-export const { post: signOut } = createRequestMakers("/users/signOut", methodHandlers);
+export const { post: makeSignOutRequest } = createRequestMakers("/users/signOut", methodHandlers);

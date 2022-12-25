@@ -11,8 +11,8 @@ type UploadImageResponse = {
 };
 
 const s3 = new S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  accessKeyId: process.env.HH_AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.HH_AWS_SECRET_ACCESS_KEY,
 });
 
 export const uploadImageHandler: MethodHandler<
@@ -20,7 +20,7 @@ export const uploadImageHandler: MethodHandler<
   UploadImageResponse
 > = async ({ conn, req, userId }) => {
   requireAuth(conn, userId, false);
-  const bucketName = process.env.AWS_BUCKET_NAME!;
+  const bucketName = process.env.HH_AWS_BUCKET_NAME!;
   if (!req.body.data) {
     throw new ValidationError("No image data");
   }

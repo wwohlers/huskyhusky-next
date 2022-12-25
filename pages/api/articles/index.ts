@@ -10,7 +10,7 @@ const methodHandlers = {
 
 export default createHandler(methodHandlers);
 
-export const { put: updateArticle, post: createArticle } = createRequestMakers(
+export const { put: makeUpdateArticleRequest, post: makeCreateArticleRequest } = createRequestMakers(
   "/articles",
   methodHandlers
 );

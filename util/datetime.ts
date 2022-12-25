@@ -10,6 +10,8 @@ const units: Intl.RelativeTimeFormatUnit[] = [
   "second",
 ];
 
+export const now = () => Math.floor(Date.now() / 1000);
+
 export const timeAgo = (timestamp: number) => {
   const dt = DateTime.fromMillis(timestamp * 1000);
   const diff = dt.diffNow().shiftTo(...units);

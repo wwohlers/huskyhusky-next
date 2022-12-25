@@ -1,7 +1,6 @@
 import * as mongoose from "mongoose";
+import { now } from "../../util/datetime";
 import { IUser } from "./user.interface";
-
-const now = () => Math.floor(Date.now() / 1000);
 
 /**
  * Represents a User in the database.

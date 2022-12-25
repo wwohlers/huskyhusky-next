@@ -8,7 +8,7 @@ const methodHandlers = {
 
 export default createHandler(methodHandlers);
 
-export const { post: createUser } = createRequestMakers(
+export const { post: makeCreateUserRequest } = createRequestMakers(
   "/users/createUser",
   methodHandlers
 );

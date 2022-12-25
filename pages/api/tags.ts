@@ -8,4 +8,4 @@ const methodHandlers = {
 
 export default createHandler(methodHandlers);
 
-export const { get: getTags } = createRequestMakers("/tags", methodHandlers);
+export const { get: makeGetTagsRequest } = createRequestMakers("/tags", methodHandlers);

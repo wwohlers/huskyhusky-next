@@ -4,7 +4,6 @@ import { useForm } from "../../hooks/useForm";
 import {
   createCommentContentValidator,
   createCommentNameValidator,
-  IComment,
 } from "../../services/articles/comment.interface";
 import Button from "../atoms/Button";
 import TextArea from "../atoms/TextArea";
@@ -12,7 +11,7 @@ import TextInput from "../atoms/TextInput";
 import Form from "../forms/Form";
 
 type NewCommentProps = {
-  onSuccess: (comment: IComment) => void;
+  onSubmit: (name: string, content: string) => Promise<void>;
   onCancel: () => void;
 };
 
@@ -21,7 +20,7 @@ type NewCommentForm = {
   content: string;
 };
 
-const NewComment: React.FC<NewCommentProps> = ({ onSuccess, onCancel }) => {
+const NewComment: React.FC<NewCommentProps> = ({ onSubmit, onCancel }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { values, errors, onFieldChange, hasErrors } = useForm<NewCommentForm>(
     {
@@ -34,14 +33,9 @@ const NewComment: React.FC<NewCommentProps> = ({ onSuccess, onCancel }) => {
     }
   );
 
-  const onSubmit = () => {
+  const handleSubmit = async () => {
     setIsLoading(true);
-    // TODO: Implement
-    onSuccess({
-      name: values.name,
-      content: values.content,
-      createdAt: Date.now(),
-    });
+    await onSubmit(values.name, values.content);
     setIsLoading(false);
   };
 
@@ -62,7 +56,7 @@ const NewComment: React.FC<NewCommentProps> = ({ onSuccess, onCancel }) => {
         <Button onClick={onCancel} type="secondary">
           Cancel
         </Button>
-        <Button disabled={hasErrors || isLoading} onClick={onSubmit}>
+        <Button disabled={hasErrors || isLoading} onClick={handleSubmit}>
           Submit
         </Button>
       </Form.Buttons>

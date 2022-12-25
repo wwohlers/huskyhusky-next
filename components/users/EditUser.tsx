@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { BiRename } from "react-icons/bi";
 import { useValidatedState } from "../../hooks/useValidatedState";
-import { editUser } from "../../pages/api/users";
+import { makeEditUserRequest } from "../../pages/api/users";
 import {
   AdminUser,
   createUserNameValidator,
@@ -77,7 +77,7 @@ const EditUser: React.FC<EditUserProps> = ({ editMode, user, onFinish }) => {
     }
     setIsLoading(true);
     try {
-      const data = await editUser({
+      const data = await makeEditUserRequest({
         admin: true,
         userUpdate: newUser,
       });

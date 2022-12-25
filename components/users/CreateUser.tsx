@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { AiOutlineKey, AiOutlineMail } from "react-icons/ai";
 import { BiRename } from "react-icons/bi";
 import { toast } from "react-toastify";
-import { createUser } from "../../pages/api/users/createUser";
+import { makeCreateUserRequest } from "../../pages/api/users/createUser";
 import {
   AdminUser,
   createUserNameValidator,
@@ -61,7 +61,7 @@ const CreateUser: React.FC<CreateUserProps> = ({
   const onSubmit = async () => {
     setIsLoading(true);
     try {
-      const data = await createUser({
+      const data = await makeCreateUserRequest({
         name: values.name,
         email: values.email,
         password: values.password,
