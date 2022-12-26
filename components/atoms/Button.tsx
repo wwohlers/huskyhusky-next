@@ -14,9 +14,9 @@ const Button: React.FC<ButtonProps & React.HTMLProps<HTMLButtonElement>> = ({
 }) => {
   const typeClasses = useMemo(() => {
     if (type === "primary") {
-      return "bg-red-900 text-white font-bold";
+      return "bg-theme text-white font-bold";
     } else if (type === "secondary") {
-      return "font-medium bg-gray-200";
+      return "font-medium bg-background-dark";
     }
     return "";
   }, [type]);

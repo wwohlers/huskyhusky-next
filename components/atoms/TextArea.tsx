@@ -13,7 +13,7 @@ const TextArea: React.FC<
   };
   return (
     <textarea
-      className="p-2 w-full outline-none rounded-md bg-white border-[#EAEAEA] border focus:border-red-800 duration-150 text-sm font-medium"
+      className="p-2 w-full outline-none rounded-md bg-white border-[#EAEAEA] border focus:border-theme duration-150 text-sm font-medium"
       onChange={handleOnChange}
       value={value}
       {...rest}

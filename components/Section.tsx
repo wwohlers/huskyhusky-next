@@ -13,7 +13,7 @@ const Section: React.FC<SectionProps> = ({
 }) => {
   return (
     <div className={"my-8 " + className}>
-      <p className="text-lg font-semibold border-b border-gray-200">{title}</p>
+      <p className="text-lg font-semibold border-b border-border">{title}</p>
       {children}
     </div>
   );

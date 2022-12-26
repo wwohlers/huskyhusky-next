@@ -57,7 +57,9 @@ export async function getArticleTags(conn: HuskyHuskyDB) {
       },
     },
   ]).exec();
-  return result[0].tags as string[];
+  return result[0].tags.filter(
+    (t: unknown) => typeof t === "string"
+  ) as string[];
 }
 
 export async function searchArticles(conn: HuskyHuskyDB, query: string) {
@@ -73,11 +75,16 @@ export async function searchArticles(conn: HuskyHuskyDB, query: string) {
   return articles as IHeadline[];
 }
 
-export async function getHeadlinesByTag(conn: HuskyHuskyDB, tag: string) {
+export async function getHeadlinesByTag(
+  conn: HuskyHuskyDB,
+  tag: string,
+  limit: number = 100
+) {
   const articles = await conn.models.Article.find({
     public: true,
     tags: tag,
   })
+    .limit(limit)
     .sort({ createdAt: -1 })
     .select(headlineSelector)
     .populate("author", "_id name")

@@ -16,7 +16,7 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
   const headlines = await withDB((conn) => {
     return getHeadlines(conn);
   });
-  return returnProps({ headlines });
+  return returnProps({ headlines }, 10);
 };
 
 const Home: React.FC<HomeProps> = ({ headlines }) => {

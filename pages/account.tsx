@@ -108,7 +108,9 @@ const Account: React.FC<AccountProps> = ({ user: initialUser }) => {
         <title>My Account - The Husky Husky</title>
       </Head>
       <h1 className="text-3xl mb-1 font-semibold">My Account</h1>
-      {user.admin && <p className="text-sm text-gray-400 font-medium">Admin</p>}
+      {user.admin && (
+        <p className="text-sm text-secondary font-medium">Admin</p>
+      )}
       <Section title="Profile">
         <div className="my-4">
           <Form.Item
@@ -195,7 +197,7 @@ const Account: React.FC<AccountProps> = ({ user: initialUser }) => {
           <Label>Password</Label>
           {editMode !== EditMode.Password ? (
             <div
-              className="cursor-pointer text-sm italic font-medium text-gray-400"
+              className="cursor-pointer text-sm italic font-medium text-secondary"
               onClick={() => setEditMode(EditMode.Password)}
             >
               Click here to change your password

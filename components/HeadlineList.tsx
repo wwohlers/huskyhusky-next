@@ -5,6 +5,7 @@ import { MdModeEdit } from "react-icons/md";
 import { useUser } from "../hooks/useUser";
 import { IHeadline } from "../services/articles/article.interface";
 import { IUser } from "../services/users/user.interface";
+import TagList from "./article/TagList";
 import Label from "./atoms/Label";
 
 type HeadlineListProps = {
@@ -42,7 +43,7 @@ const HeadlineList: React.FC<HeadlineListProps> = ({ headlines }) => {
       {headlines.slice(0, numTagsToRender).map((headline) => (
         <Link
           href={"/" + headline.name}
-          className="w-full flex flex-col md:flex-row hover:translate-x-[1px] hover:translate-y-[-1px] duration-150 md:space-x-4"
+          className="w-full flex flex-col md:flex-row hover:translate-x-[1px] duration-150 md:space-x-4"
           key={headline._id}
         >
           <div className="flex-shrink-0 w-full md:w-1/4 h-32 xl:w-1/5 xl:h-32 relative rounded-sm shadow-sm overflow-hidden">
@@ -55,12 +56,8 @@ const HeadlineList: React.FC<HeadlineListProps> = ({ headlines }) => {
           </div>
           <div className="w-full">
             <div className="flex flex-row justify-between mt-2 md:mt-0">
-              <div className="flex flex-row space-x-4">
-                {headline.tags.slice(0, 3).map((tag) => (
-                  <Label key={tag}>{tag}</Label>
-                ))}
-              </div>
-              <div className="flex flex-row space-x-2 items-center text-gray-500">
+              <TagList tags={headline.tags} />
+              <div className="flex flex-row space-x-2 items-center text-secondary">
                 {canEditArticle(user, headline) && (
                   <Link href={"/edit/" + headline._id}>
                     <MdModeEdit size={18} />
@@ -71,7 +68,7 @@ const HeadlineList: React.FC<HeadlineListProps> = ({ headlines }) => {
             <p className="text-xl my-1 font-medium md:line-clamp-1">
               {headline.title}
             </p>
-            <p className="text-gray-500 line-clamp-4 md:line-clamp-3">
+            <p className="text-secondary line-clamp-4 md:line-clamp-3">
               {headline.brief}
             </p>
           </div>

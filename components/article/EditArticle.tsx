@@ -173,7 +173,7 @@ const EditArticle: React.FC<EditArticleProps> = ({ article, onSave }) => {
         />
       </Section>
       <Section title="Save & Publish">
-        <p className="my-2 text-sm text-gray-400 font-medium">
+        <p className="my-2 text-sm text-secondary font-medium">
           {article.public
             ? "This article is public. Your changes won't be saved unless you republish or unpublish."
             : "This article is private. Your changes will save automatically."}
@@ -184,7 +184,7 @@ const EditArticle: React.FC<EditArticleProps> = ({ article, onSave }) => {
             href={"/" + liveName}
             target="_blank"
           >
-            <span className="border-b border-gray-900">
+            <span className="border-b border-black">
               {process.env.NEXT_PUBLIC_BASE_URL + "/" + liveName}
             </span>
             <BiLinkExternal />

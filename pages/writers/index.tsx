@@ -6,7 +6,7 @@ import { getPublicUsers } from "../../services/users/server";
 import { PublicUser } from "../../services/users/user.interface";
 import { FaPaw } from "react-icons/fa";
 import { withDB } from "../../services/database";
-import { returnProps } from "../../util/next";
+import { DEFAULT_REVALIDATE_PERIOD, returnProps } from "../../util/next";
 
 type WriterProps = {
   writers: PublicUser[];
@@ -16,7 +16,7 @@ export const getStaticProps: GetStaticProps<WriterProps> = async () => {
   const writers = await withDB((conn) => {
     return getPublicUsers(conn);
   });
-  return returnProps({ writers });
+  return returnProps({ writers }, DEFAULT_REVALIDATE_PERIOD);
 };
 
 const Writers: React.FC<WriterProps> = ({ writers }) => {
@@ -39,7 +39,9 @@ const Writers: React.FC<WriterProps> = ({ writers }) => {
             <FaPaw size={20} />
             <div>
               <p className="text-lg font-semibold">{writer.name}</p>
-              <p className="text-sm text-gray-400 line-clamp-3">{writer.bio}</p>
+              <p className="text-sm text-secondary line-clamp-3">
+                {writer.bio}
+              </p>
             </div>
           </Link>
         ))}

@@ -30,7 +30,7 @@ const Comment: React.FC<CommentProps> = ({ comment, onDeletePressed }) => {
 
   return (
     <div className="my-6">
-      <div className="flex justify-between items-center text-gray-600 text-sm">
+      <div className="flex justify-between items-center text-secondary text-sm">
         <span className="font-semibold">{comment.name}</span>
         <div className="flex items-center space-x-2">
           <span>{timeAgo(comment.createdAt)}</span>
@@ -38,7 +38,7 @@ const Comment: React.FC<CommentProps> = ({ comment, onDeletePressed }) => {
             <span className="cursor-pointer" onClick={onTrash}>
               <BsTrashFill
                 size={16}
-                className={deletePressed ? "text-red-800 pulse" : ""}
+                className={deletePressed ? "text-theme pulse" : ""}
               />
             </span>
           )}

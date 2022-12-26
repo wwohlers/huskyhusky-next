@@ -8,6 +8,7 @@ import ContentContainer from "../components/ContentContainer";
 import Head from "next/head";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import NextNProgress from "nextjs-progressbar";
 
 const raleway = Raleway({ subsets: ["latin"] });
 
@@ -18,6 +19,7 @@ export default function App({ Component, pageProps }: AppProps) {
         raleway.className + " w-full flex flex-col min-h-screen items-center"
       }
     >
+      <NextNProgress color="#990702" />
       <ToastContainer />
       <Head>
         <link rel="icon" href="/favicon.ico" />

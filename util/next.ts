@@ -1,9 +1,16 @@
+import { GetStaticProps } from "next";
 import { stringifyIds } from "../services/database";
 
-export function returnProps<K>(props: K): { props: K } {
+export const DEFAULT_REVALIDATE_PERIOD = 60; // 60 mins
+
+export function returnProps<K extends { [key: string]: any }>(
+  props: K,
+  revalidateMins?: number
+): ReturnType<GetStaticProps<K>> {
   stringifyIds(props);
   return {
     props,
+    ...(revalidateMins ? { revalidate: revalidateMins * 60 } : {}), // seconds
   };
 }
 

@@ -7,7 +7,7 @@ type LabelProps = {
 
 const Label: React.FC<LabelProps> = ({ className = "", children }) => {
   return (
-    <p className={"text-xs uppercase text-red-800 font-bold " + className}>
+    <p className={"text-xs uppercase text-theme font-bold " + className}>
       {children}
     </p>
   );

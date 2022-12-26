@@ -46,7 +46,7 @@ const UploadImage: React.FC<UploadImageProps> = ({
   return (
     <div
       onBlur={onBlur}
-      className="border border-gray-200 focus:border-red-800 rounded-md px-2 py-2 transition duration-150"
+      className="border border-background-dark focus:border-theme rounded-md px-2 py-2 transition duration-150"
     >
       <input
         ref={inputRef}

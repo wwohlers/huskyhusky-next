@@ -9,7 +9,11 @@ import { IHeadline } from "../../services/articles/article.interface";
 import { getHeadlinesByMonth } from "../../services/articles/server";
 import { withDB } from "../../services/database";
 import { getAllMonths } from "../../util/datetime";
-import { returnNotFound, returnProps } from "../../util/next";
+import {
+  DEFAULT_REVALIDATE_PERIOD,
+  returnNotFound,
+  returnProps,
+} from "../../util/next";
 
 type ArchiveProps = {
   monthTitle: string;
@@ -54,14 +58,18 @@ export const getStaticProps: GetStaticProps<ArchiveProps> = async ({
       if (index === -1) {
         return returnNotFound();
       }
-      return returnProps({
-        monthTitle: DateTime.fromObject({ year, month: monthNumber }).toFormat(
-          "MMMM yyyy"
-        ),
-        headlines,
-        prevPath: months[index - 1]?.toFormat("yyyy-MM") ?? "",
-        nextPath: months[index + 1]?.toFormat("yyyy-MM") ?? "",
-      });
+      return returnProps(
+        {
+          monthTitle: DateTime.fromObject({
+            year,
+            month: monthNumber,
+          }).toFormat("MMMM yyyy"),
+          headlines,
+          prevPath: months[index - 1]?.toFormat("yyyy-MM") ?? "",
+          nextPath: months[index + 1]?.toFormat("yyyy-MM") ?? "",
+        },
+        DEFAULT_REVALIDATE_PERIOD
+      );
     });
   }
   return returnNotFound();

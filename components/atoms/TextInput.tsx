@@ -22,7 +22,7 @@ const TextInput: React.FC<
   return (
     <div
       className={
-        "flex flex-row justify-center items-stretch rounded-md overflow-hidden border border-[#EAEAEA] focus-within:border-red-800 duration-150 bg-white " +
+        "flex flex-row justify-center items-stretch rounded-md overflow-hidden border border-[#EAEAEA] focus-within:border-theme duration-150 bg-white " +
         className
       }
     >
@@ -30,7 +30,7 @@ const TextInput: React.FC<
         {icon}
       </div>
       <input
-        className="p-1.5 px-2 flex-1 outline-none bg-transparent text-gray-800 font-medium placeholder-gray-400"
+        className="p-1.5 px-2 flex-1 outline-none bg-transparent font-medium placeholder-gray-400"
         type="text"
         value={value}
         onChange={handleOnChange}

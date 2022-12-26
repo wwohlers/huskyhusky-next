@@ -15,7 +15,7 @@ const HeadlineGroup: React.FC<HeadlineGroupProps> = ({
   return (
     <div
       className={
-        "w-full xl:px-6 py-6 xl:h-[17rem] flex flex-col justify-evenly " +
+        "w-full sm:px-6 py-6 xl:h-[17rem] flex flex-col justify-evenly " +
         containerClasses
       }
     >
@@ -23,7 +23,7 @@ const HeadlineGroup: React.FC<HeadlineGroupProps> = ({
         <Link
           key={headline._id}
           href={"/" + headline.name}
-          className="flex-1 flex flex-col justify-center font-medium border-b border-gray-200 last:border-b-0 hover:translate-x-[1px] hover:translate-y-[-1px] duration-150"
+          className="flex-1 flex flex-col justify-center font-medium border-b border-background-dark last:border-b-0 hover:scale-[1.01] duration-150"
         >
           <p className="line-clamp-2 my-2">
             {headline.title}
@@ -31,7 +31,7 @@ const HeadlineGroup: React.FC<HeadlineGroupProps> = ({
             {headline.tags.map((tag, i) => (
               <span
                 key={tag}
-                className="text-xs uppercase text-red-800 font-bold"
+                className="text-xs uppercase text-theme font-bold"
               >
                 {!!i && <>&nbsp;&bull;&nbsp;</>}
                 {tag}

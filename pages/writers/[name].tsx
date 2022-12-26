@@ -11,7 +11,11 @@ import { getHeadlinesByUser } from "../../services/articles/server";
 import { withDB } from "../../services/database";
 import { getPublicUser } from "../../services/users/server";
 import { PublicUser } from "../../services/users/user.interface";
-import { returnNotFound, returnProps } from "../../util/next";
+import {
+  DEFAULT_REVALIDATE_PERIOD,
+  returnNotFound,
+  returnProps,
+} from "../../util/next";
 import toastError from "../../util/toastError";
 import { makeCreateArticleRequest } from "../api/articles";
 
@@ -52,7 +56,7 @@ export const getStaticProps: GetStaticProps<WriterProps> = async ({
   if (!user || !headlines) {
     return returnNotFound();
   } else {
-    return returnProps({ user, headlines });
+    return returnProps({ user, headlines }, DEFAULT_REVALIDATE_PERIOD);
   }
 };
 
@@ -80,7 +84,7 @@ const Writer: React.FC<WriterProps> = ({ user, headlines }) => {
       <div className="flex flex-row justify-between">
         <div>
           <h1 className="text-3xl font-semibold">{user.name}</h1>
-          <h2 className="text-gray-400 mb-8">{user.bio}</h2>
+          <h2 className="text-secondary mb-8">{user.bio}</h2>
         </div>
         <div>
           {canWrite && (

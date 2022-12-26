@@ -10,13 +10,18 @@ import Label from "../components/atoms/Label";
 import {
   getAllArticleNames,
   getArticleByName,
+  getHeadlinesByTag,
 } from "../services/articles/server";
-import { IArticle } from "../services/articles/article.interface";
+import { IArticle, IHeadline } from "../services/articles/article.interface";
 import { withDB } from "../services/database";
 import { timeAgo } from "../util/datetime";
 import { isHTML } from "../util/markdown";
 import { sanitizeHtml } from "../util/sanitizeHtml";
-import { returnNotFound, returnProps } from "../util/next";
+import {
+  DEFAULT_REVALIDATE_PERIOD,
+  returnNotFound,
+  returnProps,
+} from "../util/next";
 import { IComment } from "../services/articles/comment.interface";
 import {
   makeCreateCommentRequest,
@@ -24,9 +29,15 @@ import {
 } from "./api/articles/comment";
 import toastError from "../util/toastError";
 import { toast } from "react-toastify";
+import TagList from "../components/article/TagList";
+import Image from "next/image";
+import Section from "../components/Section";
+import Share from "../components/article/Share";
+import Headline from "../components/home/Headline";
 
 type ArticleProps = {
   article: IArticle;
+  similarArticles: IHeadline[];
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -48,17 +59,29 @@ export const getStaticProps: GetStaticProps<ArticleProps> = async ({
 }) => {
   const name = params?.name;
   if (name) {
-    const article = await withDB((conn) => {
-      return getArticleByName(conn, name as string);
+    const { article, similarArticles } = await withDB(async (conn) => {
+      const article = await getArticleByName(conn, name as string);
+      const similarArticles = await getHeadlinesByTag(
+        conn,
+        article?.tags[0] ?? "",
+        4
+      );
+      return { article, similarArticles };
     });
     if (article) {
-      return returnProps({ article });
+      return returnProps(
+        { article, similarArticles },
+        DEFAULT_REVALIDATE_PERIOD
+      );
     }
   }
   return returnNotFound();
 };
 
-const Article: React.FC<ArticleProps> = ({ article: initialArticle }) => {
+const Article: React.FC<ArticleProps> = ({
+  article: initialArticle,
+  similarArticles,
+}) => {
   const [article, setArticle] = useState(initialArticle);
   const [showNewComment, setShowNewComment] = useState(false);
 
@@ -128,43 +151,58 @@ const Article: React.FC<ArticleProps> = ({ article: initialArticle }) => {
         />
       </Head>
       <div>
-        <div className="flex flex-row space-x-4">
-          {article.tags.map((tag) => (
-            <Link key={tag} href={"/tags/" + tag}>
-              <Label>{tag}</Label>
-            </Link>
-          ))}
-        </div>
+        <TagList tags={article.tags} />
         <h1 className="text-4xl font-semibold my-1">{article.title}</h1>
         <Link
           href={"/writers/" + article.author.name}
-          className="my-2 text-gray-500"
+          className="font-medium text-sm text-secondary"
         >
           Published {timeAgo(article.createdAt)} by {article.author.name}
         </Link>
-        <img
-          className="mt-2 w-full rounded-md"
-          src={article.image}
-          alt={`Image for ${article.title}`}
-        />
-        <div className="my-8 flex flex-col w-full lg:flex-row">
-          <div className="lg:w-3/4">
-            {isHtml ? (
-              <article
-                className="text-lg pr-12 leading-normal"
-                dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
-              ></article>
-            ) : (
-              <ReactMarkdown className="markdown">
-                {isHtml ? sanitizedHtml : article.text}
-              </ReactMarkdown>
-            )}
+        <div className="flex flex-col xl:flex-row">
+          <div className="w-full xl:w-2/3">
+            <div className="my-4 relative w-full h-96">
+              <Image
+                src={article.image}
+                fill
+                className="object-contain"
+                alt={`Image for ${article.title}`}
+              />
+            </div>
+            <p className="text-secondary text-sm font-medium text-center">
+              {article.attr}
+            </p>
+            <div className="my-4 flex flex-col w-full lg:flex-row">
+              {isHtml ? (
+                <article
+                  className="text-lg pr-12 leading-normal font-medium"
+                  dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+                ></article>
+              ) : (
+                <ReactMarkdown className="markdown">
+                  {isHtml ? sanitizedHtml : article.text}
+                </ReactMarkdown>
+              )}
+            </div>
           </div>
-          <div className="mt-8 lg:pl-8 lg:mt-0">
-            <p className="text-lg font-semibold">Share</p>
+          <div className="xl:pl-8 flex-1">
+            <Section title="Share">
+              <Share name={article.name} title={article.title} />
+            </Section>
+            <Section title="More Like This">
+              <div className="flex md:flex-row xl:flex-col flex-wrap">
+                {similarArticles.map((article, i) => (
+                  <Headline
+                    containerClasses="md:w-1/2 xl:w-full xl:p-0 xl:my-4"
+                    key={i}
+                    headline={article}
+                  />
+                ))}
+              </div>
+            </Section>
           </div>
         </div>
-        <div className="my-16 max-w-lg">
+        <div className="my-8">
           <div className="flex flex-row justify-between items-center">
             <p className="text-xl font-semibold">{commentCount} comments</p>
             {!showNewComment && (

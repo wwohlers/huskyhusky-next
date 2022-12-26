@@ -91,7 +91,7 @@ const Users: React.FC<UsersProps> = ({ users: initialUsers }) => {
       </div>
       <table className="w-full">
         <thead>
-          <tr className="text-sm uppercase text-gray-500">
+          <tr className="text-sm uppercase text-secondary">
             <th className="py-2 font-medium">Name</th>
             <th className="font-medium">Email</th>
             <th className="font-medium">Admin</th>

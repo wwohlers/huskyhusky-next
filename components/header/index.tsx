@@ -53,8 +53,8 @@ const Header: React.FC = () => {
             <FaPaw className="inline" size={12} />
             &nbsp; {}
             <Link
-              className=" border-gray-100 hover:border-red-800 border-b-2 duration-150"
-              href={"/tag?t=" + tag}
+              className=" border-background hover:border-theme border-b-2 duration-150"
+              href={"/tag/" + tag}
             >
               {tag}
             </Link>

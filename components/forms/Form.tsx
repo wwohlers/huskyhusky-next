@@ -11,7 +11,7 @@ const FormItem: React.FC<{
       <Label className="mb-px">{title}</Label>
       {children}
       {error && (
-        <div className="flex items-center space-x-px text-sm font-medium my-1 text-red-800">
+        <div className="flex items-center space-x-px text-sm font-medium my-1 text-theme">
           <IoMdAlert size={16} />
           <span>{error}</span>
         </div>

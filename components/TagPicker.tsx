@@ -74,7 +74,7 @@ const TagPicker: React.FC<TagPickerProps> = ({ tags, setTags, onBlur }) => {
       <div className="mt-1">
         {tags.map((tag) => (
           <div
-            className="inline-flex flex-row mr-2 mt-1 border border-red-800 uppercase text-sm font-medium rounded-sm px-2 py-1 items-center space-x-1 cursor-pointer"
+            className="inline-flex flex-row mr-2 mt-1 border border-theme uppercase text-sm font-medium rounded-sm px-2 py-1 items-center space-x-1 cursor-pointer"
             key={tag}
             onClick={() => onTagClicked(tag)}
           >

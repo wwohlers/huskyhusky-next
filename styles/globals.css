@@ -6,7 +6,7 @@ html,
 body {
   padding: 0;
   margin: 0;
-  background: #f8f8f8;
+  background: #fbfbfb;
   font-family: "Raleway", -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
     Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
@@ -25,6 +25,10 @@ a {
  */
 .transition-height {
   transition: max-height 150ms ease-in-out;
+}
+
+.markdown {
+  @apply font-medium;
 }
 
 .markdown > h1, h2, h3, h4, h5, h6 {
