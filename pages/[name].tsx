@@ -161,7 +161,7 @@ const Article: React.FC<ArticleProps> = ({
         </Link>
         <div className="flex flex-col xl:flex-row">
           <div className="w-full xl:w-2/3">
-            <div className="my-4 relative w-full h-96">
+            <div className="my-4 relative w-full h-48 sm:h-96">
               <Image
                 src={article.image}
                 fill
