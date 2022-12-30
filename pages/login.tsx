@@ -12,8 +12,8 @@ import toastError from "../util/toastError";
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const userId = getUserIdFromReq(req);
   if (userId) {
-    const user = await withDB((conn) => {
-      return conn.models.User.findById(userId).select("name").lean();
+    const user = await withDB(async (conn) => {
+      return await conn.models.User.findById(userId).select("name").lean();
     });
     if (user) {
       return returnRedirect("/writers/" + user.name);

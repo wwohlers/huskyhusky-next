@@ -1,7 +1,7 @@
-import createHandler from "../../../services/api/createHandler";
-import createRequestMakers from "../../../services/api/createRequestMaker";
-import editUserHandler from "../../../services/api/handlers/users/editUserHandler";
-import meHandler from "../../../services/api/handlers/users/meHandler";
+import editUserHandler from "../../../services/users/handlers/editUserHandler";
+import meHandler from "../../../services/users/handlers/meHandler";
+import createHandler from "../../../util/api/createHandler";
+import createRequestMakers from "../../../util/api/createRequestMaker";
 
 const methodHandlers = {
   get: meHandler,

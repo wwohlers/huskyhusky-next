@@ -16,9 +16,7 @@ export type HuskyHuskyDB = mongoose.Connection & {
   };
 };
 
-export type WithDBHandler<K> = (conn: HuskyHuskyDB) => K;
-
-type WithoutPromise<T> = T extends Promise<infer U> ? U : T;
+export type WithDBHandler<K> = (conn: HuskyHuskyDB) => Promise<K>;
 
 async function connectToDB(): Promise<HuskyHuskyDB> {
   const conn = await mongoose.createConnection(DATABASE_URL as string);
@@ -30,28 +28,14 @@ async function connectToDB(): Promise<HuskyHuskyDB> {
 
 /**
  * Run a function with a database connection. Automatically closes the connection and converts _id fields to strings.
- * @param handler
+ * @param callback
  * @returns
  */
 export async function withDB<K>(
-  handler: WithDBHandler<K>
-): Promise<WithoutPromise<K>> {
+  callback: WithDBHandler<K>
+): Promise<K> {
   const conn = await connectToDB();
-  const result = await handler(conn);
+  const result = await callback(conn);
   conn.close();
-  return result as WithoutPromise<K>;
-}
-
-/**
- * Deeply converts all _id fields to strings. Mutates the original object.
- * @param obj
- */
-export function stringifyIds(obj: any) {
-  for (const key in obj) {
-    if (key === "_id" && obj[key]?.toString) {
-      obj[key] = obj[key].toString();
-    } else if (typeof obj[key] === "object") {
-      stringifyIds(obj[key]);
-    }
-  }
+  return result as K;
 }

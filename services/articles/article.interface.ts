@@ -29,21 +29,13 @@ export type IHeadline = Pick<
 
 export const headlineSelector = "_id name title tags brief image author";
 
-export function createArticleNameValidator() {
-  return createTextFieldValidator(1, 200);
-}
+export const isArticleName = createTextFieldValidator(1, 200);
 
-export function createArticleTitleValidator() {
-  return createTextFieldValidator(1, 100);
-}
+export const isArticleTitle = createTextFieldValidator(1, 100);
 
-export function createArticleBriefValidator() {
-  return createTextFieldValidator(1, 500);
-}
+export const isArticleBrief = createTextFieldValidator(1, 500);
 
-export function createArticleAttrValidator() {
-  return createTextFieldValidator(0, 100);
-}
+export const isArticleAttr = createTextFieldValidator(0, 100);
 
 export function convertTitleToName(title: string): string {
   return title

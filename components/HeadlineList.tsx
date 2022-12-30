@@ -4,16 +4,20 @@ import React, { useEffect } from "react";
 import { MdModeEdit } from "react-icons/md";
 import { useUser } from "../hooks/useUser";
 import { IHeadline } from "../services/articles/article.interface";
+import { canEditArticle } from "../services/users/server";
 import { IUser } from "../services/users/user.interface";
 import TagList from "./article/TagList";
-import Label from "./atoms/Label";
 
 type HeadlineListProps = {
   headlines: IHeadline[];
+  emptyText?: string;
 };
 
-const HeadlineList: React.FC<HeadlineListProps> = ({ headlines }) => {
-  const [numTagsToRender, setNumTagsToRender] = React.useState<number>(10);
+const HeadlineList: React.FC<HeadlineListProps> = ({
+  headlines,
+  emptyText = "There's nothing here yet. Check back later!",
+}) => {
+  const [numToRender, setNumToRender] = React.useState<number>(10);
   const user = useUser();
 
   const onScroll = () => {
@@ -21,7 +25,7 @@ const HeadlineList: React.FC<HeadlineListProps> = ({ headlines }) => {
       window.scrollY + window.innerHeight >=
       document.body.scrollHeight - 200
     ) {
-      setNumTagsToRender(Math.min(numTagsToRender + 10, headlines.length));
+      setNumToRender(numToRender + 10);
     }
   };
 
@@ -30,30 +34,29 @@ const HeadlineList: React.FC<HeadlineListProps> = ({ headlines }) => {
     return () => window.removeEventListener("scroll", onScroll);
   });
 
-  const canEditArticle = (
-    user: IUser | undefined | null,
-    article: { author: IUser }
-  ) => {
-    if (!user) return false;
-    return user._id === article.author._id || user.admin;
-  };
-
   return (
     <div className="flex flex-col space-y-8">
-      {headlines.slice(0, numTagsToRender).map((headline) => (
-        <Link
-          href={"/" + headline.name}
+      {headlines.length === 0 && (
+        <div className="text-center text-secondary text-sm font-medium italic">
+          {emptyText}
+        </div>
+      )}
+      {headlines.slice(0, numToRender).map((headline) => (
+        <div
           className="w-full flex flex-col md:flex-row hover:translate-x-[1px] duration-150 md:space-x-4"
           key={headline._id}
         >
-          <div className="flex-shrink-0 w-full md:w-1/4 h-32 xl:w-1/5 xl:h-32 relative rounded-sm shadow-sm overflow-hidden">
+          <Link
+            href={"/" + headline.name}
+            className="flex-shrink-0 w-full md:w-1/4 h-32 xl:w-1/5 xl:h-32 relative rounded-sm shadow-sm overflow-hidden"
+          >
             <Image
               src={headline.image}
               alt={`Thumbnail for '${headline.title}'`}
               fill
               className="object-cover"
             />
-          </div>
+          </Link>
           <div className="w-full">
             <div className="flex flex-row justify-between mt-2 md:mt-0">
               <TagList tags={headline.tags} />
@@ -65,14 +68,20 @@ const HeadlineList: React.FC<HeadlineListProps> = ({ headlines }) => {
                 )}
               </div>
             </div>
-            <p className="text-xl my-1 font-medium md:line-clamp-1">
+            <Link
+              href={"/" + headline.name}
+              className="text-xl my-1 font-medium md:line-clamp-1"
+            >
               {headline.title}
-            </p>
-            <p className="text-secondary line-clamp-4 md:line-clamp-3">
+            </Link>
+            <Link
+              href={"/" + headline.name}
+              className="text-secondary line-clamp-4 md:line-clamp-3"
+            >
               {headline.brief}
-            </p>
+            </Link>
           </div>
-        </Link>
+        </div>
       ))}
     </div>
   );

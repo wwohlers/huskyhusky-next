@@ -1,7 +1,7 @@
 import { GetStaticPaths, GetStaticProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import Comment from "../components/article/Comment";
 import NewComment from "../components/article/NewComment";
@@ -34,6 +34,8 @@ import Image from "next/image";
 import Section from "../components/Section";
 import Share from "../components/article/Share";
 import Headline from "../components/home/Headline";
+import { useUser } from "../hooks/useUser";
+import { canEditArticle } from "../services/users/server";
 
 type ArticleProps = {
   article: IArticle;
@@ -64,9 +66,12 @@ export const getStaticProps: GetStaticProps<ArticleProps> = async ({
       const similarArticles = await getHeadlinesByTag(
         conn,
         article?.tags[0] ?? "",
-        4
+        5
       );
-      return { article, similarArticles };
+      return {
+        article,
+        similarArticles,
+      };
     });
     if (article) {
       return returnProps(
@@ -82,8 +87,13 @@ const Article: React.FC<ArticleProps> = ({
   article: initialArticle,
   similarArticles,
 }) => {
+  const user = useUser();
   const [article, setArticle] = useState(initialArticle);
   const [showNewComment, setShowNewComment] = useState(false);
+
+  useEffect(() => {
+    setArticle(initialArticle);
+  }, [initialArticle]);
 
   const sanitizedHtml = useMemo(() => {
     return sanitizeHtml(article.text);
@@ -133,6 +143,12 @@ const Article: React.FC<ArticleProps> = ({
     }
   };
 
+  const moreLikeThis = useMemo(() => {
+    return similarArticles
+      .filter((headline) => headline.name !== article.name)
+      .slice(0, 4);
+  }, [article, similarArticles]);
+
   const commentCount = useMemo(() => {
     return article.comments.filter((comment) => !comment.deleted).length;
   }, [article]);
@@ -153,12 +169,19 @@ const Article: React.FC<ArticleProps> = ({
       <div>
         <TagList tags={article.tags} />
         <h1 className="text-4xl font-semibold my-1">{article.title}</h1>
-        <Link
-          href={"/writers/" + article.author.name}
-          className="font-medium text-sm text-secondary"
-        >
-          Published {timeAgo(article.createdAt)} by {article.author.name}
-        </Link>
+        <div className="font-medium text-sm text-secondary">
+          <Link href={"/writers/" + article.author.name}>
+            Published {timeAgo(article.createdAt)} by {article.author.name}
+          </Link>
+          {canEditArticle(user, article) && (
+            <>
+              <span> &bull; </span>
+              <Link href={`/edit/${article._id}`} className="underline">
+                Edit
+              </Link>
+            </>
+          )}
+        </div>
         <div className="flex flex-col xl:flex-row">
           <div className="w-full xl:w-2/3">
             <div className="my-4 relative w-full h-48 sm:h-96">
@@ -191,7 +214,7 @@ const Article: React.FC<ArticleProps> = ({
             </Section>
             <Section title="More Like This">
               <div className="flex md:flex-row xl:flex-col flex-wrap">
-                {similarArticles.map((article, i) => (
+                {moreLikeThis.map((article, i) => (
                   <Headline
                     containerClasses="md:w-1/2 xl:w-full xl:p-0 xl:my-4"
                     key={i}
@@ -206,9 +229,7 @@ const Article: React.FC<ArticleProps> = ({
           <div className="flex flex-row justify-between items-center">
             <p className="text-xl font-semibold">{commentCount} comments</p>
             {!showNewComment && (
-              <Button onClick={() => setShowNewComment(true)}>
-                New Comment
-              </Button>
+              <Button onClick={() => setShowNewComment(true)}>Comment</Button>
             )}
           </div>
           {showNewComment && (

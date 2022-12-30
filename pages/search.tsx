@@ -37,7 +37,10 @@ const Search: React.FC<SearchProps> = ({ query, headlines }) => {
       </Head>
       <Label>Search</Label>
       <h1 className="text-2xl font-semibold mb-6">{query}</h1>
-      <HeadlineList headlines={headlines} />
+      <HeadlineList
+        headlines={headlines}
+        emptyText="We couldn't find anything matching that search query."
+      />
     </div>
   );
 };

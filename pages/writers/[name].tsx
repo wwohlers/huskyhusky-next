@@ -25,8 +25,8 @@ type WriterProps = {
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const users = await withDB((conn) => {
-    return conn.models.User.find().lean();
+  const users = await withDB(async (conn) => {
+    return await conn.models.User.find().lean();
   });
   return {
     fallback: "blocking",
@@ -75,6 +75,10 @@ const Writer: React.FC<WriterProps> = ({ user, headlines }) => {
 
   const canWrite = authUser && authUser._id === user._id;
 
+  const emptyText = canWrite
+    ? "You haven't written anything yet. Click Write to get started!"
+    : `${user.name} hasn't published anything yet. Check back later!`;
+
   return (
     <div className="w-full">
       <Head>
@@ -98,7 +102,7 @@ const Writer: React.FC<WriterProps> = ({ user, headlines }) => {
           )}
         </div>
       </div>
-      <HeadlineList headlines={headlines} />
+      <HeadlineList headlines={headlines} emptyText={emptyText} />
     </div>
   );
 };

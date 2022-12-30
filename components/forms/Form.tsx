@@ -1,13 +1,15 @@
 import { IoMdAlert } from "react-icons/io";
 import Label from "../atoms/Label";
+import { twMerge } from "tailwind-merge";
 
 const FormItem: React.FC<{
   title: string;
   error?: string;
+  className?: string;
   children: React.ReactNode;
-}> = ({ title, error = "", children }) => {
+}> = ({ title, error = "", className = "", children }) => {
   return (
-    <label className="block my-2">
+    <label className={twMerge("block my-2", className)}>
       <Label className="mb-px">{title}</Label>
       {children}
       {error && (
@@ -22,9 +24,15 @@ const FormItem: React.FC<{
 
 const FormButtons: React.FC<{
   children: React.ReactNode;
-}> = ({ children }) => {
+  className?: string;
+}> = ({ children, className = "" }) => {
   return (
-    <div className="flex my-2 space-x-2 justify-end items-center">
+    <div
+      className={twMerge(
+        "flex my-2 space-x-2 justify-end items-center",
+        className
+      )}
+    >
       {children}
     </div>
   );
@@ -39,7 +47,7 @@ const Form: React.FC<{
 } = ({ className = "", children }) => {
   return (
     <form
-      className={"flex flex-col " + className}
+      className={twMerge("flex flex-col", className)}
       onSubmit={(e) => e.preventDefault()}
     >
       {children}

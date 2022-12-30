@@ -3,9 +3,9 @@ import {
   ConflictError,
   NotFoundError,
   UnauthorizedError,
-} from "../api/handleError";
+} from "../../util/api/handleError";
 import { comparePassword, hashPassword } from "../../util/bcrypt";
-import { signJWT } from "../../util/jwt";
+import { signJWT, verifyJWT } from "../../util/jwt";
 import { HuskyHuskyDB } from "../database";
 import {
   AdminUser,
@@ -14,6 +14,7 @@ import {
   PublicUser,
   publicUserSelector,
 } from "./user.interface";
+import { sendEmail } from "../../util/email/server";
 
 export function canEditArticle(
   user: IUser | undefined | null,
@@ -128,4 +129,48 @@ export async function adminUpdateUser(
   }
   await user.save();
   return user;
+}
+
+export async function requestPasswordReset(conn: HuskyHuskyDB, email: string) {
+  const user = await conn.models.User.findOne({ email });
+  if (!user) {
+    throw new NotFoundError("Invalid email");
+  }
+  const token = signJWT({ email: user.email }, "10m");
+  await sendEmail(
+    user.email,
+    "Reset Your Password - The Husky Husky",
+    `Hi ${user.name},
+    <p>
+      You recently requested to reset your password for your Husky Husky account. 
+      Click the link below to reset it. This link is valid for 10 minutes.
+    </p>
+    <p>
+      <a href="${process.env.NEXT_PUBLIC_BASE_URL}/reset-password/${token}">Reset password</a>
+    </p>
+    <p>
+      If you did not request a password reset, please ignore this email or reply to let us know. 
+    </p>
+    <p>
+      Thanks,\n\nThe Husky Husky Team
+    </p>`
+  );
+}
+
+export async function resetPassword(
+  conn: HuskyHuskyDB,
+  token: string,
+  password: string
+) {
+  const { email } = await verifyJWT(token);
+  if (!email || typeof email !== "string") {
+    throw new UnauthorizedError("Invalid token");
+  }
+  const user = await conn.models.User.findOne({ email });
+  if (!user) {
+    throw new NotFoundError("Invalid email");
+  }
+  const hashedPassword = await hashPassword(password);
+  user.password = hashedPassword;
+  await user.save();
 }

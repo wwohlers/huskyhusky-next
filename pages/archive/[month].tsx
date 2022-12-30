@@ -105,7 +105,10 @@ const Archive: React.FC<ArchiveProps> = ({
             </Link>
           )}
         </h1>
-        <HeadlineList headlines={headlines} />
+        <HeadlineList
+          headlines={headlines}
+          emptyText={`Crickets. Looks like nothing was published in ${monthTitle}.`}
+        />
       </div>
     </>
   );

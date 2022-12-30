@@ -1,6 +1,6 @@
-import createHandler from "../../../services/api/createHandler";
-import createRequestMakers from "../../../services/api/createRequestMaker";
-import signOutHandler from "../../../services/api/handlers/users/signOutHandler";
+import signOutHandler from "../../../services/users/handlers/signOutHandler";
+import createHandler from "../../../util/api/createHandler";
+import createRequestMakers from "../../../util/api/createRequestMaker";
 
 const methodHandlers = {
   post: signOutHandler

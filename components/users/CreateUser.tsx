@@ -2,23 +2,15 @@ import React, { useEffect, useState } from "react";
 import { AiOutlineKey, AiOutlineMail } from "react-icons/ai";
 import { BiRename } from "react-icons/bi";
 import { toast } from "react-toastify";
+import { useForm } from "../../hooks/useForm";
 import { makeCreateUserRequest } from "../../pages/api/users/createUser";
-import {
-  AdminUser,
-  createUserNameValidator,
-  IUser,
-} from "../../services/users/user.interface";
+import { AdminUser, isUserName } from "../../services/users/user.interface";
 import toastError from "../../util/toastError";
+import { isEmail, isNewPassword } from "../../util/validation";
 import Button from "../atoms/Button";
 import TextInput from "../atoms/TextInput";
-import Label from "../atoms/Label";
-import Modal from "../Modal";
-import { useForm } from "../../hooks/useForm";
-import {
-  createEmailValidator,
-  createNewPasswordValidator,
-} from "../../util/validation";
 import Form from "../forms/Form";
+import Modal from "../modals/Modal";
 
 type CreateUserProps = {
   active: boolean;
@@ -48,9 +40,9 @@ const CreateUser: React.FC<CreateUserProps> = ({
       repeatPassword: "",
     },
     {
-      name: createUserNameValidator(),
-      email: createEmailValidator(),
-      password: createNewPasswordValidator(),
+      name: isUserName,
+      email: isEmail,
+      password: isNewPassword,
     }
   );
 

@@ -5,27 +5,19 @@ import { AiOutlineKey, AiOutlineMail } from "react-icons/ai";
 import { MdTitle } from "react-icons/md";
 import { toast } from "react-toastify";
 import Button from "../components/atoms/Button";
-import TextInput from "../components/atoms/TextInput";
 import Label from "../components/atoms/Label";
 import TextArea from "../components/atoms/TextArea";
+import TextInput from "../components/atoms/TextInput";
+import Form from "../components/forms/Form";
 import Section from "../components/Section";
+import { useValidatedState } from "../hooks/useValidatedState";
 import { withDB } from "../services/database";
-import {
-  createUserBioValidator,
-  createUserNameValidator,
-  IUser,
-} from "../services/users/user.interface";
+import { isUserBio, isUserName, IUser } from "../services/users/user.interface";
 import { getUserIdFromReq } from "../util/jwt";
 import { returnNotFound, returnProps, returnRedirect } from "../util/next";
 import toastError from "../util/toastError";
+import { isEmail, isEnteredPassword, isNewPassword } from "../util/validation";
 import { makeEditUserRequest } from "./api/users";
-import Form from "../components/forms/Form";
-import { useValidatedState } from "../hooks/useValidatedState";
-import {
-  createEmailValidator,
-  createEnteredPasswordValidator,
-  createNewPasswordValidator,
-} from "../util/validation";
 
 type AccountProps = {
   user: IUser;
@@ -38,8 +30,8 @@ export const getServerSideProps: GetServerSideProps<AccountProps> = async ({
   if (!userId) {
     return returnRedirect("/login");
   }
-  const user = await withDB((conn) => {
-    return conn.models.User.findById(userId).lean();
+  const user = await withDB(async (conn) => {
+    return await conn.models.User.findById(userId).lean();
   });
   if (!user) {
     return returnNotFound();
@@ -54,29 +46,18 @@ enum EditMode {
   Email,
   Password,
 }
-
-const userNameValidator = createUserNameValidator();
-const userBioValidator = createUserBioValidator();
-const emailValidator = createEmailValidator();
-const newPasswordValidator = createNewPasswordValidator();
-const oldPasswordValidator = createEnteredPasswordValidator();
+const oldPasswordValidator = isEnteredPassword;
 
 const Account: React.FC<AccountProps> = ({ user: initialUser }) => {
   const [user, setUser] = useState(initialUser);
   const [loading, setLoading] = useState(false);
   const [editMode, setEditMode] = useState<EditMode>(EditMode.None);
-  const [name, setName, nameError] = useValidatedState(
-    user.name,
-    userNameValidator
-  );
-  const [bio, setBio, bioError] = useValidatedState(user.bio, userBioValidator);
-  const [email, setEmail, emailError] = useValidatedState(
-    user.email,
-    emailValidator
-  );
+  const [name, setName, nameError] = useValidatedState(user.name, isUserName);
+  const [bio, setBio, bioError] = useValidatedState(user.bio, isUserBio);
+  const [email, setEmail, emailError] = useValidatedState(user.email, isEmail);
   const [newPassword, setNewPassword, newPasswordError] = useValidatedState(
     "",
-    newPasswordValidator
+    isNewPassword
   );
   const [repeatPassword, setRepeatPassword] = useState("");
   const [oldPassword, setOldPassword, oldPasswordError] = useValidatedState(

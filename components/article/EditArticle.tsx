@@ -9,11 +9,11 @@ import { useForm } from "../../hooks/useForm";
 import { useUnsavedChanges } from "../../hooks/useUnsavedChanges";
 import {
   convertTitleToName,
-  createArticleAttrValidator,
-  createArticleBriefValidator,
-  createArticleNameValidator,
-  createArticleTitleValidator,
   IArticle,
+  isArticleAttr,
+  isArticleBrief,
+  isArticleName,
+  isArticleTitle,
 } from "../../services/articles/article.interface";
 import toastError from "../../util/toastError";
 import Button from "../atoms/Button";
@@ -60,10 +60,10 @@ const EditArticle: React.FC<EditArticleProps> = ({ article, onSave }) => {
       public: article.public,
     },
     {
-      name: createArticleNameValidator(),
-      title: createArticleTitleValidator(),
-      brief: createArticleBriefValidator(),
-      attr: createArticleAttrValidator(),
+      name: isArticleName,
+      title: isArticleTitle,
+      brief: isArticleBrief,
+      attr: isArticleAttr,
     }
   );
 
@@ -208,7 +208,7 @@ const EditArticle: React.FC<EditArticleProps> = ({ article, onSave }) => {
               : "All changes saved."}
           </span>
         </p>
-        <div className="flex flex-row items-center space-x-4">
+        <Form.Buttons className="justify-start">
           {article.public ? (
             <>
               <Button
@@ -234,7 +234,7 @@ const EditArticle: React.FC<EditArticleProps> = ({ article, onSave }) => {
               Make public
             </Button>
           )}
-        </div>
+        </Form.Buttons>
       </Section>
     </Form>
   );

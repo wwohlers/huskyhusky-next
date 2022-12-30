@@ -1,7 +1,20 @@
 import { GetStaticProps } from "next";
-import { stringifyIds } from "../services/database";
 
 export const DEFAULT_REVALIDATE_PERIOD = 60; // 60 mins
+
+/**
+ * Deeply converts all _id fields to strings. Mutates the original object.
+ * @param obj
+ */
+export function stringifyIds(obj: any) {
+  for (const key in obj) {
+    if (key === "_id" && obj[key]?.toString) {
+      obj[key] = obj[key].toString();
+    } else if (typeof obj[key] === "object") {
+      stringifyIds(obj[key]);
+    }
+  }
+}
 
 export function returnProps<K extends { [key: string]: any }>(
   props: K,

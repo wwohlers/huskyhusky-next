@@ -55,6 +55,7 @@ const Header: React.FC = () => {
             <Link
               className=" border-background hover:border-theme border-b-2 duration-150"
               href={"/tag/" + tag}
+              onClick={() => setMobileNavOpen(false)}
             >
               {tag}
             </Link>

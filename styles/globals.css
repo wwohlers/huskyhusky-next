@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --toastify-font-family: "Raleway", -apple-system, BlinkMacSystemFont, Segoe UI,
+    Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
+    sans-serif !important;
+}
+
 html,
 body {
   padding: 0;
@@ -31,17 +37,46 @@ a {
   @apply font-medium;
 }
 
-.markdown > h1, h2, h3, h4, h5, h6 {
+.markdown > h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   @apply font-semibold;
 }
 
-.markdown > h1 { @apply text-3xl; }
-.markdown > h2 { @apply text-2xl; }
-.markdown > h3 { @apply text-xl; }
-.markdown > h4 { @apply text-lg; }
+.markdown > h1 {
+  @apply text-3xl;
+}
+.markdown > h2 {
+  @apply text-2xl;
+}
+.markdown > h3 {
+  @apply text-xl;
+}
+.markdown > h4 {
+  @apply text-lg;
+}
 
 .markdown > p {
   @apply my-4;
+}
+
+.markdown ol {
+  list-style: roman inside;
+}
+
+.markdown ul {
+  list-style: initial;
+}
+
+.markdown blockquote {
+  @apply border-l-4 border-border my-2 rounded-sm pl-4 py-2;
+}
+
+.markdown a {
+  @apply underline;
 }
 
 .pulse {

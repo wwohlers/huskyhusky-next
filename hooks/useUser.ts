@@ -1,6 +1,6 @@
 import useSWR, { useSWRConfig } from "swr";
-import { MeResponse } from "../services/api/handlers/users/meHandler";
-import { axiosFetcher } from "../services/api/request/axios";
+import { MeResponse } from "../util/api/handlers/users/meHandler";
+import { axiosFetcher } from "../util/api/axios";
 
 const userApiPath = "/users";
 

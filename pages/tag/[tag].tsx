@@ -63,7 +63,10 @@ const Search: React.FC<TagProps> = ({ tag, headlines }) => {
       </Head>
       <Label>View Tag</Label>
       <h1 className="text-2xl font-semibold mb-6">{tag}</h1>
-      <HeadlineList headlines={headlines} />
+      <HeadlineList
+        headlines={headlines}
+        emptyText={`No stories match the tag "${tag}".`}
+      />
     </div>
   );
 };

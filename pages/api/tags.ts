@@ -1,6 +1,6 @@
-import createHandler from "../../services/api/createHandler";
-import createRequestMakers from "../../services/api/createRequestMaker";
-import tagsHandler from "../../services/api/handlers/tagsHandler";
+import createHandler from "../../util/api/createHandler";
+import createRequestMakers from "../../util/api/createRequestMaker";
+import tagsHandler from "../../services/articles/handlers/tagsHandler";
 
 const methodHandlers = {
   get: tagsHandler,

@@ -38,9 +38,14 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
         My Account
       </Link>
       {user.admin && (
-        <Link href="/users" onClick={() => setShowMenu(false)}>
-          Manage Users
-        </Link>
+        <>
+          <Link href="/users" onClick={() => setShowMenu(false)}>
+            Manage Users
+          </Link>
+          <Link href="/subscriptions" onClick={() => setShowMenu(false)}>
+            Subscriptions
+          </Link>
+        </>
       )}
       <div className="cursor-pointer" onClick={onSignOut}>
         Sign Out

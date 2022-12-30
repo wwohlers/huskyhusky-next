@@ -1,14 +1,10 @@
 import JWT from "jsonwebtoken";
 import { NextApiResponse } from "next";
-import { UnauthorizedError } from "../services/api/handleError";
-
-export type JWTPayload = {
-  id: string;
-};
+import { UnauthorizedError } from "./api/handleError";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-export function signJWT(payload: JWTPayload): string {
+export function signJWT(payload: any, expiration = "30d"): string {
   if (!JWT_SECRET) {
     throw new Error("JWT_SECRET not set");
   }
@@ -17,25 +13,21 @@ export function signJWT(payload: JWTPayload): string {
   });
 }
 
-export function verifyJWT(token: string): JWTPayload {
+export function verifyJWT(token: string): any {
   if (!JWT_SECRET) {
     throw new Error("JWT_SECRET not set");
   }
-  const payload = JWT.verify(token, JWT_SECRET) as JWTPayload;
-  if (
-    !payload ||
-    typeof payload !== "object" ||
-    !Object.hasOwn(payload, "id") ||
-    typeof payload["id"] !== "string"
-  ) {
-    throw new UnauthorizedError("Absent or invalid JWT payload");
+  try {
+    const payload = JWT.verify(token, JWT_SECRET) as any;
+    return payload;
+  } catch (e) {
+    throw new UnauthorizedError("JWT expired");
   }
-  return payload;
 }
 
-export function getUserIdFromReq(
-  req: { cookies: Partial<{ [key: string]: string; }> }
-): string | undefined {
+export function getUserIdFromReq(req: {
+  cookies: Partial<{ [key: string]: string }>;
+}): string | undefined {
   const { auth: token } = req.cookies;
   if (!token) return undefined;
   try {

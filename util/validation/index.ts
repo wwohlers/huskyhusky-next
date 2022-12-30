@@ -1,4 +1,4 @@
-import { ValidationError } from "../../services/api/handleError";
+import { ValidationError } from "../api/handleError";
 
 export type Validator<K> = (value: any) => K;
 
@@ -67,55 +67,49 @@ export function createTextFieldValidator(
   };
 }
 
-export function createEmailValidator(): (value: any) => string {
-  return (value: any) => {
-    const strValue = isString(value);
-    const emailRegex =
-      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
-    if (!emailRegex.test(strValue)) {
-      throw new ValidationError("Invalid email format");
-    }
-    return value;
-  };
-}
+export const isEmail = (value: any): string => {
+  const strValue = isString(value);
+  const emailRegex =
+    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+  if (!emailRegex.test(strValue)) {
+    throw new ValidationError("Invalid email format");
+  }
+  return value;
+};
 
 /**
  * Validate a new password that's entered by the user to sign up or change their password.
  * @param password
  * @returns
  */
-export function createNewPasswordValidator(): (password: any) => string {
-  return (value: any) => {
-    const strValue = isString(value);
-    if (strValue.length < 12) {
-      throw new ValidationError("Password must be at least 12 characters long");
-    }
-    const hasNumber = /\d/.test(strValue);
-    const hasLowercase = /[a-z]/.test(strValue);
-    const hasUppercase = /[A-Z]/.test(strValue);
-    if (!hasNumber || !hasLowercase || !hasUppercase) {
-      throw new ValidationError(
-        "Password must contain at least one lowercase letter, one uppercase letter, and one number"
-      );
-    }
-    return value;
-  };
-}
+export const isNewPassword = (password: any): string => {
+  const strValue = isString(password);
+  if (strValue.length < 12) {
+    throw new ValidationError("Password must be at least 12 characters long");
+  }
+  const hasNumber = /\d/.test(strValue);
+  const hasLowercase = /[a-z]/.test(strValue);
+  const hasUppercase = /[A-Z]/.test(strValue);
+  if (!hasNumber || !hasLowercase || !hasUppercase) {
+    throw new ValidationError(
+      "Password must contain at least one lowercase letter, one uppercase letter, and one number"
+    );
+  }
+  return password;
+};
 
 /**
  * Validate a password that's entered by the user to log in (i.e. not a new password).
  * @param password
  * @returns
  */
-export function createEnteredPasswordValidator(): (value: any) => string {
-  return (value: any) => {
-    const strValue = isString(value);
-    if (strValue.length === 0) {
-      throw new ValidationError("Password cannot be empty");
-    }
-    return strValue;
-  };
-}
+export const isEnteredPassword = (value: any): string => {
+  const strValue = isString(value);
+  if (strValue.length === 0) {
+    throw new ValidationError("Password cannot be empty");
+  }
+  return strValue;
+};
 
 export function createSchemaValidator<K>(schema: {
   [P in keyof K]: (value: any) => K[P];

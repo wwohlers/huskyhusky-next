@@ -30,34 +30,37 @@ export function useForm<K extends FormFields>(
     ) as FormData<K>
   );
 
-  const onFieldChange = useCallback((field: keyof K) => (value: K[typeof field]) => {
-    const validator = state[field].validator;
-    try {
-      validator(value);
-      setState((prevState) => ({
-        ...prevState,
-        [field]: {
-          value,
-          error: "",
-          validator,
-        },
-      }));
-    } catch (e) {
-      setState((prevState) => ({
-        ...prevState,
-        [field]: {
-          value,
-          error: ((e) => {
-            if (e instanceof Error) {
-              return e.message;
-            }
-            return new String(e);
-          })(e),
-          validator,
-        },
-      }));
-    }
-  }, [state]);
+  const onFieldChange = useCallback(
+    (field: keyof K) => (value: K[typeof field]) => {
+      const validator = state[field].validator;
+      try {
+        validator(value);
+        setState((prevState) => ({
+          ...prevState,
+          [field]: {
+            value,
+            error: "",
+            validator,
+          },
+        }));
+      } catch (e) {
+        setState((prevState) => ({
+          ...prevState,
+          [field]: {
+            value,
+            error: ((e) => {
+              if (e instanceof Error) {
+                return e.message;
+              }
+              return new String(e);
+            })(e),
+            validator,
+          },
+        }));
+      }
+    },
+    [state]
+  );
 
   const values = useMemo(() => {
     return Object.fromEntries(
@@ -75,8 +78,17 @@ export function useForm<K extends FormFields>(
     ) as K;
   }, [state]);
 
+  // must validate all fields instead of just checking if there are any errors
+  // because error messages are always initialized to empty string
   const hasErrors = useMemo(() => {
-    return Object.values(state).some((item) => !!item.error);
+    return Object.values(state).some((item) => {
+      try {
+        item.validator(item.value);
+        return false;
+      } catch (e) {
+        return true;
+      }
+    });
   }, [state]);
 
   return { values, errors, onFieldChange, hasErrors };

@@ -1,13 +1,11 @@
+import Link from "next/link";
 import { useState } from "react";
 import { AiOutlineKey, AiOutlineMail } from "react-icons/ai";
 import { useForm } from "../../hooks/useForm";
 import { useRefreshUser } from "../../hooks/useUser";
 import { makeSignInRequest } from "../../pages/api/users/signIn";
 import { IUser } from "../../services/users/user.interface";
-import {
-  createEmailValidator,
-  createEnteredPasswordValidator,
-} from "../../util/validation";
+import { isEmail, isEnteredPassword } from "../../util/validation";
 import Button from "../atoms/Button";
 import TextInput from "../atoms/TextInput";
 import Form from "../forms/Form";
@@ -31,20 +29,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onError }) => {
       password: "",
     },
     {
-      email: createEmailValidator(),
-      password: createEnteredPasswordValidator(),
+      email: isEmail,
+      password: isEnteredPassword,
     }
   );
 
   const onSubmit = async () => {
     setIsLoading(true);
     try {
-      console.log(1);
       const user = await makeSignInRequest({
         email: values.email,
         password: values.password,
       });
-      console.log(3);
       refreshUser();
       onSuccess(user);
     } catch (e) {
@@ -73,6 +69,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onError }) => {
           onChange={onFieldChange("password")}
         />
       </Form.Item>
+      <Link href="/forgot-password" className="text-xs underline">
+        Forgot password?
+      </Link>
       <Form.Buttons>
         <Button submit onClick={onSubmit} disabled={hasErrors || isLoading}>
           Submit

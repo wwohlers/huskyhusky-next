@@ -6,10 +6,10 @@ module.exports = {
       colors: {
         theme: "#990702",
         primary: "#000000",
-        secondary: "#6b7280",
+        secondary: "#7f8694",
         border: "#e5e7eb",
         background: "#f9fafb",
-        "background-dark": "#e5e7eb",
+        "background-dark": "#efefef",
       },
     },
   },

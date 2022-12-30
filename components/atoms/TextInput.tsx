@@ -10,7 +10,7 @@ export type TextInputProps = {
 
 const TextInput: React.FC<
   Omit<React.HTMLProps<HTMLInputElement>, "onChange"> & TextInputProps
-> = ({ value, onChange, icon, className, onEnter, ...rest }) => {
+> = ({ value, onChange, icon, className, onEnter, disabled, ...rest }) => {
   const handleOnChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (onChange) onChange(event.target.value);
   };
@@ -23,7 +23,8 @@ const TextInput: React.FC<
     <div
       className={
         "flex flex-row justify-center items-stretch rounded-md overflow-hidden border border-[#EAEAEA] focus-within:border-theme duration-150 bg-white " +
-        className
+        className +
+        (disabled ? " opacity-50 cursor-not-allowed" : "")
       }
     >
       <div className="px-2 bg-[#EAEAEA] flex flex-row justify-center items-center cursor-pointer">
@@ -35,6 +36,7 @@ const TextInput: React.FC<
         value={value}
         onChange={handleOnChange}
         onKeyDown={handleKeyDown}
+        disabled={disabled}
         {...rest}
       />
     </div>

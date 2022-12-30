@@ -1,6 +1,6 @@
-import createHandler from "../../../services/api/createHandler";
-import createRequestMakers from "../../../services/api/createRequestMaker";
-import { uploadImageHandler } from "../../../services/api/handlers/articles/uploadImageHandler";
+import { uploadImageHandler } from "../../../services/articles/handlers/uploadImageHandler";
+import createHandler from "../../../util/api/createHandler";
+import createRequestMakers from "../../../util/api/createRequestMaker";
 
 const methodHandlers = {
   post: uploadImageHandler,

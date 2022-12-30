@@ -21,7 +21,9 @@ const Headline: React.FC<HeadlineProps> = ({
   const titleClasses =
     height === "double" ? "text-3xl font-semibold" : "font-medium leading-6";
   const imageClasses =
-    height === "double" ? "h-[16rem] xl:h-[26rem]" : "h-[16rem] xl:h-44";
+    height === "double"
+      ? "h-[16rem] md:h-96 xl:h-[26rem]"
+      : "h-[16rem] xl:h-44";
 
   if (!headline) return null;
 
