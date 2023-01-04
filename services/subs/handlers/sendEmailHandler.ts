@@ -34,7 +34,7 @@ const sendEmailHandler: MethodHandler<SendEmailRequest, void> = async ({
       .map(({ email, uuid }) => {
         const bodyHtml = converter.makeHtml(body);
         const bodyWithUnsubscribe = `${bodyHtml} 
-          <br /><br /> 
+          <br /><br />
           <p>
             You received this email because you're subscribed to The Husky Husky. 
             <a href="${process.env.NEXT_PUBLIC_BASE_URL}/unsubscribe/${uuid}">Unsubscribe</a>
