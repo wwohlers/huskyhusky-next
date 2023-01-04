@@ -5,22 +5,20 @@ export async function sendEmail(
   subject: string,
   content: string
 ) {
-  const testAccount = await Nodemailer.createTestAccount();
   const transporter = Nodemailer.createTransport({
-    host: "smtp.ethereal.email",
-    port: 587,
-    secure: false,
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
     auth: {
-      user: testAccount.user,
-      pass: testAccount.pass,
+      user: process.env.GMAIL_NAME,
+      pass: process.env.GMAIL_PASS,
     },
   });
   const info = await transporter.sendMail({
     from: `"The Husky Husky" <${process.env.GMAIL_NAME}>`,
-    to: "bswohlers@gmail.com",
+    to: recipient,
     subject,
     html: content,
   });
-  console.log("Message sent: %s \n\n %s", info.messageId, content);
-  // https://www.npmjs.com/package/nodemailer-markdown
+  console.log("Message sent: %s \n\n %s", info.messageId);
 }

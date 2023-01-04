@@ -31,7 +31,6 @@ const sendEmailHandler: MethodHandler<SendEmailRequest, void> = async ({
   const subs = await getSubs(conn);
   await Promise.all(
     subs
-      .filter((sub) => sub.email === "bswohlers@gmail.com")
       .map(({ email, uuid }) => {
         const bodyHtml = converter.makeHtml(body);
         const bodyWithUnsubscribe = `${bodyHtml} 

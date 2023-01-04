@@ -8,6 +8,7 @@ import { ISub } from "./sub.interface";
 export const SubSchema = new mongoose.Schema<ISub>({
   email: {
     type: String,
+    unique: true,
     required: true,
   },
   uuid: {
