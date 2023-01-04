@@ -78,6 +78,10 @@ h6 {
 .markdown a {
   @apply underline;
 }
+ 
+article p {
+  @apply my-4;
+}
 
 .pulse {
   border-radius: 4px;
