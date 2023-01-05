@@ -52,6 +52,7 @@ export function createTextFieldValidator(
   minLength: number,
   maxLength: number
 ): (value: any) => string {
+  let log = minLength === 0;
   return (value: any): string => {
     const strValue = isString(value);
     if (strValue.length < minLength) {

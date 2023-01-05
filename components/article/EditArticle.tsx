@@ -53,10 +53,10 @@ const EditArticle: React.FC<EditArticleProps> = ({ article, onSave }) => {
       name: article.name,
       title: article.title,
       tags: article.tags,
-      brief: article.brief,
+      brief: article.brief ?? "",
       image: article.image,
-      attr: article.attr,
-      text: article.text,
+      attr: article.attr ?? "",
+      text: article.text ?? "",
       public: article.public,
     },
     {
