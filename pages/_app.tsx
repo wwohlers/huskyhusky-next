@@ -21,12 +21,12 @@ export default function App({ Component, pageProps }: AppProps) {
         raleway.className + " w-full flex flex-col min-h-screen items-center"
       }
     >
-      <ConfirmationModal />
-      <NextNProgress color="#990702" />
-      <ToastContainer position="top-center" hideProgressBar={true} />
       <Head>
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <ConfirmationModal />
+      <NextNProgress color="#990702" />
+      <ToastContainer position="top-center" hideProgressBar={true} />
       <Header />
       <ContentContainer className="mb-8 flex-1 flex flex-row items-center">
         <Component {...pageProps} />
