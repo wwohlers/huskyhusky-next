@@ -1,7 +1,8 @@
+import { number, object } from "deterrent";
 import { MethodHandler } from "../../../util/api/createHandler";
 import requireAuth from "../../../util/api/guards/requireAuth";
 import { NotFoundError } from "../../../util/api/handleError";
-import { createSchemaValidator, createIdValidator, isNumber } from "../../../util/validation";
+import { idValidator } from "../../../util/validation";
 
 type DeleteCommentRequest = {
   articleId: string;
@@ -10,9 +11,9 @@ type DeleteCommentRequest = {
 
 type DeleteCommentResponse = void;
 
-const requestBodyValidator = createSchemaValidator<DeleteCommentRequest>({
-  articleId: createIdValidator(),
-  commentIndex: isNumber,
+const requestBodyValidator = object().schema<DeleteCommentRequest>({
+  articleId: idValidator,
+  commentIndex: number(),
 });
 
 const deleteCommentHandler: MethodHandler<
@@ -20,7 +21,7 @@ const deleteCommentHandler: MethodHandler<
   DeleteCommentResponse
 > = async ({ req, userId, conn }) => {
   requireAuth(conn, userId, true);
-  const { articleId, commentIndex } = requestBodyValidator(req.body);
+  const { articleId, commentIndex } = requestBodyValidator.assert(req.body);
   const article = await conn.models.Article.findById(articleId);
   if (!article) {
     throw new NotFoundError("Article not found");
@@ -31,6 +32,6 @@ const deleteCommentHandler: MethodHandler<
   article.comments[commentIndex].deleted = true;
   article.markModified("comments");
   await article.save();
-}
+};
 
 export default deleteCommentHandler;

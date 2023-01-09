@@ -3,13 +3,13 @@ import { toast } from "react-toastify";
 import { useValidatedState } from "../hooks/useValidatedState";
 import { makeSubscribeRequest } from "../pages/api/subs";
 import toastError from "../util/toastError";
-import { isEmail } from "../util/validation";
+import { emailValidator } from "../util/validation";
 import Button from "./atoms/Button";
 import TextInput from "./atoms/TextInput";
 import Form from "./forms/Form";
 
 const Subscribe: React.FC = () => {
-  const [email, setEmail, error] = useValidatedState("", isEmail);
+  const [email, setEmail, error] = useValidatedState("", emailValidator.assert);
 
   const onSubmit = async () => {
     try {

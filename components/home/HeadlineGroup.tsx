@@ -1,7 +1,6 @@
 import Link from "next/link";
 import React from "react";
 import { IHeadline } from "../../services/articles/article.interface";
-import Label from "../atoms/Label";
 
 type HeadlineGroupProps = {
   containerClasses?: string;

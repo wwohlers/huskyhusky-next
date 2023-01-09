@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { BiRename } from "react-icons/bi";
 import { useForm } from "../../hooks/useForm";
 import {
-  createCommentContentValidator,
-  createCommentNameValidator,
+  commentContentValidator,
+  commentNameValidator,
 } from "../../services/articles/comment.interface";
 import Button from "../atoms/Button";
 import TextArea from "../atoms/TextArea";
@@ -28,8 +28,8 @@ const NewComment: React.FC<NewCommentProps> = ({ onSubmit, onCancel }) => {
       content: "",
     },
     {
-      name: createCommentNameValidator(),
-      content: createCommentContentValidator(),
+      name: commentNameValidator.assert,
+      content: commentContentValidator.assert,
     }
   );
 

@@ -1,21 +1,22 @@
+import { object } from "deterrent";
 import { MethodHandler } from "../../../util/api/createHandler";
-import { createSchemaValidator, isEmail } from "../../../util/validation";
+import { emailValidator } from "../../../util/validation";
 import { subscribe } from "../server";
 
 type SubscribeRequest = {
   email: string;
-}
+};
 
-const requestBodyValidator = createSchemaValidator<SubscribeRequest>({
-  email: isEmail,
+const requestBodyValidator = object().schema<SubscribeRequest>({
+  email: emailValidator,
 });
 
-const subscribeHandler: MethodHandler<
-  SubscribeRequest,
-  void
-> = async ({ req, conn }) => {
-  const { email } = requestBodyValidator(req.body);
+const subscribeHandler: MethodHandler<SubscribeRequest, void> = async ({
+  req,
+  conn,
+}) => {
+  const { email } = requestBodyValidator.assert(req.body);
   await subscribe(conn, email);
-}
+};
 
 export default subscribeHandler;

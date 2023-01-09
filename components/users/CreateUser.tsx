@@ -4,9 +4,12 @@ import { BiRename } from "react-icons/bi";
 import { toast } from "react-toastify";
 import { useForm } from "../../hooks/useForm";
 import { makeCreateUserRequest } from "../../pages/api/users/createUser";
-import { AdminUser, isUserName } from "../../services/users/user.interface";
+import {
+  AdminUser,
+  userNameValidator,
+} from "../../services/users/user.interface";
 import toastError from "../../util/toastError";
-import { isEmail, isNewPassword } from "../../util/validation";
+import { emailValidator, newPasswordValidator } from "../../util/validation";
 import Button from "../atoms/Button";
 import TextInput from "../atoms/TextInput";
 import Form from "../forms/Form";
@@ -40,9 +43,9 @@ const CreateUser: React.FC<CreateUserProps> = ({
       repeatPassword: "",
     },
     {
-      name: isUserName,
-      email: isEmail,
-      password: isNewPassword,
+      name: userNameValidator.assert,
+      email: emailValidator.assert,
+      password: newPasswordValidator.assert,
     }
   );
 

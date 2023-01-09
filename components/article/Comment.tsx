@@ -1,9 +1,8 @@
-import { DateTime } from "luxon";
-import React, { useMemo, useState } from "react";
-import { IComment } from "../../services/articles/comment.interface";
-import { timeAgo } from "../../util/datetime";
+import React, { useState } from "react";
 import { BsTrashFill } from "react-icons/bs";
 import { useUser } from "../../hooks/useUser";
+import { IComment } from "../../services/articles/comment.interface";
+import { timeAgo } from "../../util/datetime";
 
 type CommentProps = {
   comment: IComment;

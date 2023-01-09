@@ -1,8 +1,7 @@
-import React, { useMemo } from "react";
-import { IHeadline } from "../../services/articles/article.interface";
 import Image from "next/image";
-import Label from "../atoms/Label";
 import Link from "next/link";
+import React from "react";
+import { IHeadline } from "../../services/articles/article.interface";
 import TagList from "../article/TagList";
 
 type HeadlineProps = {

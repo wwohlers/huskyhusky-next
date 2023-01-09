@@ -7,7 +7,7 @@ import TextInput from "../components/atoms/TextInput";
 import Form from "../components/forms/Form";
 import { useForm } from "../hooks/useForm";
 import toastError from "../util/toastError";
-import { isEmail } from "../util/validation";
+import { emailValidator } from "../util/validation";
 import { makeForgotPasswordRequest } from "./api/users/resetPassword";
 
 type ForgotPasswordForm = {
@@ -22,7 +22,7 @@ const ForgotPassword: React.FC = () => {
         email: "",
       },
       {
-        email: isEmail,
+        email: emailValidator.assert,
       }
     );
 

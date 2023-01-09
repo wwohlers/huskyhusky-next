@@ -5,7 +5,10 @@ import { useForm } from "../../hooks/useForm";
 import { useRefreshUser } from "../../hooks/useUser";
 import { makeSignInRequest } from "../../pages/api/users/signIn";
 import { IUser } from "../../services/users/user.interface";
-import { isEmail, isEnteredPassword } from "../../util/validation";
+import {
+  emailValidator,
+  enteredPasswordValidator,
+} from "../../util/validation";
 import Button from "../atoms/Button";
 import TextInput from "../atoms/TextInput";
 import Form from "../forms/Form";
@@ -29,8 +32,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onError }) => {
       password: "",
     },
     {
-      email: isEmail,
-      password: isEnteredPassword,
+      email: emailValidator.assert,
+      password: enteredPasswordValidator.assert,
     }
   );
 

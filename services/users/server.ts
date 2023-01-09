@@ -14,7 +14,7 @@ import {
   PublicUser,
   publicUserSelector,
 } from "./user.interface";
-import { sendEmail } from "../../util/email/server";
+import { sendEmail } from "../../util/email";
 
 export function canEditArticle(
   user: IUser | undefined | null,

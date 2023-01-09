@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 
 export function useValidatedState<K>(
   initialState: K,
-  validator: (value: K) => K
+  validator: (value: unknown) => K
 ) {
   const [state, setState] = useState({
     value: initialState,

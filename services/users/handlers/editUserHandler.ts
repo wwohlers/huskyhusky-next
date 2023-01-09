@@ -1,24 +1,17 @@
+import { boolean, object, oneOf, optional } from "deterrent";
 import mongoose from "mongoose";
 import { MethodHandler } from "../../../util/api/createHandler";
 import requireAuth from "../../../util/api/guards/requireAuth";
 import { NotFoundError } from "../../../util/api/handleError";
 import { comparePassword } from "../../../util/bcrypt";
 import {
-  allowUndefined,
-  createIdValidator,
-  createOneOfValidator,
-  createSchemaValidator,
-  isBoolean,
-  isEmail,
-  isNewPassword,
-  isString
+  emailValidator,
+  enteredPasswordValidator,
+  idValidator,
+  newPasswordValidator,
 } from "../../../util/validation";
 import { adminUpdateUser, selfUpdateUser } from "../server";
-import {
-  isUserBio,
-  isUserName,
-  IUser
-} from "../user.interface";
+import { IUser, userBioValidator, userNameValidator } from "../user.interface";
 
 type AdminEditUserRequest = {
   admin: true;
@@ -42,47 +35,39 @@ type SelfEditUserRequest = {
 type EditUserRequest = AdminEditUserRequest | SelfEditUserRequest;
 type EditUserResponse = IUser;
 
-const adminEditUserValidator = createSchemaValidator<AdminEditUserRequest>({
-  admin: (value) => {
-    if (value !== true) {
-      throw new Error("Invalid admin value");
-    }
-    return value;
-  },
-  userUpdate: createSchemaValidator<AdminEditUserRequest["userUpdate"]>({
-    _id: createIdValidator(),
-    name: allowUndefined(isUserName),
-    admin: allowUndefined(isBoolean),
-    removed: allowUndefined(isBoolean),
+const adminEditUserValidator = object().schema<AdminEditUserRequest>({
+  admin: boolean().true(),
+  userUpdate: object().schema<AdminEditUserRequest["userUpdate"]>({
+    _id: idValidator,
+    name: optional(userNameValidator, { allowNull: false }),
+    admin: optional(boolean(), { allowNull: false }),
+    removed: optional(boolean(), { allowNull: false }),
   }),
 });
 
-const selfEditUserValidator = createSchemaValidator<SelfEditUserRequest>({
-  admin: (value) => {
-    if (value !== false) {
-      throw new Error("Invalid admin value");
-    }
-    return value;
-  },
-  oldPassword: allowUndefined(isString),
-  userUpdate: createSchemaValidator<SelfEditUserRequest["userUpdate"]>({
-    name: allowUndefined(isUserName),
-    bio: allowUndefined(isUserBio),
-    email: allowUndefined(isEmail),
-    password: allowUndefined(isNewPassword),
+const selfEditUserValidator = object().schema<SelfEditUserRequest>({
+  admin: boolean().false(),
+  oldPassword: optional(enteredPasswordValidator, {
+    allowNull: false,
+  }),
+  userUpdate: object().schema<SelfEditUserRequest["userUpdate"]>({
+    name: optional(userNameValidator),
+    bio: optional(userBioValidator),
+    email: optional(emailValidator),
+    password: optional(newPasswordValidator),
   }),
 });
 
-const requestBodyValidator = createOneOfValidator<EditUserRequest>(
+const requestBodyValidator = oneOf([
   adminEditUserValidator,
-  selfEditUserValidator
-);
+  selfEditUserValidator,
+]);
 
 const editUserHandler: MethodHandler<
   EditUserRequest,
   EditUserResponse
 > = async ({ conn, userId, req }) => {
-  const body = requestBodyValidator(req.body);
+  const body = requestBodyValidator.assert(req.body);
   let user: (mongoose.Document & IUser) | null = await requireAuth(
     conn,
     userId,

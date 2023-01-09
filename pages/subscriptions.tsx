@@ -4,19 +4,18 @@ import Head from "next/head";
 import { MdSubject } from "react-icons/md";
 import { toast } from "react-toastify";
 import Button from "../components/atoms/Button";
-import TextArea from "../components/atoms/TextArea";
 import TextInput from "../components/atoms/TextInput";
 import Form from "../components/forms/Form";
 import Section from "../components/Section";
 import { useConfirmationModal } from "../hooks/useConfirmationModal";
 import { useForm } from "../hooks/useForm";
 import { withDB } from "../services/database";
-import { bodyValidator, subjectValidator } from "../util/email/validators";
 import { getSubs } from "../services/subs/server";
 import { ISub } from "../services/subs/sub.interface";
 import { userIsAdmin } from "../services/users/server";
+import { bodyValidator, subjectValidator } from "../util/email";
 import { getUserIdFromReq } from "../util/jwt";
-import { returnProps, returnNotFound } from "../util/next";
+import { returnNotFound, returnProps } from "../util/next";
 import toastError from "../util/toastError";
 import { makeSendEmailRequest } from "./api/subs/sendEmail";
 
@@ -56,8 +55,8 @@ const Subscriptions: React.FC<SubscriptionsProps> = ({ subs }) => {
         body: "",
       },
       {
-        subject: subjectValidator,
-        body: bodyValidator,
+        subject: subjectValidator.assert,
+        body: bodyValidator.assert,
       }
     );
 

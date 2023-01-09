@@ -1,4 +1,8 @@
+import { string } from "deterrent";
 import Nodemailer from "nodemailer";
+
+export const subjectValidator = string({ name: "Email subject" }).minLength(1).maxLength(100);
+export const bodyValidator = string({ name: "Email body" }).minLength(1).maxLength(100000);
 
 export async function sendEmail(
   recipient: string,

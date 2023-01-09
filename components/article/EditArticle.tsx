@@ -10,10 +10,10 @@ import { useUnsavedChanges } from "../../hooks/useUnsavedChanges";
 import {
   convertTitleToName,
   IArticle,
-  isArticleAttr,
-  isArticleBrief,
-  isArticleName,
-  isArticleTitle,
+  articleAttrValidator,
+  articleBriefValidator,
+  articleNameValidator,
+  articleTitleValidator,
 } from "../../services/articles/article.interface";
 import toastError from "../../util/toastError";
 import Button from "../atoms/Button";
@@ -60,10 +60,10 @@ const EditArticle: React.FC<EditArticleProps> = ({ article, onSave }) => {
       public: article.public,
     },
     {
-      name: isArticleName,
-      title: isArticleTitle,
-      brief: isArticleBrief,
-      attr: isArticleAttr,
+      name: articleNameValidator.assert,
+      title: articleTitleValidator.assert,
+      brief: articleBriefValidator.assert,
+      attr: articleAttrValidator.assert,
     }
   );
 

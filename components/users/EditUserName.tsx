@@ -1,7 +1,10 @@
 import React, { useEffect } from "react";
 import { BiRename } from "react-icons/bi";
 import { useValidatedState } from "../../hooks/useValidatedState";
-import { AdminUser, isUserName } from "../../services/users/user.interface";
+import {
+  AdminUser,
+  userNameValidator,
+} from "../../services/users/user.interface";
 import Button from "../atoms/Button";
 import TextInput from "../atoms/TextInput";
 import Form from "../forms/Form";
@@ -18,7 +21,10 @@ const EditUserName: React.FC<EditUserProps> = ({
   onSubmit,
   onCancel,
 }) => {
-  const [newName, setNewName, newNameError] = useValidatedState("", isUserName);
+  const [newName, setNewName, newNameError] = useValidatedState(
+    "",
+    userNameValidator.assert
+  );
 
   useEffect(() => {
     if (user) {

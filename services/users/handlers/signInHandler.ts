@@ -1,9 +1,9 @@
+import { object } from "deterrent";
 import { serialize } from "cookie";
 import { MethodHandler } from "../../../util/api/createHandler";
 import {
-  createSchemaValidator,
-  isEmail,
-  isEnteredPassword,
+  emailValidator,
+  enteredPasswordValidator,
 } from "../../../util/validation";
 import { signIn } from "../server";
 import { IUser } from "../user.interface";
@@ -14,9 +14,9 @@ type SignInRequest = {
 };
 type SignInResponse = IUser;
 
-const requestBodyValidator = createSchemaValidator<SignInRequest>({
-  email: isEmail,
-  password: isEnteredPassword,
+const requestBodyValidator = object().schema<SignInRequest>({
+  email: emailValidator,
+  password: enteredPasswordValidator,
 });
 
 const signInHandler: MethodHandler<SignInRequest, SignInResponse> = async ({
@@ -24,7 +24,7 @@ const signInHandler: MethodHandler<SignInRequest, SignInResponse> = async ({
   res,
   conn,
 }) => {
-  const { email, password } = requestBodyValidator(req.body);
+  const { email, password } = requestBodyValidator.assert(req.body);
   const { token, user } = await signIn(conn, email, password);
   res.setHeader(
     "Set-Cookie",

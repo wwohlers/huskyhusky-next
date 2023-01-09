@@ -9,7 +9,7 @@ export type MethodHandlers = {
 
 // type for an individual handler for each method (GET, POST, etc)
 export type MethodHandler<B, R> = (params: {
-  req: Omit<NextApiRequest, "body"> & { body: B };
+  req: NextApiRequest;
   res: NextApiResponse;
   conn: HuskyHuskyDB;
   userId: string | undefined;

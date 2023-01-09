@@ -1,7 +1,7 @@
 import { S3 } from "aws-sdk";
 import { MethodHandler } from "../../../util/api/createHandler";
 import requireAuth from "../../../util/api/guards/requireAuth";
-import { ValidationError } from "../../../util/api/handleError";
+import { ValidationError } from "deterrent";
 
 type UploadImageRequest = {
   data: string | ArrayBuffer | null | undefined;

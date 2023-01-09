@@ -1,8 +1,15 @@
+import { array, boolean, object, string } from "deterrent";
 import { MethodHandler } from "../../../util/api/createHandler";
 import requireAuth from "../../../util/api/guards/requireAuth";
 import { NotFoundError } from "../../../util/api/handleError";
-import { createSchemaValidator, createIdValidator, createArrayValidator, isString, isBoolean } from "../../../util/validation";
-import { IArticle, isArticleAttr, isArticleBrief, isArticleName, isArticleTitle } from "../article.interface";
+import { idValidator } from "../../../util/validation";
+import {
+  IArticle,
+  articleAttrValidator,
+  articleBriefValidator,
+  articleNameValidator,
+  articleTitleValidator,
+} from "../article.interface";
 
 type UpdateArticleRequest = Pick<
   IArticle,
@@ -18,16 +25,16 @@ type UpdateArticleRequest = Pick<
 >;
 type UpdateArticleResponse = IArticle;
 
-const requestBodyValidator = createSchemaValidator<UpdateArticleRequest>({
-  _id: createIdValidator(),
-  name: isArticleName,
-  title: isArticleTitle,
-  tags: createArrayValidator(isString),
-  brief: isArticleBrief,
-  image: isString,
-  attr: isArticleAttr,
-  text: isString,
-  public: isBoolean,
+const requestBodyValidator = object().schema<UpdateArticleRequest>({
+  _id: idValidator,
+  name: articleNameValidator,
+  title: articleTitleValidator,
+  tags: array().of(string()),
+  brief: articleBriefValidator,
+  image: string(),
+  attr: articleAttrValidator,
+  text: string(),
+  public: boolean(),
 });
 
 const updateArticleHandler: MethodHandler<
@@ -45,7 +52,7 @@ const updateArticleHandler: MethodHandler<
     attr,
     text,
     public: isPublic,
-  } = requestBodyValidator(req.body);
+  } = requestBodyValidator.assert(req.body);
   const article = await conn.models.Article.findByIdAndUpdate(
     _id,
     {

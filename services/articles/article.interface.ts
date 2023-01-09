@@ -1,4 +1,4 @@
-import { createTextFieldValidator } from "../../util/validation";
+import { string } from "deterrent";
 import { IUser } from "../users/user.interface";
 import { IComment } from "./comment.interface";
 
@@ -29,13 +29,10 @@ export type IHeadline = Pick<
 
 export const headlineSelector = "_id name title tags brief image author";
 
-export const isArticleName = createTextFieldValidator(1, 200);
-
-export const isArticleTitle = createTextFieldValidator(1, 100);
-
-export const isArticleBrief = createTextFieldValidator(1, 500);
-
-export const isArticleAttr = createTextFieldValidator(0, 100);
+export const articleNameValidator = string({ name: "Article name" }).minLength(3).maxLength(300);
+export const articleTitleValidator = string({ name: "Article title" }).minLength(1).maxLength(100);
+export const articleBriefValidator = string({ name: "Article brief" }).minLength(1).maxLength(500);
+export const articleAttrValidator = string({ name: "Article attribution" }).minLength(0).maxLength(100);
 
 export function convertTitleToName(title: string): string {
   return title

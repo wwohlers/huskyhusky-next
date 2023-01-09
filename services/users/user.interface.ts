@@ -1,4 +1,4 @@
-import { createTextFieldValidator } from "../../util/validation";
+import { string } from "deterrent";
 
 /**
  * Represents a User object.
@@ -25,6 +25,5 @@ export type AdminUser = Pick<
 
 export const adminUserSelector = "_id name email admin removed createdAt";
 
-export const isUserName = createTextFieldValidator(3, 20);
-
-export const isUserBio = createTextFieldValidator(0, 200);
+export const userNameValidator = string({ name: "User name" }).minLength(1).maxLength(30);
+export const userBioValidator = string({ name: "User bio" }).minLength(0).maxLength(200);

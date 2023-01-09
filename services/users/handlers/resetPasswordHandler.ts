@@ -1,9 +1,6 @@
+import { object, string } from "deterrent";
 import { MethodHandler } from "../../../util/api/createHandler";
-import {
-  createSchemaValidator,
-  isNewPassword,
-  isString,
-} from "../../../util/validation";
+import { newPasswordValidator } from "../../../util/validation";
 import { resetPassword } from "../server";
 
 type ResetPasswordRequest = {
@@ -12,15 +9,15 @@ type ResetPasswordRequest = {
 };
 type ResetPasswordResponse = void;
 
-const resetPasswordValidator = createSchemaValidator<ResetPasswordRequest>({
-  token: isString,
-  password: isNewPassword,
+const resetPasswordValidator = object().schema<ResetPasswordRequest>({
+  token: string(),
+  password: newPasswordValidator,
 });
 
 export const resetPasswordHandler: MethodHandler<
   ResetPasswordRequest,
   ResetPasswordResponse
 > = async ({ conn, req }) => {
-  const { token, password } = resetPasswordValidator(req.body);
+  const { token, password } = resetPasswordValidator.assert(req.body);
   await resetPassword(conn, token, password);
 };

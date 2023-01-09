@@ -12,7 +12,7 @@ import { useForm } from "../../hooks/useForm";
 import { verifyJWT } from "../../util/jwt";
 import { returnNotFound, returnProps } from "../../util/next";
 import toastError from "../../util/toastError";
-import { isNewPassword } from "../../util/validation";
+import { newPasswordValidator } from "../../util/validation";
 import { makeResetPasswordRequest } from "../api/users/resetPassword";
 
 type ResetPasswordProps =
@@ -64,7 +64,7 @@ const ResetPassword: React.FC<ResetPasswordProps> = (props) => {
         repeatPassword: "",
       },
       {
-        password: isNewPassword,
+        password: newPasswordValidator.assert,
       }
     );
 

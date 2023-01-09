@@ -1,5 +1,6 @@
+import { object } from "deterrent";
 import { MethodHandler } from "../../../util/api/createHandler";
-import { createSchemaValidator, isEmail } from "../../../util/validation";
+import { emailValidator } from "../../../util/validation";
 import { requestPasswordReset } from "../server";
 
 type ForgotPasswordRequest = {
@@ -7,14 +8,14 @@ type ForgotPasswordRequest = {
 };
 type ForgotPasswordResponse = void;
 
-const forgotPasswordValidator = createSchemaValidator<ForgotPasswordRequest>({
-  email: isEmail,
+const forgotPasswordValidator = object().schema<ForgotPasswordRequest>({
+  email: emailValidator,
 });
 
 export const forgotPasswordHandler: MethodHandler<
   ForgotPasswordRequest,
   ForgotPasswordResponse
 > = async ({ conn, req }) => {
-  const { email } = forgotPasswordValidator(req.body);
+  const { email } = forgotPasswordValidator.assert(req.body);
   await requestPasswordReset(conn, email);
 };

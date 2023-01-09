@@ -1,4 +1,4 @@
-import { createTextFieldValidator } from "../../util/validation";
+import { string } from "deterrent";
 
 export interface IComment {
   name: string;
@@ -7,10 +7,9 @@ export interface IComment {
   createdAt: number;
 }
 
-export function createCommentNameValidator() {
-  return createTextFieldValidator(3, 30);
-}
-
-export function createCommentContentValidator() {
-  return createTextFieldValidator(1, 500);
-}
+export const commentNameValidator = string({ name: "Name" })
+  .minLength(3)
+  .maxLength(30);
+export const commentContentValidator = string({ name: "Content" })
+  .minLength(1, { errorMessage: "Please enter some content" })
+  .maxLength(500);

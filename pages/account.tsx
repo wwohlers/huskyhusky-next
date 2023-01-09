@@ -12,11 +12,15 @@ import Form from "../components/forms/Form";
 import Section from "../components/Section";
 import { useValidatedState } from "../hooks/useValidatedState";
 import { withDB } from "../services/database";
-import { isUserBio, isUserName, IUser } from "../services/users/user.interface";
+import { IUser, userNameValidator } from "../services/users/user.interface";
 import { getUserIdFromReq } from "../util/jwt";
 import { returnNotFound, returnProps, returnRedirect } from "../util/next";
 import toastError from "../util/toastError";
-import { isEmail, isEnteredPassword, isNewPassword } from "../util/validation";
+import {
+  emailValidator,
+  enteredPasswordValidator,
+  newPasswordValidator,
+} from "../util/validation";
 import { makeEditUserRequest } from "./api/users";
 
 type AccountProps = {
@@ -46,23 +50,31 @@ enum EditMode {
   Email,
   Password,
 }
-const oldPasswordValidator = isEnteredPassword;
 
 const Account: React.FC<AccountProps> = ({ user: initialUser }) => {
   const [user, setUser] = useState(initialUser);
   const [loading, setLoading] = useState(false);
   const [editMode, setEditMode] = useState<EditMode>(EditMode.None);
-  const [name, setName, nameError] = useValidatedState(user.name, isUserName);
-  const [bio, setBio, bioError] = useValidatedState(user.bio, isUserBio);
-  const [email, setEmail, emailError] = useValidatedState(user.email, isEmail);
+  const [name, setName, nameError] = useValidatedState(
+    user.name,
+    userNameValidator.assert
+  );
+  const [bio, setBio, bioError] = useValidatedState(
+    user.bio,
+    userNameValidator.assert
+  );
+  const [email, setEmail, emailError] = useValidatedState(
+    user.email,
+    emailValidator.assert
+  );
   const [newPassword, setNewPassword, newPasswordError] = useValidatedState(
     "",
-    isNewPassword
+    newPasswordValidator.assert
   );
   const [repeatPassword, setRepeatPassword] = useState("");
   const [oldPassword, setOldPassword, oldPasswordError] = useValidatedState(
     "",
-    oldPasswordValidator
+    enteredPasswordValidator.assert
   );
 
   const submitChanges = async (user: Partial<IUser>) => {

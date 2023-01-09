@@ -1,14 +1,12 @@
+import { object } from "deterrent";
 import { MethodHandler } from "../../../util/api/createHandler";
 import { NotFoundError } from "../../../util/api/handleError";
 import { now } from "../../../util/datetime";
+import { idValidator } from "../../../util/validation";
 import {
-  createIdValidator,
-  createSchemaValidator
-} from "../../../util/validation";
-import {
-  createCommentContentValidator,
-  createCommentNameValidator,
-  IComment
+  commentContentValidator,
+  commentNameValidator,
+  IComment,
 } from "../comment.interface";
 
 type CreateCommentRequest = {
@@ -18,17 +16,19 @@ type CreateCommentRequest = {
 };
 type CreateCommentResponse = IComment;
 
-const requestBodyValidator = createSchemaValidator<CreateCommentRequest>({
-  articleId: createIdValidator(),
-  name: createCommentNameValidator(),
-  content: createCommentContentValidator(),
+const requestBodyValidator = object({
+  name: "Comment",
+}).schema<CreateCommentRequest>({
+  articleId: idValidator,
+  name: commentNameValidator,
+  content: commentContentValidator,
 });
 
 const createCommentHandler: MethodHandler<
   CreateCommentRequest,
   CreateCommentResponse
 > = async ({ req, conn }) => {
-  const { articleId, name, content } = requestBodyValidator(req.body);
+  const { articleId, name, content } = requestBodyValidator.assert(req.body);
   const article = await conn.models.Article.findById(articleId);
   if (!article) {
     throw new NotFoundError("Article not found");

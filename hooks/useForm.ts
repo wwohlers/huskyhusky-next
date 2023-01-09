@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
-import { Validator } from "../util/validation";
+
+type Validator<K> = (value: unknown) => K;
 
 type FormFields = Record<string, any>;
 
