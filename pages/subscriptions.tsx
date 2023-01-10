@@ -8,7 +8,7 @@ import TextInput from "../components/atoms/TextInput";
 import Form from "../components/forms/Form";
 import Section from "../components/Section";
 import { useConfirmationModal } from "../hooks/useConfirmationModal";
-import { useForm } from "../hooks/useForm";
+import { useForm } from "@bswohlers/lightform";
 import { withDB } from "../services/database";
 import { getSubs } from "../services/subs/server";
 import { ISub } from "../services/subs/sub.interface";

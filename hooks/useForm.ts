@@ -76,7 +76,7 @@ export function useForm<K extends FormFields>(
       Object.entries(state).map(([key, value]) => {
         return [key, value.error];
       })
-    ) as K;
+    ) as Record<keyof K, string>;
   }, [state]);
 
   // must validate all fields instead of just checking if there are any errors

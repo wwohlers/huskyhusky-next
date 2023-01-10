@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { AiOutlineKey, AiOutlineMail } from "react-icons/ai";
 import { BiRename } from "react-icons/bi";
 import { toast } from "react-toastify";
-import { useForm } from "../../hooks/useForm";
+import { useForm } from "@bswohlers/lightform";
 import { makeCreateUserRequest } from "../../pages/api/users/createUser";
 import {
   AdminUser,

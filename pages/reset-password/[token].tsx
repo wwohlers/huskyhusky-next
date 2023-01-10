@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import Button from "../../components/atoms/Button";
 import TextInput from "../../components/atoms/TextInput";
 import Form from "../../components/forms/Form";
-import { useForm } from "../../hooks/useForm";
+import { useForm } from "@bswohlers/lightform";
 import { verifyJWT } from "../../util/jwt";
 import { returnNotFound, returnProps } from "../../util/next";
 import toastError from "../../util/toastError";

@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@bswohlers/lightform": "^1.0.0",
     "@next/font": "^13.0.5",
     "@tailwindcss/line-clamp": "^0.4.2",
     "@types/bcrypt": "^5.0.0",

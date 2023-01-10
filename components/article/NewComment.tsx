@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { BiRename } from "react-icons/bi";
-import { useForm } from "../../hooks/useForm";
+import { useForm } from "@bswohlers/lightform";
 import {
   commentContentValidator,
   commentNameValidator,

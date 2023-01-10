@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { AiOutlineKey, AiOutlineMail } from "react-icons/ai";
-import { useForm } from "../../hooks/useForm";
+import { useForm } from "@bswohlers/lightform";
 import { useRefreshUser } from "../../hooks/useUser";
 import { makeSignInRequest } from "../../pages/api/users/signIn";
 import { IUser } from "../../services/users/user.interface";
