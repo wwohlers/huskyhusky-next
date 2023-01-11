@@ -21,7 +21,7 @@ export function canEditArticle(
   article: { author: IUser }
 ) {
   if (!user) return false;
-  return !user.removed && (user._id === article.author._id || user.admin);
+  return !user.removed && (user._id.toString() === article.author._id.toString() || user.admin);
 }
 
 export async function userIsAdmin(conn: HuskyHuskyDB, userId: string) {
