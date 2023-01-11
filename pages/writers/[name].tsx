@@ -1,7 +1,7 @@
 import { GetStaticPaths, GetStaticProps } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import React from "react";
+import React, { useMemo } from "react";
 import { MdModeEdit } from "react-icons/md";
 import Button from "../../components/atoms/Button";
 import HeadlineList from "../../components/HeadlineList";
@@ -79,6 +79,10 @@ const Writer: React.FC<WriterProps> = ({ user, headlines }) => {
     ? "You haven't written anything yet. Click Write to get started!"
     : `${user.name} hasn't published anything yet. Check back later!`;
 
+  const headlinesToShow = useMemo(() => {
+    return headlines.filter((h) => h.public || canWrite);
+  }, [headlines, canWrite]);
+
   return (
     <div className="w-full">
       <Head>
@@ -102,7 +106,7 @@ const Writer: React.FC<WriterProps> = ({ user, headlines }) => {
           )}
         </div>
       </div>
-      <HeadlineList headlines={headlines} emptyText={emptyText} />
+      <HeadlineList headlines={headlinesToShow} emptyText={emptyText} />
     </div>
   );
 };

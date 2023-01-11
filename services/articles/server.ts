@@ -94,7 +94,6 @@ export async function getHeadlinesByTag(
 
 export async function getHeadlinesByUser(conn: HuskyHuskyDB, userId: string) {
   const articles = await conn.models.Article.find({
-    public: true,
     author: userId,
   })
     .sort({ createdAt: -1 })
