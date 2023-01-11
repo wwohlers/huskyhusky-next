@@ -74,10 +74,7 @@ export const getStaticProps: GetStaticProps<ArticleProps> = async ({
       };
     });
     if (article) {
-      return returnProps(
-        { article, similarArticles },
-        DEFAULT_REVALIDATE_PERIOD
-      );
+      return returnProps({ article, similarArticles }, 1);
     }
   }
   return returnNotFound();
