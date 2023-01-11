@@ -23,6 +23,9 @@ import UploadImage from "../atoms/UploadImage";
 import Form from "../forms/Form";
 import Section from "../Section";
 import TagPicker from "../TagPicker";
+import { useConfirmationModal } from "../../hooks/useConfirmationModal";
+import { makeDeleteArticleRequest } from "../../pages/api/articles";
+import { useRouter } from "next/router";
 
 const SimpleMDEEditor = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
@@ -36,9 +39,15 @@ type EditableArticle = Pick<
 type EditArticleProps = {
   article: IArticle;
   onSave: (article: IArticle) => Promise<void>;
+  onDelete: () => Promise<void>;
 };
 
-const EditArticle: React.FC<EditArticleProps> = ({ article, onSave }) => {
+const EditArticle: React.FC<EditArticleProps> = ({
+  article,
+  onSave,
+  onDelete,
+}) => {
+  const confirm = useConfirmationModal();
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [liveName, setLiveName] = useState(article.name);
@@ -107,6 +116,15 @@ const EditArticle: React.FC<EditArticleProps> = ({ article, onSave }) => {
       ...values,
       public: _public,
     });
+  };
+
+  const handleDelete = async () => {
+    const response = await confirm(
+      "Delete Story",
+      "Are you sure you want to delete this story? This cannot be undone."
+    );
+    if (response === "cancel") return;
+    onDelete();
   };
 
   return (
@@ -234,6 +252,7 @@ const EditArticle: React.FC<EditArticleProps> = ({ article, onSave }) => {
               Make public
             </Button>
           )}
+          <Button onClick={handleDelete}>Delete Story</Button>
         </Form.Buttons>
       </Section>
     </Form>

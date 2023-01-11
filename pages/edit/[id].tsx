@@ -1,6 +1,7 @@
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import React, { useCallback, useState } from "react";
 import { IoMdArrowBack } from "react-icons/io";
 import EditArticle from "../../components/article/EditArticle";
@@ -12,7 +13,11 @@ import { canEditArticle } from "../../services/users/server";
 import { getUserIdFromReq } from "../../util/jwt";
 import { convertHTMLToMarkdown, isHTML } from "../../util/markdown";
 import { returnNotFound, returnProps, returnRedirect } from "../../util/next";
-import { makeUpdateArticleRequest } from "../api/articles";
+import toastError from "../../util/toastError";
+import {
+  makeDeleteArticleRequest,
+  makeUpdateArticleRequest,
+} from "../api/articles";
 
 type EditProps = {
   article: IArticle;
@@ -48,12 +53,26 @@ export const getServerSideProps: GetServerSideProps<EditProps> = async ({
 
 const Edit: React.FC<EditProps> = ({ article: initialArticle }) => {
   const user = useUser();
+  const router = useRouter();
   const [article, setArticle] = useState<IArticle>(initialArticle);
 
-  const onSave = useCallback(async (article: IArticle) => {
-    const res = await makeUpdateArticleRequest(article);
-    setArticle(res);
-  }, []);
+  const onSave = async (article: IArticle) => {
+    try {
+      const res = await makeUpdateArticleRequest(article);
+      setArticle(res);
+    } catch (e) {
+      toastError(e);
+    }
+  };
+
+  const onDelete = async () => {
+    try {
+      await makeDeleteArticleRequest({ articleId: article._id });
+      router.push(`/writers/${user?.name ?? ""}`);
+    } catch (e) {
+      toastError(e);
+    }
+  };
 
   return (
     <>
@@ -75,7 +94,7 @@ const Edit: React.FC<EditProps> = ({ article: initialArticle }) => {
         <h1 className="text-2xl font-medium">
           Editing <span className="font-semibold">{article.title}</span>
         </h1>
-        <EditArticle article={article} onSave={onSave} />
+        <EditArticle article={article} onSave={onSave} onDelete={onDelete} />
       </div>
     </>
   );

@@ -56,7 +56,7 @@ export const getStaticProps: GetStaticProps<WriterProps> = async ({
   if (!user || !headlines) {
     return returnNotFound();
   } else {
-    return returnProps({ user, headlines }, DEFAULT_REVALIDATE_PERIOD);
+    return returnProps({ user, headlines }, 10);
   }
 };
 
