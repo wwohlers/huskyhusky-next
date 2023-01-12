@@ -54,9 +54,9 @@ export const getStaticProps: GetStaticProps<WriterProps> = async ({
     return [user, headlines];
   });
   if (!user || !headlines) {
-    return returnNotFound();
+    return returnNotFound(10);
   } else {
-    return returnProps({ user, headlines }, 10);
+    return returnProps({ user, headlines }, 1);
   }
 };
 

@@ -77,7 +77,7 @@ export const getStaticProps: GetStaticProps<ArticleProps> = async ({
       return returnProps({ article, similarArticles }, 1);
     }
   }
-  return returnNotFound();
+  return returnNotFound(1);
 };
 
 const Article: React.FC<ArticleProps> = ({
@@ -151,7 +151,7 @@ const Article: React.FC<ArticleProps> = ({
   }, [article]);
 
   return (
-    <>
+    <div className="w-full">
       <Head>
         <title>{`${article.title} - The Husky Husky`}</title>
         <meta name="description" content={article.brief} />
@@ -163,88 +163,86 @@ const Article: React.FC<ArticleProps> = ({
           content={`${process.env.NEXT_PUBLIC_BASE_URL}/${article.name}`}
         />
       </Head>
-      <div>
-        <TagList tags={article.tags} />
-        <h1 className="text-4xl font-semibold my-1">{article.title}</h1>
-        <div className="font-medium text-sm text-secondary">
-          <Link href={"/writers/" + article.author.name}>
-            Published {timeAgo(article.createdAt)} by {article.author.name}
-          </Link>
-          {canEditArticle(user, article) && (
-            <>
-              <span> &bull; </span>
-              <Link href={`/edit/${article._id}`} className="underline">
-                Edit
-              </Link>
-            </>
-          )}
-        </div>
-        <div className="flex flex-col xl:flex-row">
-          <div className="w-full xl:w-2/3">
-            <div className="my-4 relative w-full h-48 sm:h-96">
-              <Image
-                src={article.image}
-                fill
-                className="object-contain"
-                alt={`Image for ${article.title}`}
-              />
-            </div>
-            <p className="text-secondary text-sm font-medium text-center">
-              {article.attr}
-            </p>
-            <div className="my-4 flex flex-col w-full lg:flex-row">
-              {isHtml ? (
-                <article
-                  className="text-lg pr-12 leading-normal font-medium"
-                  dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
-                ></article>
-              ) : (
-                <ReactMarkdown className="markdown">
-                  {isHtml ? sanitizedHtml : article.text}
-                </ReactMarkdown>
-              )}
-            </div>
+      <TagList tags={article.tags} />
+      <h1 className="text-4xl font-semibold my-1">{article.title}</h1>
+      <div className="font-medium text-sm text-secondary">
+        <Link href={"/writers/" + article.author.name}>
+          Published {timeAgo(article.createdAt)} by {article.author.name}
+        </Link>
+        {canEditArticle(user, article) && (
+          <>
+            <span> &bull; </span>
+            <Link href={`/edit/${article._id}`} className="underline">
+              Edit
+            </Link>
+          </>
+        )}
+      </div>
+      <div className="flex flex-col xl:flex-row">
+        <div className="w-full xl:w-2/3">
+          <div className="my-4 relative w-full h-48 sm:h-96">
+            <Image
+              src={article.image}
+              fill
+              className="object-contain"
+              alt={`Image for ${article.title}`}
+            />
           </div>
-          <div className="xl:pl-8 flex-1">
-            <Section title="Share">
-              <Share name={article.name} title={article.title} />
-            </Section>
-            <Section title="More Like This">
-              <div className="flex md:flex-row xl:flex-col flex-wrap">
-                {moreLikeThis.map((article, i) => (
-                  <Headline
-                    containerClasses="md:w-1/2 xl:w-full xl:p-0 xl:my-4"
-                    key={i}
-                    headline={article}
-                  />
-                ))}
-              </div>
-            </Section>
-          </div>
-        </div>
-        <div className="my-8">
-          <div className="flex flex-row justify-between items-center">
-            <p className="text-xl font-semibold">{commentCount} comments</p>
-            {!showNewComment && (
-              <Button onClick={() => setShowNewComment(true)}>Comment</Button>
+          <p className="text-secondary text-sm font-medium text-center">
+            {article.attr}
+          </p>
+          <div className="my-4 flex flex-col w-full lg:flex-row">
+            {isHtml ? (
+              <article
+                className="text-lg pr-12 leading-normal font-medium"
+                dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+              ></article>
+            ) : (
+              <ReactMarkdown className="markdown">
+                {isHtml ? sanitizedHtml : article.text}
+              </ReactMarkdown>
             )}
           </div>
-          {showNewComment && (
-            <NewComment
-              onSubmit={onCommentCreated}
-              onCancel={() => setShowNewComment(false)}
-            />
-          )}
-          {article.comments.map((comment, i) => (
-            <Comment
-              key={i}
-              comment={comment}
-              onDeletePressed={() => onCommentDeleted(i)}
-            />
-          ))}
+        </div>
+        <div className="xl:pl-8 flex-1">
+          <Section title="Share">
+            <Share name={article.name} title={article.title} />
+          </Section>
+          <Section title="More Like This">
+            <div className="flex md:flex-row xl:flex-col flex-wrap">
+              {moreLikeThis.map((article, i) => (
+                <Headline
+                  containerClasses="md:w-1/2 xl:w-full xl:p-0 xl:my-4"
+                  key={i}
+                  headline={article}
+                />
+              ))}
+            </div>
+          </Section>
         </div>
       </div>
-    </>
+      <div className="my-8">
+        <div className="flex flex-row justify-between items-center">
+          <p className="text-xl font-semibold">{commentCount} comments</p>
+          {!showNewComment && (
+            <Button onClick={() => setShowNewComment(true)}>Comment</Button>
+          )}
+        </div>
+        {showNewComment && (
+          <NewComment
+            onSubmit={onCommentCreated}
+            onCancel={() => setShowNewComment(false)}
+          />
+        )}
+        {article.comments.map((comment, i) => (
+          <Comment
+            key={i}
+            comment={comment}
+            onDeletePressed={() => onCommentDeleted(i)}
+          />
+        ))}
+      </div>
+    </div>
   );
 };
 

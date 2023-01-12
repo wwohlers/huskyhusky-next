@@ -27,9 +27,12 @@ export function returnProps<K extends { [key: string]: any }>(
   };
 }
 
-export function returnNotFound(): { notFound: true } {
+export function returnNotFound(
+  revalidateMins?: number
+): ReturnType<GetStaticProps<any>> {
   return {
     notFound: true,
+    ...(revalidateMins ? { revalidate: revalidateMins * 60 } : {}), // seconds
   };
 }
 
