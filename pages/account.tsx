@@ -82,7 +82,7 @@ const Account: React.FC<AccountProps> = ({ user: initialUser }) => {
     try {
       const result = await makeEditUserRequest({
         admin: false,
-        oldPassword,
+        oldPassword: oldPassword !== "" ? oldPassword : undefined,
         userUpdate: user,
       });
       setUser(result);
